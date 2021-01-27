@@ -10,7 +10,6 @@ const addDesc = "If toggled, starts the program in sum mode"
 const product = "product"
 const productDesc = "If toggled, starts the program in product mode"
 
-
 func main() {
 	addFlag := flag.Bool(add, false, addDesc)
 	productFlag := flag.Bool(product, false, productDesc)
