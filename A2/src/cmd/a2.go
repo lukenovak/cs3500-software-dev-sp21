@@ -39,7 +39,7 @@ func main() {
 		}
 	} else {
 		for _, nj := range numJsons {
-			println(nj.NumValue(numJson.Add))
+			println(nj.NumValue(numJson.Product))
 		}
 	}
 
