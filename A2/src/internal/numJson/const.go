@@ -1,30 +1,31 @@
 package numJson
 
-// Constants are the modes
+// Constants for each mode, which is also the mode's identity number
 const (
 	Add = 0
 	Product = 1
 )
 
+// all NumJsons should be able to calculate their own value
 type NumJson interface {
 	NumValue(mode int) int
 }
 
-type NumJsonNum int
+type Num int
 
-func (n NumJsonNum) NumValue(mode int) int {
+func (n Num) NumValue(mode int) int {
 	return int(n)
 }
 
-type NumJsonString string
+type String string
 
-func (s NumJsonString) NumValue(mode int) int {
-	return 0
+func (s String) NumValue(mode int) int {
+	return mode // should be the identity, which is mode
 }
 
-type NumJsonArray []NumJson
+type Array []NumJson
 
-func (arr NumJsonArray) NumValue(mode int) int {
+func (arr Array) NumValue(mode int) int {
 	totalVal := 0
 	switch mode {
 	case Add:
@@ -36,14 +37,20 @@ func (arr NumJsonArray) NumValue(mode int) int {
 			totalVal *= njson.NumValue(Product)
 		}
 	default:
-		panic("We should not get here!!")
+		panic("Unknown Mode")
 	}
 	return totalVal
 }
 
 // This is a map because its structure is unknown
-type NumJsonObj map[string]NumJson
+type Obj map[string]NumJson
 
-func (obj NumJsonObj) NumValue(mode int) int {
+func (obj Obj) NumValue(mode int) int {
 	return obj["payload"].NumValue(mode)
+}
+
+// used to generate the output json
+type OutputJson struct {
+	Object NumJson 	`json:"object"`
+	Total int	   	`json:"total"`
 }
