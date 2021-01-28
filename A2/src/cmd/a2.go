@@ -27,15 +27,20 @@ func main() {
 
 	stdinStream := json.NewDecoder(os.Stdin)
 
-	_, err = numJson.ParseNumJsonFromStream(stdinStream)
+	numJsons, err := numJson.ParseNumJsonFromStream(stdinStream)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	// TODO: Full functionality here, calling to internal package
+	// TODO: Get the output format right, probably also delegated to internal package
 	if *addFlag {
-		fmt.Println("now we add")
+		println("adding!")
+		for _, nj := range numJsons {
+			println(nj.NumValue(numJson.Add))
+		}
 	} else {
-		fmt.Println("now we multiply")
+		for _, nj := range numJsons {
+			println(nj.NumValue(numJson.Add))
+		}
 	}
 
 	fmt.Printf("internal has successfully run")
