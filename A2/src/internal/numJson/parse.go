@@ -28,7 +28,7 @@ func ParseNumJsonFromStream(d *json.Decoder) ([]NumJson, error) {
 		}
 		njArray = append(njArray, marshalledJson)
 	}
-	return njArray, err
+	return njArray, nil
 }
 
 // takes a raw json message and marshals it into a NumJson
@@ -41,11 +41,9 @@ func marshalNumJson(r json.RawMessage) (NumJson, error) {
 
 	// NumJson is a union type, so we try to unmarshal it to each subtype
 	if err := json.Unmarshal(r, &i); err == nil {
-		fmt.Printf("%d\n", i)
-		return NumJsonNum(i), nil
+		return Num(i), nil
 	} else if err = json.Unmarshal(r, &s); err == nil {
-		fmt.Println(s)
-		return NumJsonString(s), nil
+		return String(s), nil
 	} else if err = json.Unmarshal(r, &arr); err == nil {
 		var njArray []NumJson
 		for _, rawNumJson := range arr {
@@ -56,7 +54,7 @@ func marshalNumJson(r json.RawMessage) (NumJson, error) {
 				njArray = append(njArray, marshalledJson)
 			}
 		}
-		return NumJsonArray(njArray), nil
+		return Array(njArray), nil
 	} else if err := json.Unmarshal(r, &obj); err == nil {
 		rawPayload := obj["payload"]
 		if rawPayload == nil {
@@ -68,7 +66,7 @@ func marshalNumJson(r json.RawMessage) (NumJson, error) {
 			return nil, err
 		}
 		njObjMap["payload"] = marshalledPayloadJson
-		return NumJsonObj(njObjMap), nil
+		return Obj(njObjMap), nil
 	} else {
 		return nil, badInputError
 	}

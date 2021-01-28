@@ -28,22 +28,28 @@ func main() {
 	stdinStream := json.NewDecoder(os.Stdin)
 
 	numJsons, err := numJson.ParseNumJsonFromStream(stdinStream)
+
+	// quit if there's a non NumJson input
 	if err != nil {
-		fmt.Println(err.Error())
-	}
-	// TODO: Get the output format right, probably also delegated to internal package
-	if *addFlag {
-		println("adding!")
-		for _, nj := range numJsons {
-			println(nj.NumValue(numJson.Add))
-		}
-	} else {
-		for _, nj := range numJsons {
-			println(nj.NumValue(numJson.Product))
-		}
+		fmt.Printf("Error: %s\n", err)
+		os.Exit(1)
 	}
 
-	fmt.Printf("internal has successfully run")
+	var output json.RawMessage
+	if *addFlag {
+		output = numJson.GenerateOutput(numJsons, numJson.Add)
+	} else {
+		output = numJson.GenerateOutput(numJsons, numJson.Product)
+	}
+
+	_, err = os.Stdout.Write(output)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Fprintf(os.Stdout, "\n")
+
+	os.Exit(0)
 }
 
 // ensures that flags are present and not duplicated
