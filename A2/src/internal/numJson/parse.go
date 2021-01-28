@@ -6,10 +6,6 @@ import (
 	"log"
 )
 
-const (
-	Add = "add"
-	Product = "product"
-)
 
 type JInt int
 
