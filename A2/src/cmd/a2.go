@@ -1,8 +1,11 @@
 package main
 
 import (
+	"Ormegland/A2/internal/numJson"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"os"
 )
 
 const add = "sum"
@@ -22,14 +25,20 @@ func main() {
 		return
 	}
 
-	// TODO: Full functionality here, calling to a2 package
+	stdinStream := json.NewDecoder(os.Stdin)
+
+	_, err = numJson.ParseNumJsonFromStream(stdinStream)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	// TODO: Full functionality here, calling to internal package
 	if *addFlag {
 		fmt.Println("now we add")
 	} else {
 		fmt.Println("now we multiply")
 	}
 
-	fmt.Printf("a2 has successfully run")
+	fmt.Printf("internal has successfully run")
 }
 
 // ensures that flags are present and not duplicated
