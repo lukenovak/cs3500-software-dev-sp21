@@ -21,7 +21,7 @@ func main() {
 
 	err := verifyFlags(addFlag, productFlag)
 	if err != nil {
-		fmt.Printf("Error: %s", err.Error())
+		fmt.Printf("Error: %s\n", err)
 		return
 	}
 
@@ -41,7 +41,10 @@ func main() {
 	} else {
 		output = numJson.GenerateOutput(numJsons, numJson.Product)
 	}
-
+	if output == nil {
+		fmt.Println("Error: no input")
+		os.Exit(1)
+	}
 	_, err = os.Stdout.Write(output)
 	if err != nil {
 		panic(err)

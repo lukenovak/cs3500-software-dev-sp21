@@ -28,7 +28,7 @@ func (s String) NumValue(mode int) int {
 type Array []NumJson
 
 func (arr Array) NumValue(mode int) int {
-	totalVal := 0
+	totalVal := mode // starting value is the identity
 	switch mode {
 	case Add:
 		for _, njson := range arr {
