@@ -2,13 +2,14 @@
 
 # go variables
 GOBASE := $(shell pwd)
-GOFILES := $(wildcard ./src/*.go)
+OLDGOPATH := ${GOPATH}
+MAINFILE := $(wildcard ./cmd/a2.go)
 
 BINARYNAME := "a2"
 
 
 build:
-	go build -o $(BINARYNAME) $(GOFILES)
+	go build -o $(BINARYNAME) $(MAINFILE)
 	chmod +x $(BINARYNAME)
 
 clean:

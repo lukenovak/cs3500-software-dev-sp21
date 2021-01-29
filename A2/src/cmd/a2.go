@@ -1,8 +1,11 @@
 package main
 
 import (
+	"Ormegland/A2/internal/numJson"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"os"
 )
 
 const add = "sum"
@@ -18,18 +21,38 @@ func main() {
 
 	err := verifyFlags(addFlag, productFlag)
 	if err != nil {
-		fmt.Printf("Error: %s", err.Error())
+		fmt.Printf("Error: %s\n", err)
 		return
 	}
 
-	// TODO: Full functionality here, calling to a2 package
-	if *addFlag {
-		fmt.Println("now we add")
-	} else {
-		fmt.Println("now we multiply")
+	stdinStream := json.NewDecoder(os.Stdin)
+
+	numJsons, err := numJson.ParseNumJsonFromStream(stdinStream)
+
+	// quit if there's a non NumJson input
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		os.Exit(1)
 	}
 
-	fmt.Printf("a2 has successfully run")
+	var output json.RawMessage
+	if *addFlag {
+		output = numJson.GenerateOutput(numJsons, numJson.Add)
+	} else {
+		output = numJson.GenerateOutput(numJsons, numJson.Product)
+	}
+	if output == nil {
+		fmt.Println("Error: no input")
+		os.Exit(1)
+	}
+	_, err = os.Stdout.Write(output)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Fprintf(os.Stdout, "\n")
+
+	os.Exit(0)
 }
 
 // ensures that flags are present and not duplicated
