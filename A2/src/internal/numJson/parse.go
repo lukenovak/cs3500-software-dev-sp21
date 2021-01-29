@@ -6,9 +6,6 @@ import (
 	"io"
 )
 
-
-type JInt int
-
 // Reads from the stream and decodes each entry into a NumJson
 func ParseNumJsonFromStream(d *json.Decoder) ([]NumJson, error) {
 	var njArray []NumJson
@@ -70,6 +67,7 @@ func marshalNumJson(r json.RawMessage) (NumJson, error) {
 			Other:   obj,
 		}, nil
 	} else {
+		// if we cannot unmarshal the json, it's not a valid numJson
 		return nil, badInputError
 	}
 }
