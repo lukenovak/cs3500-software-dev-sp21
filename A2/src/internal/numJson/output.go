@@ -6,10 +6,10 @@ import "encoding/json"
 func GenerateOutput(numJsons []NumJson, mode int) json.RawMessage {
 	var outputJsons []OutputJson
 	for _, nj := range numJsons {
-		 outputJsons = append(outputJsons, OutputJson{
-		 	Object: nj,
-		 	Total: nj.NumValue(mode),
-		 })
+		outputJsons = append(outputJsons, OutputJson{
+			Object: nj,
+			Total:  nj.NumValue(mode),
+		})
 	}
 	var rawOut json.RawMessage
 	rawOut, err := json.Marshal(&outputJsons)

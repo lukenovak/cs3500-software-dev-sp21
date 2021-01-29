@@ -49,9 +49,9 @@ func (arr Array) NumValue(mode int) int {
 
 // Represents a JSON Object
 type Obj struct {
-	Payload NumJson						`json:"payload"`
+	Payload NumJson `json:"payload"`
 	// Other is a map, as its structure is unknown but does not matter
-	Other map[string]json.RawMessage	`json:"other"`
+	Other map[string]json.RawMessage `json:"other"`
 }
 
 func (obj Obj) NumValue(mode int) int {
@@ -60,6 +60,6 @@ func (obj Obj) NumValue(mode int) int {
 
 // used to generate the output json
 type OutputJson struct {
-	Object NumJson 	`json:"object"`
-	Total int	   	`json:"total"`
+	Object NumJson `json:"object"`
+	Total  int     `json:"total"`
 }

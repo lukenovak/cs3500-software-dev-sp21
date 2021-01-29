@@ -14,7 +14,7 @@ const product = "product"
 const productDesc = "If toggled, starts the program in product mode"
 
 func main() {
-	addFlag := flag.Bool(sumFlag, false, sumDesc )
+	addFlag := flag.Bool(sumFlag, false, sumDesc)
 	productFlag := flag.Bool(product, false, productDesc)
 
 	flag.Parse()
