@@ -4,7 +4,7 @@ import "encoding/json"
 
 // Constants for each mode, which is also the mode's identity number
 const (
-	Add = 0
+	Sum     = 0
 	Product = 1
 )
 
@@ -13,40 +13,44 @@ type NumJson interface {
 	NumValue(mode int) int
 }
 
+// Represents a JSON Number
 type Num int
 
 func (n Num) NumValue(mode int) int {
 	return int(n)
 }
 
+// Represents a JSON string
 type String string
 
 func (s String) NumValue(mode int) int {
 	return mode // should be the identity, which is mode
 }
 
+// Represents a JSON array
 type Array []NumJson
 
 func (arr Array) NumValue(mode int) int {
 	totalVal := mode // starting value is the identity
 	switch mode {
-	case Add:
+	case Sum:
 		for _, njson := range arr {
-			totalVal += njson.NumValue(Add)
+			totalVal += njson.NumValue(Sum)
 		}
 	case Product:
 		for _, njson := range arr {
 			totalVal *= njson.NumValue(Product)
 		}
 	default:
-		panic("Unknown Mode")
+		panic("Fatal Error: unknown totaling mode")
 	}
 	return totalVal
 }
 
-// This is a map because its structure is unknown
+// Represents a JSON Object
 type Obj struct {
 	Payload NumJson						`json:"payload"`
+	// Other is a map, as its structure is unknown but does not matter
 	Other map[string]json.RawMessage	`json:"other"`
 }
 

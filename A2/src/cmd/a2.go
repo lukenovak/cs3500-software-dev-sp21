@@ -8,13 +8,13 @@ import (
 	"os"
 )
 
-const add = "sum"
-const addDesc = "If toggled, starts the program in sum mode"
+const sumFlag = "sum"
+const sumDesc = "If toggled, starts the program in sum mode"
 const product = "product"
 const productDesc = "If toggled, starts the program in product mode"
 
 func main() {
-	addFlag := flag.Bool(add, false, addDesc)
+	addFlag := flag.Bool(sumFlag, false, sumDesc )
 	productFlag := flag.Bool(product, false, productDesc)
 
 	flag.Parse()
@@ -29,7 +29,7 @@ func main() {
 
 	numJsons, err := numJson.ParseNumJsonFromStream(stdinStream)
 
-	// quit if there's a non NumJson input
+	// quit if there's a non-NumJson input
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 		os.Exit(1)
@@ -37,7 +37,7 @@ func main() {
 
 	var output json.RawMessage
 	if *addFlag {
-		output = numJson.GenerateOutput(numJsons, numJson.Add)
+		output = numJson.GenerateOutput(numJsons, numJson.Sum)
 	} else {
 		output = numJson.GenerateOutput(numJsons, numJson.Product)
 	}
