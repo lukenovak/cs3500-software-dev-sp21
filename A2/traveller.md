@@ -8,28 +8,34 @@ This module should contain the required data types to represent a network of tow
 
 ## Structs
 
+These `structs` are used to represent the data for the town network.	
+
 ```Go
 type Network []Town;
 
 type Town struct {
-	name String
-	character Character
-	adjacentTowns []Town
+	Name String
+	Character Character
+	AdjacentTowns []Town
 }
 
 type Character struct {
-	name String
+	Name String
 }
 ```
 
 ## Functions
 
 ```Go
-// functions to create a town network
-func AddTown(String s, Network n) : Town {...}
-func AddLink(Town t1, Town t2): void {...}
+// Create a town in the network with the given name
+func CreateTown(String name, Network n) : Town {...}
+
+// Link two towns by mutating their adjacency lists
+func LinkTowns(Town t1, Town t2): void {...}
+
+// Place a Character with the given name in a town
 func PlaceCharacter(Town t, String name): (Character, Error) {...}
 
-// function to determine if the given Character can reach the given Town in the given Network
-func CanTravel(Character c, Town t, Network n) {...}
+// This function determines if the given Character can reach the given Town in the given Network
+func CanTravel(Character c, Town t, Network n) bool {...}
 ```
