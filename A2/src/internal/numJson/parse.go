@@ -57,16 +57,18 @@ func marshalNumJson(r json.RawMessage) (NumJson, error) {
 		return Array(njArray), nil
 	} else if err := json.Unmarshal(r, &obj); err == nil {
 		rawPayload := obj["payload"]
+		delete(obj, "payload")
 		if rawPayload == nil {
 			return nil, badInputError
 		}
-		njObjMap := make(map[string]NumJson)
 		marshalledPayloadJson, err := marshalNumJson(rawPayload)
 		if err != nil {
 			return nil, err
 		}
-		njObjMap["payload"] = marshalledPayloadJson
-		return Obj(njObjMap), nil
+		return Obj{
+			Payload: marshalledPayloadJson,
+			Other:   obj,
+		}, nil
 	} else {
 		return nil, badInputError
 	}
