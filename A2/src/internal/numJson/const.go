@@ -1,5 +1,7 @@
 package numJson
 
+import "encoding/json"
+
 // Constants for each mode, which is also the mode's identity number
 const (
 	Add = 0
@@ -43,10 +45,13 @@ func (arr Array) NumValue(mode int) int {
 }
 
 // This is a map because its structure is unknown
-type Obj map[string]NumJson
+type Obj struct {
+	Payload NumJson						`json:"payload"`
+	Other map[string]json.RawMessage	`json:"other"`
+}
 
 func (obj Obj) NumValue(mode int) int {
-	return obj["payload"].NumValue(mode)
+	return obj.Payload.NumValue(mode)
 }
 
 // used to generate the output json
