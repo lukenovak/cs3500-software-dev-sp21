@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Ormegland/A2/internal/numJson"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/A2/src/numJson"
 	"encoding/json"
 	"flag"
 	"fmt"
