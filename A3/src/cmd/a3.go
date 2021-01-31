@@ -28,20 +28,23 @@ func main() {
 		return
 	}
 
-	l, err := net.Listen("tcp", port)
+	listener, err := net.Listen("tcp", port)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 		return
 	}
-	defer l.Close()
+	defer listener.Close()
 
-	c, err := l.Accept()
+	conn, err := listener.Accept()
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 		return
 	}
+	if conn != nil {
+		defer conn.Close()
+	}
 
-	tcpStream := json.NewDecoder(bufio.NewReader(c))
+	tcpStream := json.NewDecoder(bufio.NewReader(conn))
 
 	numJsons, err := numJson.ParseNumJsonFromStream(tcpStream)
 
@@ -61,12 +64,12 @@ func main() {
 		fmt.Println("Error: no input")
 		os.Exit(1)
 	}
-	_, err = os.Stdout.Write(output)
+	_, err = conn.Write(output)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Fprintf(os.Stdout, "\n")
+	fmt.Fprintf(conn, "\n")
 
 	os.Exit(0)
 }
