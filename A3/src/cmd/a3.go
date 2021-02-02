@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/A2/src/numJson"
+	numJson "../../../A2/src/numJson"
 	"bufio"
 	"encoding/json"
 	"fmt"
