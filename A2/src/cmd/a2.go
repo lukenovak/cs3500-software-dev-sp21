@@ -27,7 +27,7 @@ func main() {
 
 	stdinStream := json.NewDecoder(os.Stdin)
 
-	numJsons, err := numJson.ParseNumJsonFromStream(stdinStream, "")
+	numJsons, err := numJson.ParseNumJsonFromStream(stdinStream)
 
 	// quit if there's a non-NumJson input
 	if err != nil {

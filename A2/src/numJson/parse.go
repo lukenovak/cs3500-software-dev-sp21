@@ -7,16 +7,12 @@ import (
 )
 
 // Reads from the stream and decodes each entry into a NumJson
-func ParseNumJsonFromStream(d *json.Decoder, endWord string) ([]NumJson, error) {
+func ParseNumJsonFromStream(d *json.Decoder) ([]NumJson, error) {
 	var njArray []NumJson
+	var err error
 	for {
 		var r json.RawMessage
-		var buf []byte
-		_, err := d.Buffered().Read(buf)
-		if string(buf) == endWord {
-			break
-		}
-		if err = json.Unmarshal(buf, &r); err != nil {
+		if err = d.Decode(&r); err != nil {
 			if err == io.EOF {
 				break
 			} else {

@@ -12,7 +12,7 @@ func TestParseNumJsonFromStreamNumber(t *testing.T) {
 	simpleTestJson := "12"
 	simpleTestDecoder := json.NewDecoder(strings.NewReader(simpleTestJson))
 
-	simpleNumJson, err := ParseNumJsonFromStream(simpleTestDecoder, "")
+	simpleNumJson, err := ParseNumJsonFromStream(simpleTestDecoder)
 	if len(simpleNumJson) != 1 {
 		t.Errorf("ParseNumJsonFromStream length = %d; want 1", len(simpleNumJson))
 	}
@@ -27,7 +27,7 @@ func TestParseNumJsonFromStreamString(t *testing.T) {
 	simpleTestJson := "\"Hello\""
 	simpleTestDecoder := json.NewDecoder(strings.NewReader(simpleTestJson))
 
-	simpleNumJson, err := ParseNumJsonFromStream(simpleTestDecoder, "")
+	simpleNumJson, err := ParseNumJsonFromStream(simpleTestDecoder)
 	if len(simpleNumJson) != 1 {
 		t.Errorf("ParseNumJsonFromStream length = %d; want 1", len(simpleNumJson))
 	}
@@ -42,7 +42,7 @@ func TestParseNumJsonFromStreamArray(t *testing.T) {
 	simpleTestJson := "[1, 2, 3]"
 	simpleTestDecoder := json.NewDecoder(strings.NewReader(simpleTestJson))
 
-	simpleNumJson, err := ParseNumJsonFromStream(simpleTestDecoder, "")
+	simpleNumJson, err := ParseNumJsonFromStream(simpleTestDecoder)
 	if len(simpleNumJson) != 1 {
 		t.Errorf("ParseNumJsonFromStream length = %d; want 1", len(simpleNumJson))
 	}
