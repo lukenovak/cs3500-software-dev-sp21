@@ -33,12 +33,6 @@ func main() {
 
 	numJsons, err := numJson.ParseNumJsonFromStream(tcpStream)
 
-	// quit if there's a non-NumJson input
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		os.Exit(1)
-	}
-
 	var output json.RawMessage
 	output = numJson.GenerateOutput(numJsons, numJson.Sum)
 

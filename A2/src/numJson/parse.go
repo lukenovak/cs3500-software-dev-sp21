@@ -16,7 +16,7 @@ func ParseNumJsonFromStream(d *json.Decoder) ([]NumJson, error) {
 			if err == io.EOF {
 				break
 			} else {
-				return nil, fmt.Errorf("JSON decode failed. Check that your input is valid")
+				return njArray, fmt.Errorf("JSON decode failed. Check that your input is valid")
 			}
 		}
 		marshalledJson, err := marshalNumJson(r)
