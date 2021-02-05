@@ -60,7 +60,7 @@ func parseArgs(args []string) (string, int, string) {
 
 // connects to the server, sends the name over, and returns the connection and session ID
 func connectToServer(ip string, port int, name string) (*net.Conn, string) {
-	fullIp := fmt.Sprintf("%s%d", ip, port)
+	fullIp := fmt.Sprintf("%s:%d", ip, port)
 	conn, err := net.Dial(tcp, fullIp)
 	if err != nil {
 		panic(err)
