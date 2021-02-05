@@ -1,7 +1,7 @@
 package travelerJson
 
 import (
-	travellerParse "../../../../A3/traveller-client/parse"
+	travellerParse "github.ccs.neu.edu/CS4500-S21/Ormegland/A3/traveller-client/parse"
 )
 
 // Top level JSON structures

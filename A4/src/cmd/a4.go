@@ -1,8 +1,8 @@
 package main
 
 import (
-	"../../../A3/traveller-client/parse"
-	"../internal/travelerJson"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/A3/traveller-client/parse"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/A4/src/internal/travelerJson"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -19,6 +19,11 @@ const (
 
 	// utility
 	tcp = "tcp"
+
+	// user messages
+	sessionMsg = "the server will call me"
+	invalidMsg = "\"invalid placement\""
+	responseMsg = "\"the response for\""
 
 	// command parsing
 	place = "place"
@@ -103,7 +108,22 @@ func handleFirstCommand(conn *net.Conn, sessionId string) *net.Conn {
 	if err != nil {
 		panic(err)
 	}
+
+	_, err = os.Stdout.Write(generateSessionMessage(sessionId))
+	if err != nil {
+		panic(err)
+	}
 	return conn
+}
+
+func generateSessionMessage(sessionId string) json.RawMessage {
+	var stringArray []string
+	stringArray = append(append(stringArray, sessionMsg), sessionId)
+	msg, err := json.Marshal(stringArray)
+	if err != nil {
+		panic(err)
+	}
+	return msg
 }
 
 // the main loop for reading commands from stdin, batching them, and sending them to the server
@@ -123,10 +143,7 @@ func batchCommandLoop(conn *net.Conn) int  {
 				charData = append(charData, parsePlaceCommand(command.Params))
 			case passageSafe:
 				queryData := parsePassageSafe(command.Params)
-				responseData := sendBatchRequest(conn, charData, queryData)
-				responseBytes := make([]byte, 4096)
-				err = json.Unmarshal(responseBytes, &responseData)
-				_, err = os.Stdout.Write(responseBytes)
+				writeOutput(sendBatchRequest(conn, charData, queryData), queryData)
 			default:
 				panic(fmt.Errorf("invalid command type! Killing sesison"))
 			}
@@ -187,4 +204,15 @@ func sendBatchRequest(conn *net.Conn,
 		panic(err)
 	}
 	return responseData
+}
+
+func writeOutput(responseData travelerJson.ResponseData, queryData travelerJson.QueryData) {
+	for _, placement := range responseData.Invalid {
+		placementString := fmt.Sprintf("[%s, {\"name\" : \"%s\", \"town\" : \"%s\"}]", invalidMsg,
+			placement.Name, placement.Town)
+		_, _ = os.Stdout.WriteString(placementString)
+	}
+	responseString := fmt.Sprintf("[%s, {\"character\" : \"%s\", \"destination\" : \"%s\"}, \"is\", %b",
+		responseMsg, queryData.Character, queryData.Destination, responseData.Response)
+	_, _ = os.Stdout.WriteString(responseString)
 }
