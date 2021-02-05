@@ -23,4 +23,3 @@ func GetUniqueTowns(roads travellerParse.RoadArray) []string {
 	}
 	return uniqueTowns
 }
-F
