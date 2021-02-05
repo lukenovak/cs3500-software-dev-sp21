@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/A3/traveller-client/parse"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/A4/src/internal/travelerJson"
 	"encoding/json"
@@ -78,7 +79,8 @@ func connectToServer(ip string, port int, name string) (*net.Conn, string) {
 	if err != nil {
 		panic(err)
 	}
-
+	sessionIdString := string(bytes.Trim(sessionId, "\u0000\n"))
+	_, err = os.Stdout.Write(generateSessionMessage(sessionIdString))
 	return &conn, string(sessionId)
 
 }
@@ -109,7 +111,6 @@ func handleFirstCommand(conn *net.Conn, sessionId string) *net.Conn {
 		panic(err)
 	}
 
-	_, err = os.Stdout.Write(generateSessionMessage(sessionId))
 	if err != nil {
 		panic(err)
 	}
