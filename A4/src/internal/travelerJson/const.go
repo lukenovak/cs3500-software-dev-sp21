@@ -1,9 +1,13 @@
 package travelerJson
 
+import (
+	travellerParse "../../../../A3/traveller-client/parse"
+)
+
 // Top level JSON structures
 type CreateRequest struct {
-	Towns []string `json:"towns"`
-	Roads []FromTo `json:"roads"`
+	Towns []string 						`json:"towns"`
+	Roads travellerParse.RoadArray  	`json:"roads"`
 }
 
 type BatchRequest struct {
@@ -16,12 +20,7 @@ type ResponseData struct {
 	Response bool			`json:"response"`
 }
 
-// Data Object types DOTs
-type FromTo struct {
-	From string `json:"from"`
-	To string	`json:"to"`
-}
-
+// Json data objects
 type CharacterData struct {
 	Town string	`json:"town"`
 	Name string	`json:"name"`

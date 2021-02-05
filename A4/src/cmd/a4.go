@@ -1,6 +1,9 @@
 package main
 
 import (
+	"../../../A3/traveller-client/parse"
+	"../internal/travelerJson"
+	"encoding/json"
 	"fmt"
 	"net"
 	"os"
@@ -18,9 +21,7 @@ const (
 )
 
 func main() {
-	conn, sessionId := connectToServer(parseArgs(os.Args[1:]))
-
-	// TODO: handle commands
+	handleFirstCommand(connectToServer(parseArgs(os.Args[1:])))
 }
 
 func parseArgs(args []string) (string, int, string) {
@@ -70,4 +71,31 @@ func connectToServer(ip string, port int, name string) (*net.Conn, string) {
 
 	return &conn, string(sessionId)
 
+}
+
+// the first command needs to be a create command, so it gets its own function
+func handleFirstCommand(conn *net.Conn, sessionId string) {
+	decoder := json.NewDecoder(os.Stdin)
+	var roadsCommand parse.Command
+	var roadsArray parse.RoadArray
+	err := decoder.Decode(&roadsCommand)
+	if err != nil {
+		panic(err)
+	}
+	err = json.Unmarshal(roadsCommand.Params, &roadsArray)
+	if err != nil {
+		panic(err)
+	}
+	createRequest := travelerJson.CreateRequest {
+		Roads: roadsArray,
+		Towns: travelerJson.GetUniqueTowns(roadsArray),
+	}
+	message, err := json.Marshal(createRequest)
+	if err != nil {
+		panic(err)
+	}
+	_, err = (*conn).Write(message)
+	if err != nil {
+		panic(err)
+	}
 }
