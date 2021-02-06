@@ -141,9 +141,9 @@ func batchCommandLoop(conn *net.Conn) int  {
 		if err == nil {
 			switch command.Command {
 			case place:
-				charData = append(charData, parsePlaceCommand(command.Params))
+				charData = append(charData, travelerJson.ParsePlaceCommand(command.Params))
 			case passageSafe:
-				queryData := parsePassageSafe(command.Params)
+				queryData := travelerJson.ParsePassageSafe(command.Params)
 				writeOutput(sendBatchRequest(conn, charData, queryData), queryData)
 			default:
 				panic(fmt.Errorf("invalid command type! Killing sesison"))
@@ -154,32 +154,6 @@ func batchCommandLoop(conn *net.Conn) int  {
 	}
 
 	return 0
-}
-
-func parsePlaceCommand(params json.RawMessage) travelerJson.CharacterData {
-	charParam := parseCharParam(params)
-	return travelerJson.CharacterData{
-		Name: charParam.Character,
-		Town: charParam.Town,
-	}
-
-}
-
-func parsePassageSafe(params json.RawMessage) travelerJson.QueryData {
-	charParam := parseCharParam(params)
-	return travelerJson.QueryData{
-		Character: charParam.Character,
-		Destination: charParam.Town,
-	}
-}
-
-func parseCharParam(params json.RawMessage) parse.CharacterParam {
-	var charParam parse.CharacterParam
-	err := json.Unmarshal(params, &charParam)
-	if err != nil {
-		panic(err)
-	}
-	return charParam
 }
 
 func sendBatchRequest(conn *net.Conn,
@@ -213,7 +187,7 @@ func writeOutput(responseData travelerJson.ResponseData, queryData travelerJson.
 			placement.Name, placement.Town)
 		_, _ = os.Stdout.WriteString(placementString)
 	}
-	responseString := fmt.Sprintf("[%s, {\"character\" : \"%s\", \"destination\" : \"%s\"}, \"is\", %b",
+	responseString := fmt.Sprintf("[%s, {\"character\" : \"%s\", \"destination\" : \"%s\"}, \"is\", %t",
 		responseMsg, queryData.Character, queryData.Destination, responseData.Response)
 	_, _ = os.Stdout.WriteString(responseString)
 }
