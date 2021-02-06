@@ -8,6 +8,8 @@
 ---
 
 Overall, we were impressed by the implementation of our `Traveller` specification that we received. Especially considering we were the only group who chose to use Go for our project.
+In general, the group stayed true to our requests when implementing the spec. What changes they did make were to the
+benefit of the design, as they allowed for the type of mutation that we were looking for in our design.
 
 ## Specification Implementation Details
 
@@ -22,3 +24,6 @@ It would have been useful if the supplied server code was organized into a Go mo
 ## Improvements to Specification
 
 Our specification could be improved by making the changes that the other team specified in their memo. Namely, using pointers in several places to allow for elegant mutation. There were some redundant functions that were not required to solve to task. With a better understanding of the problem statement we could have eliminated these from the specification and saved the other team work. We also noticed a type-o in one of our purpose statements that obfuscated the meaning of one of our functions. Fortunately, the other team understood the meaning behind our purpose statement and implemented the function as we intended. However, this could have caused confusion and code that did not function the way we would have expected.
+In addition, though it is a small detail, the group named the actual package `main`, which would make importing it into our
+project without modification more difficult than if it had been named `traveller`. There's no need for a `main` package
+given that it was not a standalone executable.
