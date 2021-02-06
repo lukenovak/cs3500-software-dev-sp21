@@ -60,7 +60,7 @@ func parseArgs(args []string) (string, int, string) {
 }
 
 // connects to the server, sends the name over, and returns the connection and session ID
-func connectToServer(ip string, port int, name string) (*net.Conn, string) {
+func connectToServer(ip string, port int, name string) *net.Conn {
 	fullIp := fmt.Sprintf("%s:%d", ip, port)
 	conn, err := net.Dial(tcp, fullIp)
 	if err != nil {
@@ -81,12 +81,12 @@ func connectToServer(ip string, port int, name string) (*net.Conn, string) {
 	}
 	sessionIdString := string(bytes.Trim(sessionId, "\u0000\n"))
 	_, err = os.Stdout.Write(generateSessionMessage(sessionIdString))
-	return &conn, string(sessionId)
+	return &conn
 
 }
 
 // the first command needs to be a create command, so it gets its own function
-func handleFirstCommand(conn *net.Conn, sessionId string) *net.Conn {
+func handleFirstCommand(conn *net.Conn) *net.Conn {
 	decoder := json.NewDecoder(os.Stdin)
 	var roadsCommand parse.Command
 	var roadsArray parse.RoadArray
@@ -107,10 +107,6 @@ func handleFirstCommand(conn *net.Conn, sessionId string) *net.Conn {
 		panic(err)
 	}
 	_, err = (*conn).Write(message)
-	if err != nil {
-		panic(err)
-	}
-
 	if err != nil {
 		panic(err)
 	}
@@ -145,6 +141,7 @@ func batchCommandLoop(conn *net.Conn) int  {
 			case passageSafe:
 				queryData := travelerJson.ParsePassageSafe(command.Params)
 				writeOutput(sendBatchRequest(conn, charData, queryData), queryData)
+				charData = make([]travelerJson.CharacterData, 0)
 			default:
 				panic(fmt.Errorf("invalid command type! Killing sesison"))
 			}
@@ -183,11 +180,11 @@ func sendBatchRequest(conn *net.Conn,
 
 func writeOutput(responseData travelerJson.ResponseData, queryData travelerJson.QueryData) {
 	for _, placement := range responseData.Invalid {
-		placementString := fmt.Sprintf("[%s, {\"name\" : \"%s\", \"town\" : \"%s\"}]", invalidMsg,
+		placementString := fmt.Sprintf("[%s, {\"name\" : \"%s\", \"town\" : \"%s\"}]\n", invalidMsg,
 			placement.Name, placement.Town)
 		_, _ = os.Stdout.WriteString(placementString)
 	}
-	responseString := fmt.Sprintf("[%s, {\"character\" : \"%s\", \"destination\" : \"%s\"}, \"is\", %t",
+	responseString := fmt.Sprintf("[%s, {\"character\" : \"%s\", \"destination\" : \"%s\"}, \"is\", %t]\n",
 		responseMsg, queryData.Character, queryData.Destination, responseData.Response)
 	_, _ = os.Stdout.WriteString(responseString)
 }
