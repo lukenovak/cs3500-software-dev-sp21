@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/A3/traveller-client/parse"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/A4/src/internal/travelerJson"
 	"encoding/json"
@@ -59,7 +60,7 @@ func parseArgs(args []string) (string, int, string) {
 }
 
 // connects to the server, sends the name over, and returns the connection and session ID
-func connectToServer(ip string, port int, name string) (*net.Conn, string) {
+func connectToServer(ip string, port int, name string) *net.Conn {
 	fullIp := fmt.Sprintf("%s:%d", ip, port)
 	conn, err := net.Dial(tcp, fullIp)
 	if err != nil {
@@ -78,13 +79,14 @@ func connectToServer(ip string, port int, name string) (*net.Conn, string) {
 	if err != nil {
 		panic(err)
 	}
-
-	return &conn, string(sessionId)
+	sessionIdString := string(bytes.Trim(sessionId, "\u0000\n"))
+	_, err = os.Stdout.Write(generateSessionMessage(sessionIdString))
+	return &conn
 
 }
 
 // the first command needs to be a create command, so it gets its own function
-func handleFirstCommand(conn *net.Conn, sessionId string) *net.Conn {
+func handleFirstCommand(conn *net.Conn) *net.Conn {
 	decoder := json.NewDecoder(os.Stdin)
 	var roadsCommand parse.Command
 	var roadsArray parse.RoadArray
@@ -105,11 +107,6 @@ func handleFirstCommand(conn *net.Conn, sessionId string) *net.Conn {
 		panic(err)
 	}
 	_, err = (*conn).Write(message)
-	if err != nil {
-		panic(err)
-	}
-
-	_, err = os.Stdout.Write(generateSessionMessage(sessionId))
 	if err != nil {
 		panic(err)
 	}
@@ -140,10 +137,11 @@ func batchCommandLoop(conn *net.Conn) int  {
 		if err == nil {
 			switch command.Command {
 			case place:
-				charData = append(charData, parsePlaceCommand(command.Params))
+				charData = append(charData, travelerJson.ParsePlaceCommand(command.Params))
 			case passageSafe:
-				queryData := parsePassageSafe(command.Params)
+				queryData := travelerJson.ParsePassageSafe(command.Params)
 				writeOutput(sendBatchRequest(conn, charData, queryData), queryData)
+				charData = make([]travelerJson.CharacterData, 0)
 			default:
 				panic(fmt.Errorf("invalid command type! Killing sesison"))
 			}
@@ -153,32 +151,6 @@ func batchCommandLoop(conn *net.Conn) int  {
 	}
 
 	return 0
-}
-
-func parsePlaceCommand(params json.RawMessage) travelerJson.CharacterData {
-	charParam := parseCharParam(params)
-	return travelerJson.CharacterData{
-		Name: charParam.Character,
-		Town: charParam.Town,
-	}
-
-}
-
-func parsePassageSafe(params json.RawMessage) travelerJson.QueryData {
-	charParam := parseCharParam(params)
-	return travelerJson.QueryData{
-		Character: charParam.Character,
-		Destination: charParam.Town,
-	}
-}
-
-func parseCharParam(params json.RawMessage) parse.CharacterParam {
-	var charParam parse.CharacterParam
-	err := json.Unmarshal(params, &charParam)
-	if err != nil {
-		panic(err)
-	}
-	return charParam
 }
 
 func sendBatchRequest(conn *net.Conn,
@@ -208,11 +180,11 @@ func sendBatchRequest(conn *net.Conn,
 
 func writeOutput(responseData travelerJson.ResponseData, queryData travelerJson.QueryData) {
 	for _, placement := range responseData.Invalid {
-		placementString := fmt.Sprintf("[%s, {\"name\" : \"%s\", \"town\" : \"%s\"}]", invalidMsg,
+		placementString := fmt.Sprintf("[%s, {\"name\" : \"%s\", \"town\" : \"%s\"}]\n", invalidMsg,
 			placement.Name, placement.Town)
 		_, _ = os.Stdout.WriteString(placementString)
 	}
-	responseString := fmt.Sprintf("[%s, {\"character\" : \"%s\", \"destination\" : \"%s\"}, \"is\", %b",
+	responseString := fmt.Sprintf("[%s, {\"character\" : \"%s\", \"destination\" : \"%s\"}, \"is\", %t]\n",
 		responseMsg, queryData.Character, queryData.Destination, responseData.Response)
 	_, _ = os.Stdout.WriteString(responseString)
 }
