@@ -8,10 +8,6 @@
 Writing conditions:
 Design Task
 
->Read the description of Snarl, a custom designed game.
-
-done.
-
 >We will develop the software to run games of Snarl and tournaments for automated players adversaries. In a tournament, other people will supply the code for adversaries, and you will provide the framework for running games for these automated entities. The goal is to run tournaments where every signed up player gets a chance to participate in several Snarl games against these new enemies, in a manner yet to be determined.
 
 >Write up a project analysis. The analysis should consist of two parts:
@@ -86,13 +82,15 @@ Part 2:
 In terms of development, we have a number of milestones to achieve. Each milestone will have a
 "playable" demo prototype, showcasing the features added at that development step.
 
-1. Map Generation and basic player movement
-    - the Player character can spawn and move around within a map
+1. Room Generation and basic player movement
+    - the Player character can spawn and move around within a Room
 2. Complete Dungeons with keys
-    - The Player can navigate around 
+    - The Player can navigate around, finding the key, and exiting the level
+3. Basic enemies in the dungeon
+    - Enemies can spawn and move
+4. Other Game Elements
+    - TBD
 
-
-    Part 2 describes how you should proceed about implementing these pieces. You will propose milestones for the project. Keep in mind that you wish to have “demo” software soon so that a potential client can admire fully working prototypes.
 
 >The text of both Parts 1 and 2 (i.e. not the sequence diagram) must be in plan.md.
 
