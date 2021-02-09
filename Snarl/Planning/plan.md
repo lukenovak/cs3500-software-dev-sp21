@@ -39,6 +39,8 @@ a few pieces of data: The tile type, whether or not the tile is occupied, whethe
 is visible to the players and any items that may be on the tile. For now, that would just be
 the key item but could be expanded in the future. When a player character moves to the `key`,
 the `Game` will notice the move and make the Locked Door `Tile` into an Unlocked Door `Tile`.
+Because players should not be able to see the whole dungeon/room, Tiles will also be marked as
+`visible` or `obscured`.
 
 A rough order of operations as shown in our diagram works as follows:
 1. The player starts the game, and a `Game` is created. The `Dungeon` and `Mobs` are generated
@@ -46,7 +48,7 @@ A rough order of operations as shown in our diagram works as follows:
 3. The `Game` uses the input information to move the players or inform the player that
 their move was illegal. If illegal, go back to step 2.  
 3a. The player moves are *"resolved"* meaning that the `Game` checks/updates the `Dungeon` data.
-4. The `Conductor` gets the game state from the `Game` and moves the adversaries  
+4. The `Game` generates a `GameState` and gives it to the `Conductor` which moves the adversaries  
 3a. The adversaries' moves are "resolved"
 5. If the game has not been won/lost, return to step two.
 
