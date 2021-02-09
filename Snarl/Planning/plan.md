@@ -47,10 +47,10 @@ A rough order of operations as shown in our diagram works as follows:
 their move was illegal. If illegal, go back to step 2.  
 3a. The player moves are *"resolved"* meaning that the `Game` checks/updates the `Dungeon` data.
 4. The `Conductor` gets the game state from the `Game` and moves the adversaries  
-3a. The adversaries' moves are "resolved"
+4a. The adversaries' moves are "resolved"
 5. If the game has not been won/lost, return to step two.
 
-#### Developmemt Timeline:
+#### Development Timeline:
 
 In terms of development, we have a number of milestones to achieve. Each milestone will have a
 "playable" demo prototype, showcasing the features added at that development step.
