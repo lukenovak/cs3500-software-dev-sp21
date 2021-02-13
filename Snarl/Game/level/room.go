@@ -37,14 +37,14 @@ func allocateRoom(w int, l int) [][]*Tile {
 func generateRoomTile(topLeft Position2D, width int, length int, newTilePos Position2D, doors []Position2D) (*Tile, error) {
 	if isPerimeter(topLeft, width, length, newTilePos) {
 		if isDoor(newTilePos, doors) {
-			return GenerateTile(door, newTilePos.X, newTilePos.Y), nil
+			return GenerateTile(Door, newTilePos.X, newTilePos.Y), nil
 		} else {
-			return GenerateTile(wall, newTilePos.X, newTilePos.Y), nil
+			return GenerateTile(Wall, newTilePos.X, newTilePos.Y), nil
 		}
 	} else if isDoor(newTilePos, doors) {
-		return nil, fmt.Errorf("invalid door at %d, %d", newTilePos.X, newTilePos.Y)
+		return nil, fmt.Errorf("invalid Door at %d, %d", newTilePos.X, newTilePos.Y)
 	} else {
-		return GenerateTile(walkable, newTilePos.X, newTilePos.Y), nil
+		return GenerateTile(Walkable, newTilePos.X, newTilePos.Y), nil
 	}
 }
 
@@ -54,7 +54,7 @@ func isPerimeter(topLeft Position2D, width int, length int, newTilePos Position2
 		newTilePos.X == topLeft.X + width - 1 || newTilePos.Y == topLeft.Y + length - 1
 }
 
-// is the given position included in the array of door positions?
+// is the given position included in the array of Door positions?
 func isDoor(tilePos Position2D, doors []Position2D) bool {
 	isDoor := false
 	for _, door := range doors {

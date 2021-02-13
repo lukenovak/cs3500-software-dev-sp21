@@ -1,10 +1,10 @@
 package level
 
 const (
-	wall = 0
-	walkable = 1
-	door = 2
-	lockedExit = 3
+	Wall         = 0
+	Walkable     = 1
+	Door         = 2
+	lockedExit   = 3
 	unlockedExit = 4
 )
 

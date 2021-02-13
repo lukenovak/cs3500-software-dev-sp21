@@ -26,12 +26,12 @@ func TestTile_IsPosition(t *testing.T) {
 	differentType := newWall(0, 0)
 }
 
-// returns a new walkable tile without calling the tile generation function
+// returns a new Walkable tile without calling the tile generation function
 func newWalkable(x int, y int) Tile {
-	return Tile{Coordinates: NewPosition2D(x, y), Type: walkable, Object: 0}
+	return Tile{Coordinates: NewPosition2D(x, y), Type: Walkable, Object: 0}
 }
 
-// returns a new wall tile without calling the tile generation function
+// returns a new Wall tile without calling the tile generation function
 func newWall(x int, y int) Tile {
-	return Tile{Coordinates: NewPosition2D(x, y), Type: wall, Object: 0}
+	return Tile{Coordinates: NewPosition2D(x, y), Type: Wall, Object: 0}
 }
