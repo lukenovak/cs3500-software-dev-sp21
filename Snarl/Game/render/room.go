@@ -11,9 +11,9 @@ const (
 
 func RenderRoom(room level.Room) string {
 	render := ""
-	for i := 0; i < len(room[0]); i++ {
-		for j := range room {
-			render = render + renderTile(room[j][i])
+	for i := 0; i < len(room.Tiles[0]); i++ {
+		for j := range room.Tiles {
+			render = render + renderTile(room.Tiles[j][i])
 		}
 		render = render + "\n"
 	}

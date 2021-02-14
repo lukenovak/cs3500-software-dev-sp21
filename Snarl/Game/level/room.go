@@ -4,29 +4,39 @@ import (
 	"fmt"
 )
 
-type Room [][]*Tile
+type Room struct {
+	TopLeft Position2D
+	Tiles [][]*Tile
+}
 
 // Given a starting coordinate and a room's dimensions, generate a rectangular room with the given doors
 func GenerateRectangularRoom(topLeft Position2D, width int, length int, doors []Position2D) (Room, error) {
 	var err error
-	room := allocateRoom(width, length)
+	roomTiles := allocateRoomTiles(width, length)
 	if width < 3 || length < 3 {
-		return nil, fmt.Errorf("invalid room dimensions")
+		return Room{originPosition, nil}, fmt.Errorf("invalid room dimensions")
 	}
 	for i := 0; i < width; i++ {
 		for j := 0; j < length; j++ {
-			room[i][j], err = generateRoomTile(topLeft, width, length, NewPosition2D(topLeft.X + i, topLeft.Y + j), doors)
+			roomTiles[i][j], err = generateRoomTile(topLeft, width, length, NewPosition2D(topLeft.X + i, topLeft.Y + j), doors)
 			if err != nil {
-				return nil, err
+				return Room{originPosition, nil}, err
 			}
 		}
 	}
-	return room, nil
+	return Room{
+		TopLeft: topLeft,
+		Tiles: roomTiles,
+	}, nil
 }
 
+// generates a room of width 1 that follows the path from start to end.
+func GenerateHallway(start Position2D, end Position2D, waypoints []Position2D) (Room, error) {
+	return Room{originPosition, nil}, nil
+}
 
 // makes space for the room to be allocated
-func allocateRoom(w int, l int) [][]*Tile {
+func allocateRoomTiles(w int, l int) [][]*Tile {
 	room := make([][]*Tile, w)
 	for i := range room {
 		room[i] = make([]*Tile, l)

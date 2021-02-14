@@ -24,6 +24,18 @@ func TestTile_IsPosition(t *testing.T) {
 	identicalTest := newWalkable(0, 0)
 	differentPosition := newWalkable(0, 1)
 	differentType := newWall(0, 0)
+
+	if !testTile.IsPosition(identicalTest.Coordinates) {
+		t.Fail()
+	}
+
+	if testTile.IsPosition(differentPosition.Coordinates) {
+		t.Fail()
+	}
+
+	if !testTile.IsPosition(differentType.Coordinates) {
+		t.Fail()
+	}
 }
 
 // returns a new Walkable tile without calling the tile generation function
