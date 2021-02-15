@@ -9,11 +9,11 @@ const (
 	unknownTile = "?"
 )
 
-func RenderRoom(room level.Room) string {
+func RenderLevel(levelToRender level.Level) string {
 	render := ""
-	for i := 0; i < len(room.Tiles[0]); i++ {
-		for j := range room.Tiles {
-			render = render + renderTile(room.Tiles[j][i])
+	for i := 0; i < len(levelToRender.Tiles[0]); i++ {
+		for j := range levelToRender.Tiles {
+			render = render + renderTile(levelToRender.Tiles[j][i])
 		}
 		render = render + "\n"
 	}

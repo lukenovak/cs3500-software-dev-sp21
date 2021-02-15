@@ -6,8 +6,12 @@ import (
 )
 
 func TestRenderRoom(t *testing.T) {
-	room, _ := level.GenerateRectangularRoom(level.NewPosition2D(0, 0), 3, 3, nil)
-	render := RenderRoom(room)
+	testLevel := level.NewEmptyLevel(3, 3)
+	err := testLevel.GenerateRectangularRoom(level.NewPosition2D(0, 0), 3, 3, nil)
+	if err != nil {
+		t.Fatal("unable to generate level")
+	}
+	render := RenderLevel(testLevel)
 	exampleRender :=
 			"▓▓▓\n" +
 			"▓░▓\n" +
