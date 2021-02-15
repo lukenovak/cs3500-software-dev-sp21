@@ -17,12 +17,9 @@ func NewPosition2D(x int, y int) Position2D {
 	}
 }
 
-func min(x, y  int) int {
-	if x > y {
-		return y
-	} else {
-		return x
-	}
+// returns the position with the highest coordinates from each position
+func getMaxPosition(pos Position2D, pos2 Position2D) Position2D {
+	return NewPosition2D(max(pos.X, pos2.X), max(pos.Y, pos2.Y))
 }
 
 func max(x, y int) int {
