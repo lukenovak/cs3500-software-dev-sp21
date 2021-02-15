@@ -16,9 +16,12 @@ func NewEmptyLevel(width int, length int) Level {
 
 // adds a Room's tiles to a Level, and expands the Level if necessary
 func (l Level) GenerateRectangularRoom(topLeft Position2D, width int, length int, doors []Position2D) error {
-	var err error
 	if width < 3 || length < 3 {
 		return fmt.Errorf("invalid room dimensions")
+	}
+	err := l.checkRoomValidity(topLeft, width, length)
+	if err != nil {
+		return err
 	}
 	for i := topLeft.X; i < topLeft.X + width; i++ {
 		for j := topLeft.Y; j < topLeft.Y + length; j++ {
@@ -72,4 +75,15 @@ func allocateLevelTiles(w int, l int) [][]*Tile {
 		room[i] = make([]*Tile, l)
 	}
 	return room
+}
+
+func (l Level) checkRoomValidity(topLeft Position2D, width int, length int) error {
+	for i := topLeft.X; i < topLeft.X + width; i++ {
+		for j := topLeft.Y; j < topLeft.Y + length; j++ {
+			if l.Tiles[i][j] != nil {
+				return fmt.Errorf("invalid room placement. check that your room does not overlap with another room")
+			}
+		}
+	}
+	return nil
 }
