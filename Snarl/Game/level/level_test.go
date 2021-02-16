@@ -32,21 +32,21 @@ func TestGenerateHallway(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	areSameRoom := true
 	testLevelTiles := generateTestLevelWithHallwaysTiles()
 	for i := range testLevelTiles {
 		for j := range testLevelTiles[i] {
-			if testLevelTiles[i][j] == nil {
-				areSameRoom = genLevel.Tiles[i][j] == nil
+			if testLevelTiles[i][j] == nil  {
+				if genLevel.Tiles[i][j] == nil {
+					t.Fail()
+				}
 			} else if genLevel.Tiles[i][j] == nil {
 				t.Fail()
 			} else {
-				areSameRoom = areSameRoom && testLevelTiles[i][j].Equals(*genLevel.Tiles[i][j])
+				if !(testLevelTiles[i][j].Equals(*genLevel.Tiles[i][j])) {
+					t.Fail()
+				}
 			}
 		}
-	}
-	if !areSameRoom {
-		t.Fail()
 	}
 }
 

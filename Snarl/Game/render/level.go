@@ -21,6 +21,9 @@ func RenderLevel(levelToRender level.Level) string {
 }
 
 func renderTile(tile *level.Tile) string {
+	if tile == nil {
+		return " "
+	}
 	switch tile.Type {
 	case level.Wall:
 		return wallTile
