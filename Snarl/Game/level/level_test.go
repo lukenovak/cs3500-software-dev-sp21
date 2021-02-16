@@ -1,6 +1,7 @@
 package level
 
 import (
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/Game/item"
 	"testing"
 )
 
@@ -80,8 +81,46 @@ func TestNewEmptyLevel(t *testing.T) {
 	}
 }
 
+func TestPlaceExit(t *testing.T) {
+
+	level := setupSmallTestLevel(t)
+
+	// test a valid exit
+	err := level.PlaceExit(NewPosition2D(1, 1))
+	if err != nil || level.getTile(NewPosition2D(1, 1)).Type != LockedExit {
+		t.Fail()
+	}
+
+	// test an invalid exit
+	err = level.PlaceExit(NewPosition2D(0, 0))
+	if err == nil {
+		t.Fail()
+	}
+
+	// test a negative exit
+	err = level.PlaceExit(NewPosition2D(-1, -1))
+	if err == nil {
+		t.Fail()
+	}
+}
+
+func TestPlaceItem(t *testing.T) {
+	level := setupSmallTestLevel(t)
+
+	// valid item position
+	level.PlaceItem(NewPosition2D(1, 1), item.KeyID)
+}
 
 // ------------------------------- SETUP FUNCTIONS ------------------------------- //
+
+func setupSmallTestLevel(t *testing.T) *Level {	// set up a test level
+	level, _ := NewEmptyLevel(3, 3)
+	err := level.GenerateRectangularRoom(NewPosition2D(0, 0), 3, 3, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return &level
+}
 
 // generates a 3x3 example level grid with a 3x3 room
 func generateSmallTestLevelTiles() [][]*Tile {

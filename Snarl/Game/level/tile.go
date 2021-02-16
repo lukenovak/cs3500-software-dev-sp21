@@ -4,8 +4,8 @@ const (
 	Wall         = 0
 	Walkable     = 1
 	Door         = 2
-	lockedExit   = 3
-	unlockedExit = 4
+	LockedExit   = 3
+	UnlockedExit = 4
 )
 
 const (
@@ -13,9 +13,9 @@ const (
 )
 
 type Tile struct {
-	Type int
+	Type        int
 	Coordinates Position2D
-	Object int
+	Item        int
 }
 
 func (t Tile) IsPosition(d Position2D) bool {
@@ -30,7 +30,7 @@ func GenerateTile(tileType int, xPosn int, yPosn int) *Tile {
 			X: xPosn,
 			Y: yPosn,
 		},
-		Object:      0,
+		Item: 0,
 	}
 }
 

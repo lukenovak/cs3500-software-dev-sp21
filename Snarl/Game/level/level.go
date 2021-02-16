@@ -43,9 +43,17 @@ func (level Level) expandLevel(newSize Position2D) {
 	}
 }
 
-// Alternate method of retrieving tiles using a Position2D
+// is this position within the bounds of the level?
+func (level Level) isInboundsPosition(pos Position2D) bool {
+	return 0 < pos.X && pos.X < level.Size.X && 0 < pos.Y && pos.Y < level.Size.Y
+}
+
+// Alternate method of retrieving tiles using a Position2D. RETURNS NIL IF POS IS OUT OF BOUNDS!
 func (level Level) getTile(pos Position2D) *Tile {
-	return level.Tiles[pos.X][pos.Y]
+	if level.isInboundsPosition(pos) {
+		return level.Tiles[pos.X][pos.Y]
+	}
+	return nil
 }
 
 /* -------------------------------- Room + Hallway Generation -------------------------------- */
@@ -97,10 +105,11 @@ func (level Level) GenerateHallway(start Position2D, end Position2D, waypoints [
 		level.generateBetweenWaypoints(&currPos, waypoint, true)
 	}
 
+	// the last "sub-hallway" to the end is special because it doesn't get capped
 	if !currPos.Equals(end) {
 		level.generateBetweenWaypoints(&currPos, end, false)
 	}
-	level.Tiles[end.X][end.Y] = GenerateTile(Door, end.X, end.Y)
+	level.getTile(end).Type = Door
 	return nil
 }
 
@@ -267,8 +276,8 @@ func (level Level) capHallwayEnd(startPos Position2D, direction int) {
 }
 
 func (level Level) PlaceExit(exitPos Position2D) error {
-	if exitTile := level.getTile(exitPos); exitTile.Type == Walkable {
-		level.Tiles[exitPos.X][exitPos.Y].Type = lockedExit
+	if exitTile := level.getTile(exitPos); exitTile != nil && exitTile.Type == Walkable {
+		level.Tiles[exitPos.X][exitPos.Y].Type = LockedExit
 		level.Exits = append(level.Exits, exitTile)
 	} else {
 		return fmt.Errorf("invalid exit location")
@@ -276,6 +285,9 @@ func (level Level) PlaceExit(exitPos Position2D) error {
 	return nil
 }
 
+func (level Level) PlaceItem(pos Position2D, itemId int) {
+	level.getTile(pos).Item = itemId
+}
 /* -------------------------------- Generation Utility Functions -------------------------------- */
 
 // used in room generation to determine what kind of tile should be generated

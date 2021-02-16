@@ -16,7 +16,7 @@ func TestRenderLevelSingleRoom(t *testing.T) {
 	if err != nil {
 		t.Fatal("unable to generate level")
 	}
-	render := RenderLevel(testLevel)
+	render := ASCIILevel(testLevel)
 	exampleRender :=
 			"▓▓▓\n" +
 			"▓░▓\n" +
@@ -37,7 +37,7 @@ func TestRenderLevelSingleRoom(t *testing.T) {
 	if err != nil {
 		t.Fatal("unable to generate level")
 	}
-	render = RenderLevel(testLevel)
+	render = ASCIILevel(testLevel)
 	secondTestRender :=
 			"▓▓▓▓▓▓▓▓▓\n" +
 			"▓░░░░░░░▓\n" +
@@ -72,7 +72,7 @@ func TestRenderFullLevel(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	render := RenderLevel(genLevel)
+	render := ASCIILevel(genLevel)
 	expectedRender :=
 			"▓▓▓▓    \n" +
 			"▓░░▓▓▓▓ \n" +

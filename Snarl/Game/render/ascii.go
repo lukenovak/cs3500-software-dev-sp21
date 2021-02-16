@@ -6,10 +6,13 @@ const (
 	wallTile = "▓"
 	walkableTile = "░"
 	doorTile = "D"
+	lockedTile = "¤"
+	unlockedTile ="U"
 	unknownTile = "?"
+	
 )
 
-func RenderLevel(levelToRender level.Level) string {
+func ASCIILevel(levelToRender level.Level) string {
 	render := ""
 	for i := 0; i < len(levelToRender.Tiles[0]); i++ {
 		for j := range levelToRender.Tiles {
@@ -31,6 +34,10 @@ func renderTile(tile *level.Tile) string {
 		return walkableTile
 	case level.Door:
 		return doorTile
+	case level.LockedExit:
+		return lockedTile
+	case level.UnlockedExit:
+		return unlockedTile
 	default:
 		return unknownTile
 

@@ -38,12 +38,19 @@ func TestTile_IsPosition(t *testing.T) {
 	}
 }
 
+func TestGenerateTile(t *testing.T) {
+	expectedTile := newWalkable(0,0)
+	if !expectedTile.Equals(*GenerateTile(Walkable, 0, 0)) {
+		t.Fail()
+	}
+}
+
 // returns a new Walkable tile without calling the tile generation function
 func newWalkable(x int, y int) Tile {
-	return Tile{Coordinates: NewPosition2D(x, y), Type: Walkable, Object: 0}
+	return Tile{Coordinates: NewPosition2D(x, y), Type: Walkable, Item: 0}
 }
 
 // returns a new Wall tile without calling the tile generation function
 func newWall(x int, y int) Tile {
-	return Tile{Coordinates: NewPosition2D(x, y), Type: Wall, Object: 0}
+	return Tile{Coordinates: NewPosition2D(x, y), Type: Wall, Item: 0}
 }
