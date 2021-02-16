@@ -5,7 +5,7 @@ import (
 )
 
 func TestGenerateRectangularRoom(t *testing.T) {
-	genLevel := NewEmptyLevel(3, 3)
+	genLevel, _ := NewEmptyLevel(3, 3)
 	doors := []Position2D{NewPosition2D(1, 0), NewPosition2D(1, 2)}
 	err := genLevel.GenerateRectangularRoom(NewPosition2D(0, 0), 3, 3, doors)
 	if err != nil {
@@ -24,33 +24,63 @@ func TestGenerateRectangularRoom(t *testing.T) {
 }
 
 func TestGenerateHallway(t *testing.T) {
-	genLevel := NewEmptyLevel(8, 8)
+	genLevel, _ := NewEmptyLevel(8, 8)
 	firstRoomDoor, secondRoomDoor := []Position2D{NewPosition2D(3,2)}, []Position2D{NewPosition2D(5,4)}
-	genLevel.GenerateRectangularRoom(NewPosition2D(0,0), 4, 4, firstRoomDoor)
-	genLevel.GenerateRectangularRoom(NewPosition2D(4, 4), 4, 4, secondRoomDoor)
-	err := genLevel.GenerateHallway(firstRoomDoor[0], secondRoomDoor[0], []Position2D{NewPosition2D(5, 2)})
+	err := genLevel.GenerateRectangularRoom(NewPosition2D(0,0), 4, 4, firstRoomDoor)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = genLevel.GenerateRectangularRoom(NewPosition2D(4, 4), 4, 4, secondRoomDoor)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = genLevel.GenerateHallway(firstRoomDoor[0], secondRoomDoor[0], []Position2D{NewPosition2D(5, 2)})
 	if err != nil {
 		t.Fatal(err)
 	}
 	testLevelTiles := generateTestLevelWithHallwaysTiles()
 	for i := range testLevelTiles {
 		for j := range testLevelTiles[i] {
-			if testLevelTiles[i][j] == nil  {
-				if genLevel.Tiles[i][j] != nil {
-					t.Fail()
-				}
-			} else if genLevel.Tiles[i][j] == nil {
+			if (testLevelTiles[i][j] == nil && genLevel.Tiles[i][j] != nil) ||
+					(genLevel.Tiles[i][j] == nil && testLevelTiles[i][j] != nil) ||
+					 genLevel.Tiles != nil && !(testLevelTiles[i][j].Equals(*genLevel.Tiles[i][j])) {
 				t.Fail()
-			} else {
-				if !(testLevelTiles[i][j].Equals(*genLevel.Tiles[i][j])) {
-					t.Fail()
-				}
 			}
 		}
 	}
 }
 
-// generates a 3x3 example room
+func TestNewEmptyLevel(t *testing.T) {
+
+	// test a valid level
+	level, err := NewEmptyLevel(3, 3)
+	if &level == nil || !level.Size.Equals(NewPosition2D(3, 3)) || err != nil {
+		t.Fail()
+	}
+
+	// test a level with 0 size
+	_, err = NewEmptyLevel(0, 0)
+	if err == nil {
+		t.Fail()
+	}
+
+	// test a level with negative size
+	_, err = NewEmptyLevel(-1, -1)
+	if err == nil {
+		t.Fail()
+	}
+
+	// test a level with a large size
+	level, err = NewEmptyLevel(2048, 2048)
+	if !level.Size.Equals(NewPosition2D(2048, 2048)) || err != nil {
+		t.Fail()
+	}
+}
+
+
+// ------------------------------- SETUP FUNCTIONS ------------------------------- //
+
+// generates a 3x3 example level grid with a 3x3 room
 func generateSmallTestLevelTiles() [][]*Tile {
 	roomTiles := allocateLevelTiles(3, 3)
 	roomTiles[0][0] = GenerateTile(Wall, 0, 0)
@@ -65,6 +95,7 @@ func generateSmallTestLevelTiles() [][]*Tile {
 	return roomTiles
 }
 
+// generates an 8x8 level with too rooms and a hallway
 func generateTestLevelWithHallwaysTiles() [][]*Tile {
 	levelTiles := allocateLevelTiles(8, 8)
 

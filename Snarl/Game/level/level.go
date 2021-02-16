@@ -20,11 +20,14 @@ type Level struct {
 }
 
 // Generates a level with a nil-initialized 2-d tile array of the given size
-func NewEmptyLevel(width int, length int) Level {
+func NewEmptyLevel(width int, length int) (Level, error) {
+	if width < 1 || length < 1 {
+		return Level{Tiles: nil, Size: NewPosition2D(0, 0)}, fmt.Errorf("invalid level size")
+	}
 	return Level {
 		Tiles: allocateLevelTiles(width, length),
 		Size: NewPosition2D(width, length),
-	}
+	}, nil
 }
 
 // expand the Level's 2d slice to match the new required position
@@ -287,13 +290,12 @@ func isPerimeter(topLeft Position2D, width int, length int, newTilePos Position2
 
 // is the given position included in the array of Door positions?
 func isDoor(tilePos Position2D, doors []Position2D) bool {
-	isDoor := false
 	for _, door := range doors {
 		if tilePos.Equals(door) {
 			return true
 		}
 	}
-	return isDoor
+	return false
 }
 
 func getRoomBottomRight(topLeft Position2D, width int, length int) Position2D {
