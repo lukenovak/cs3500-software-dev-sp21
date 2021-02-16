@@ -36,7 +36,7 @@ func TestGenerateHallway(t *testing.T) {
 	for i := range testLevelTiles {
 		for j := range testLevelTiles[i] {
 			if testLevelTiles[i][j] == nil  {
-				if genLevel.Tiles[i][j] == nil {
+				if genLevel.Tiles[i][j] != nil {
 					t.Fail()
 				}
 			} else if genLevel.Tiles[i][j] == nil {

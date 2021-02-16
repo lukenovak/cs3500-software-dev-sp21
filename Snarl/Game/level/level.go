@@ -93,8 +93,8 @@ func (l Level) generateBetweenWaypoints(startPos *Position2D, endPos Position2D,
 		}
 		if shouldCapEnd {
 			l.Tiles[startPos.X + 1][startPos.Y + 1] = GenerateTile(Wall, startPos.X + 1, startPos.Y + 1)
-			l.Tiles[startPos.X + 1][startPos.Y] = GenerateTile(Wall, startPos.X, startPos.Y + 1)
-			l.Tiles[startPos.X + 1][startPos.Y - 1] = GenerateTile(Wall, startPos.X - 1, startPos.Y + 1)
+			l.Tiles[startPos.X + 1][startPos.Y] = GenerateTile(Wall, startPos.X + 1, startPos.Y)
+			l.Tiles[startPos.X + 1][startPos.Y - 1] = GenerateTile(Wall, startPos.X + 1, startPos.Y - 1)
 		}
 	} else if endPos.Y < startPos.Y { // moving left
 		for !startPos.Equals(endPos) {
@@ -102,9 +102,9 @@ func (l Level) generateBetweenWaypoints(startPos *Position2D, endPos Position2D,
 			l.generateHallwayRow(*startPos, horizontal)
 		}
 		if shouldCapEnd {
-			l.Tiles[startPos.X - 1][startPos.Y + 1] = GenerateTile(Wall, startPos.X + 1, startPos.Y + 1)
-			l.Tiles[startPos.X - 1][startPos.Y] = GenerateTile(Wall, startPos.X, startPos.Y + 1)
-			l.Tiles[startPos.X - 1][startPos.Y - 1] = GenerateTile(Wall, startPos.X - 1, startPos.Y + 1)
+			l.Tiles[startPos.X - 1][startPos.Y + 1] = GenerateTile(Wall, startPos.X - 1, startPos.Y + 1)
+			l.Tiles[startPos.X - 1][startPos.Y] = GenerateTile(Wall, startPos.X - 1, startPos.Y)
+			l.Tiles[startPos.X - 1][startPos.Y - 1] = GenerateTile(Wall, startPos.X - 1, startPos.Y - 1)
 		}
 	}
 }
