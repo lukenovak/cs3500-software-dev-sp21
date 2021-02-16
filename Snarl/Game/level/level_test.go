@@ -41,9 +41,12 @@ func TestGenerateHallway(t *testing.T) {
 	testLevelTiles := generateTestLevelWithHallwaysTiles()
 	for i := range testLevelTiles {
 		for j := range testLevelTiles[i] {
-			if (testLevelTiles[i][j] == nil && genLevel.Tiles[i][j] != nil) ||
-					(genLevel.Tiles[i][j] == nil && testLevelTiles[i][j] != nil) ||
-					 genLevel.Tiles != nil && !(testLevelTiles[i][j].Equals(*genLevel.Tiles[i][j])) {
+			testTile, generatedTile := testLevelTiles[i][j], genLevel.Tiles[i][j]
+			if generatedTile != nil { // needs to be nested to avoid nil dereference
+				if testTile == nil || !(testTile.Equals(*generatedTile)) {
+					t.Fail()
+				}
+			} else if testTile != nil {
 				t.Fail()
 			}
 		}

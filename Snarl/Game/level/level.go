@@ -16,6 +16,7 @@ const (
 // Represents the level and all of its tiles.
 type Level struct {
 	Tiles [][]*Tile
+	Exits []*Tile
 	Size Position2D
 }
 
@@ -263,6 +264,16 @@ func (level Level) capHallwayEnd(startPos Position2D, direction int) {
 	default:
 		panic("unknown hallway cap direction.")
 	}
+}
+
+func (level Level) PlaceExit(exitPos Position2D) error {
+	if exitTile := level.getTile(exitPos); exitTile.Type == Walkable {
+		level.Tiles[exitPos.X][exitPos.Y].Type = lockedExit
+		level.Exits = append(level.Exits, exitTile)
+	} else {
+		return fmt.Errorf("invalid exit location")
+	}
+	return nil
 }
 
 /* -------------------------------- Generation Utility Functions -------------------------------- */
