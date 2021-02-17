@@ -47,7 +47,7 @@ func (arr Array) NumValue(mode int) int {
 	return totalVal
 }
 
-// Represents a JSON Object
+// Represents a JSON Item
 type Obj struct {
 	Payload NumJson `json:"payload"`
 	// Other is a map, as its structure is unknown but does not matter
