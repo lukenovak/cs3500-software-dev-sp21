@@ -6,25 +6,42 @@ import (
 )
 
 func TestGenerateRectangularRoom(t *testing.T) {
+	// generate a level witha rectangular room
 	genLevel, _ := NewEmptyLevel(3, 3)
 	doors := []Position2D{NewPosition2D(1, 0), NewPosition2D(1, 2)}
 	err := genLevel.GenerateRectangularRoom(NewPosition2D(0, 0), 3, 3, doors)
 	if err != nil {
 		t.Fatal("unable to generate room")
 	}
-	testLevelTiles := generateSmallTestLevelTiles()
-	areSameRoom := true
-	for i := range testLevelTiles {
-		for j := range testLevelTiles[i] {
-			areSameRoom = areSameRoom && testLevelTiles[i][j].Equals(*genLevel.Tiles[i][j])
-		}
-	}
-	if !areSameRoom {
+	expectedLevelTiles := generateSmallTestLevelTiles()
+	testAllTilesEqual(expectedLevelTiles, genLevel.Tiles, t)
+
+	// try placing another room on top of the existing one
+	err = genLevel.GenerateRectangularRoom(NewPosition2D(0, 0), 3, 3, doors)
+	if err == nil {
 		t.Fail()
 	}
+
+	// test an invalid level size
+	genLevel, _ = NewEmptyLevel(3, 3)
+	err = genLevel.GenerateRectangularRoom(NewPosition2D(0, 0), 2, 2, doors)
+	if err == nil {
+		t.Fail()
+	}
+
+	// test a level that expands the level
+	genLevel, _ = NewEmptyLevel(1, 1)
+	err = genLevel.GenerateRectangularRoom(NewPosition2D(0, 0), 3, 3, doors)
+	if err != nil {
+		t.Fail()
+	}
+	testAllTilesEqual(expectedLevelTiles, genLevel.Tiles, t)
+
+
 }
 
 func TestGenerateHallway(t *testing.T) {
+	// set up the expected level
 	genLevel, _ := NewEmptyLevel(8, 8)
 	firstRoomDoor, secondRoomDoor := []Position2D{NewPosition2D(3,2)}, []Position2D{NewPosition2D(5,4)}
 	err := genLevel.GenerateRectangularRoom(NewPosition2D(0,0), 4, 4, firstRoomDoor)
@@ -39,19 +56,11 @@ func TestGenerateHallway(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	testLevelTiles := generateTestLevelWithHallwaysTiles()
-	for i := range testLevelTiles {
-		for j := range testLevelTiles[i] {
-			testTile, generatedTile := testLevelTiles[i][j], genLevel.Tiles[i][j]
-			if generatedTile != nil { // needs to be nested to avoid nil dereference
-				if testTile == nil || !(testTile.Equals(*generatedTile)) {
-					t.Fail()
-				}
-			} else if testTile != nil {
-				t.Fail()
-			}
-		}
-	}
+
+	// generate the level using the functions
+	expectedLevelTiles := generateTestLevelWithHallwaysTiles()
+	testAllTilesEqual(expectedLevelTiles, genLevel.Tiles, t)
+
 }
 
 func TestNewEmptyLevel(t *testing.T) {
@@ -152,6 +161,24 @@ func TestExpandLevel(t *testing.T) {
 	for _, col := range level.Tiles {
 		if len(col) != 5 {
 			t.Fail()
+		}
+	}
+}
+
+// ------------------------------- UTILITY FUNCTIONS ------------------------------- //
+
+// checks that all tiles are the same
+func testAllTilesEqual(expected [][]*Tile, actual [][]*Tile, t *testing.T) {
+	for x := range expected {
+		for y := range expected[x] {
+			testTile, generatedTile := expected[x][y], actual[x][y]
+			if generatedTile != nil { // needs to be nested to avoid nil dereference
+				if testTile == nil || !(testTile.Equals(*generatedTile)) {
+					t.Fail()
+				}
+			} else if testTile != nil {
+				t.Fail()
+			}
 		}
 	}
 }

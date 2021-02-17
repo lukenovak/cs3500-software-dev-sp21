@@ -63,7 +63,7 @@ func (level Level) getTile(pos Position2D) *Tile {
 /* -------------------------------- Room + Hallway Generation -------------------------------- */
 
 // adds a Room's tiles to a Level, and expands the Level if necessary
-func (level Level) GenerateRectangularRoom(topLeft Position2D, width int, length int, doors []Position2D) error {
+func (level *Level) GenerateRectangularRoom(topLeft Position2D, width int, length int, doors []Position2D) error {
 	bottomRight := getRoomBottomRight(topLeft, width, length)
 	level.expandLevel(getMaxPosition(level.Size, bottomRight))
 	if width < 3 || length < 3 {
