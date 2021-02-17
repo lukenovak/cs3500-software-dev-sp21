@@ -104,6 +104,8 @@ func (level Level) GenerateHallway(start Position2D, end Position2D, waypoints [
 	}
 	currPos := start
 
+	level.expandLevel(getListMaxPosition(waypoints))
+
 	// go through the waypoints and generate all the necessary tiles
 	for _, waypoint := range waypoints {
 		level.generateBetweenWaypoints(&currPos, waypoint, true)
