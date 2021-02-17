@@ -8,10 +8,6 @@ const (
 	UnlockedExit = 4
 )
 
-const (
-	noObject = 0
-)
-
 type Tile struct {
 	Type        int
 	Coordinates Position2D

@@ -108,7 +108,52 @@ func TestPlaceItem(t *testing.T) {
 	level := setupSmallTestLevel(t)
 
 	// valid item position
-	level.PlaceItem(NewPosition2D(1, 1), item.KeyID)
+	err := level.PlaceItem(NewPosition2D(1, 1), item.KeyID)
+	if err != nil || level.getTile(NewPosition2D(1, 1)).Item != item.KeyID {
+		t.Fail()
+	}
+
+	// invalid item position
+	err = level.PlaceItem(NewPosition2D(0, 0), item.KeyID)
+	if err == nil {
+		t.Fail()
+	}
+}
+
+func TestClearItem(t *testing.T) {
+	// setup
+	level := setupSmallTestLevel(t)
+	err := level.PlaceItem(NewPosition2D(1, 1), item.KeyID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// test removing the placed item
+	level.ClearItem(NewPosition2D(1,1))
+	if level.getTile(NewPosition2D(1, 1)).Item != item.NoItem {
+		t.Fail()
+	}
+}
+
+func TestExpandLevel(t *testing.T) {
+	level := setupSmallTestLevel(t)
+
+	// test an non-expanding call
+	level.expandLevel(NewPosition2D(1, 1))
+	if !level.Size.Equals(NewPosition2D(3, 3)) {
+		t.Fail()
+	}
+
+	// test an expanding call (checking that the 2d slice was actually reallocated/expanded)
+	level.expandLevel(NewPosition2D(5, 5))
+	if !level.Size.Equals(NewPosition2D(5, 5)) || len(level.Tiles) != 5 {
+		t.Fail()
+	}
+	for _, col := range level.Tiles {
+		if len(col) != 5 {
+			t.Fail()
+		}
+	}
 }
 
 // ------------------------------- SETUP FUNCTIONS ------------------------------- //

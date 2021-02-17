@@ -2,5 +2,6 @@ package item
 
 // contains all item IDs
 const (
-	KeyID = 0
+	NoItem = 0
+	KeyID = 1
 )

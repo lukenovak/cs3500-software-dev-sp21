@@ -1,6 +1,9 @@
 package level
 
-import "fmt"
+import (
+	"fmt"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/Game/item"
+)
 
 const (
 	vertical = 0
@@ -32,15 +35,16 @@ func NewEmptyLevel(width int, length int) (Level, error) {
 }
 
 // expand the Level's 2d slice to match the new required position
-func (level Level) expandLevel(newSize Position2D) {
+func (level *Level) expandLevel(newSize Position2D) {
 	for i := level.Size.Y; i < newSize.Y; i++ {
 		for j := 0; j < level.Size.X; j++ {
 			level.Tiles[j] = append(level.Tiles[j], nil)
 		}
 	}
 	for i := level.Size.X; i < newSize.X; i++ {
-		level.Tiles = append(level.Tiles, make([]*Tile, level.Size.Y))
+		level.Tiles = append(level.Tiles, make ([]*Tile, max(newSize.Y, level.Size.Y)))
 	}
+	level.Size = getMaxPosition(level.Size, newSize)
 }
 
 // is this position within the bounds of the level?
@@ -252,6 +256,7 @@ func (level Level) generateHallwayStep(rowCenter Position2D, direction int) {
 	}
 }
 
+// "Caps" the end of a hallway by adding a wall one tile set past the waypoint
 func (level Level) capHallwayEnd(startPos Position2D, direction int) {
 	switch direction {
 	case up:
@@ -275,7 +280,8 @@ func (level Level) capHallwayEnd(startPos Position2D, direction int) {
 	}
 }
 
-func (level Level) PlaceExit(exitPos Position2D) error {
+// places an exit on a valid, walkable tile. Else, throws an error
+func (level *Level) PlaceExit(exitPos Position2D) error {
 	if exitTile := level.getTile(exitPos); exitTile != nil && exitTile.Type == Walkable {
 		level.Tiles[exitPos.X][exitPos.Y].Type = LockedExit
 		level.Exits = append(level.Exits, exitTile)
@@ -285,8 +291,20 @@ func (level Level) PlaceExit(exitPos Position2D) error {
 	return nil
 }
 
-func (level Level) PlaceItem(pos Position2D, itemId int) {
-	level.getTile(pos).Item = itemId
+// Places an item on a tile if it does not currently have one
+func (level Level) PlaceItem(pos Position2D, itemId int) error {
+	if itemTile := level.getTile(pos); itemTile != nil && itemTile.Item == item.NoItem {
+		itemTile.Item = itemId
+		return nil
+	}
+	return fmt.Errorf("invalid item placement")
+}
+
+// Clears a tile's item if it has one
+func (level Level) ClearItem(pos Position2D) {
+	if itemTile := level.getTile(pos); itemTile != nil {
+		itemTile.Item = item.NoItem
+	}
 }
 /* -------------------------------- Generation Utility Functions -------------------------------- */
 
