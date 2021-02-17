@@ -7,6 +7,7 @@ MAINFILE := $(wildcard ./cmd/main.go)
 BINARYNAME := "snarl"
 
 build:
+	echo $(PWD)
 	go build -o $(BINARYNAME) $(MAINFILE)
 	chmod +x $(BINARYNAME)
 
