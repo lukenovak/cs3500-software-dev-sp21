@@ -244,15 +244,15 @@ func (level Level) validateHallwayStep(rowCenter Position2D, direction int) erro
 // generates the tiles in a single, 3-tile "step" of the hallway
 func (level Level) generateHallwayStep(rowCenter Position2D, direction int) {
 	if level.getTile(rowCenter) == nil || level.getTile(rowCenter).Type == Wall {
-		level.Tiles[rowCenter.X][rowCenter.Y] = GenerateTile(Walkable, rowCenter.X, rowCenter.Y)
+		level.Tiles[rowCenter.X][rowCenter.Y] = GenerateTile(Walkable)
 	}
 	switch direction {
 	case vertical:
-		level.Tiles[rowCenter.X - 1][rowCenter.Y] = GenerateTile(Wall, rowCenter.X - 1, rowCenter.Y)
-		level.Tiles[rowCenter.X + 1][rowCenter.Y] = GenerateTile(Wall, rowCenter.X + 1, rowCenter.Y)
+		level.Tiles[rowCenter.X - 1][rowCenter.Y] = GenerateTile(Wall)
+		level.Tiles[rowCenter.X + 1][rowCenter.Y] = GenerateTile(Wall)
 	case horizontal:
-		level.Tiles[rowCenter.X][rowCenter.Y - 1] = GenerateTile(Wall, rowCenter.X, rowCenter.Y - 1)
-		level.Tiles[rowCenter.X][rowCenter.Y + 1] = GenerateTile(Wall, rowCenter.X, rowCenter.Y + 1)
+		level.Tiles[rowCenter.X][rowCenter.Y - 1] = GenerateTile(Wall)
+		level.Tiles[rowCenter.X][rowCenter.Y + 1] = GenerateTile(Wall)
 	default:
 		panic("invalid hallway direction")
 	}
@@ -262,21 +262,21 @@ func (level Level) generateHallwayStep(rowCenter Position2D, direction int) {
 func (level Level) capHallwayEnd(startPos Position2D, direction int) {
 	switch direction {
 	case up:
-		level.Tiles[startPos.X + 1][startPos.Y - 1] = GenerateTile(Wall, startPos.X + 1, startPos.Y - 1)
-		level.Tiles[startPos.X][startPos.Y - 1] = GenerateTile(Wall, startPos.X, startPos.Y - 1)
-		level.Tiles[startPos.X - 1][startPos.Y - 1] = GenerateTile(Wall, startPos.X - 1, startPos.Y - 1)
+		level.Tiles[startPos.X + 1][startPos.Y - 1] = GenerateTile(Wall)
+		level.Tiles[startPos.X][startPos.Y - 1] = GenerateTile(Wall)
+		level.Tiles[startPos.X - 1][startPos.Y - 1] = GenerateTile(Wall)
 	case down:
-		level.Tiles[startPos.X + 1][startPos.Y + 1] = GenerateTile(Wall, startPos.X + 1, startPos.Y + 1)
-		level.Tiles[startPos.X][startPos.Y + 1] = GenerateTile(Wall, startPos.X, startPos.Y + 1)
-		level.Tiles[startPos.X - 1][startPos.Y + 1] = GenerateTile(Wall, startPos.X - 1, startPos.Y + 1)
+		level.Tiles[startPos.X + 1][startPos.Y + 1] = GenerateTile(Wall)
+		level.Tiles[startPos.X][startPos.Y + 1] = GenerateTile(Wall)
+		level.Tiles[startPos.X - 1][startPos.Y + 1] = GenerateTile(Wall)
 	case right:
-		level.Tiles[startPos.X + 1][startPos.Y + 1] = GenerateTile(Wall, startPos.X + 1, startPos.Y + 1)
-		level.Tiles[startPos.X + 1][startPos.Y] = GenerateTile(Wall, startPos.X + 1, startPos.Y)
-		level.Tiles[startPos.X + 1][startPos.Y - 1] = GenerateTile(Wall, startPos.X + 1, startPos.Y - 1)
+		level.Tiles[startPos.X + 1][startPos.Y + 1] = GenerateTile(Wall)
+		level.Tiles[startPos.X + 1][startPos.Y] = GenerateTile(Wall)
+		level.Tiles[startPos.X + 1][startPos.Y - 1] = GenerateTile(Wall)
 	case left:
-		level.Tiles[startPos.X - 1][startPos.Y + 1] = GenerateTile(Wall, startPos.X - 1, startPos.Y + 1)
-		level.Tiles[startPos.X - 1][startPos.Y] = GenerateTile(Wall, startPos.X - 1, startPos.Y)
-		level.Tiles[startPos.X - 1][startPos.Y - 1] = GenerateTile(Wall, startPos.X - 1, startPos.Y - 1)
+		level.Tiles[startPos.X - 1][startPos.Y + 1] = GenerateTile(Wall)
+		level.Tiles[startPos.X - 1][startPos.Y] = GenerateTile(Wall)
+		level.Tiles[startPos.X - 1][startPos.Y - 1] = GenerateTile(Wall)
 	default:
 		panic("unknown hallway cap direction.")
 	}
@@ -314,14 +314,14 @@ func (level Level) ClearItem(pos Position2D) {
 func generateRoomTile(topLeft Position2D, width int, length int, newTilePos Position2D, doors []Position2D) (*Tile, error) {
 	if isPerimeter(topLeft, width, length, newTilePos) {
 		if isDoor(newTilePos, doors) {
-			return GenerateTile(Door, newTilePos.X, newTilePos.Y), nil
+			return GenerateTile(Door), nil
 		} else {
-			return GenerateTile(Wall, newTilePos.X, newTilePos.Y), nil
+			return GenerateTile(Wall), nil
 		}
 	} else if isDoor(newTilePos, doors) {
 		return nil, fmt.Errorf("invalid Door at %d, %d", newTilePos.X, newTilePos.Y)
 	} else {
-		return GenerateTile(Walkable, newTilePos.X, newTilePos.Y), nil
+		return GenerateTile(Walkable), nil
 	}
 }
 
