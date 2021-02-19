@@ -10,10 +10,10 @@ const invalidMsg = "invalid input JSON"
 /* ---------- JSON structs ---------- */
 
 type levelTestRoom struct {
-	Type 	string 				`json:"type"`
-	Origin 	levelTestPoint 		`json:"origin"`
-	Bounds 	levelTestPoint 		`json:"bounds"`
-	Layout 	levelTestLayout 	`json:"layout"`
+	Type   string          `json:"type"`
+	Origin LevelTestPoint  `json:"origin"`
+	Bounds LevelTestPoint  `json:"bounds"`
+	Layout levelTestLayout `json:"layout"`
 }
 
 type levelTestLayout [][]int
@@ -29,15 +29,15 @@ type levelTestLayout [][]int
 	}
 } */
 
-type levelTestPoint [2]int
+type LevelTestPoint [2]int
 
-/*func (point levelTestPoint) equals(cmpPoint levelTestPoint) bool {
+/*func (point LevelTestPoint) equals(cmpPoint LevelTestPoint) bool {
 	return point[0] == cmpPoint[0] && point[1] == cmpPoint [1]
 } */
 
 type LevelTestInput struct {
-	Room 	levelTestRoom
-	Point 	levelTestPoint
+	Room  levelTestRoom
+	Point LevelTestPoint
 }
 
 /* ---------- Parsing JSON ---------- */
@@ -54,7 +54,7 @@ func ParseLevelTestJson(r io.Reader) LevelTestInput {
 	var room levelTestRoom
 	err = json.Unmarshal(input[0], &room)
 
-	var point levelTestPoint
+	var point LevelTestPoint
 	err = json.Unmarshal(input[1], &point)
 
 	return LevelTestInput{

@@ -4,7 +4,7 @@
 GOBASE := $(shell pwd)
 MAINFILE := $(wildcard ./cmd/main.go)
 
-BINARYNAME := "snarl"
+BINARYNAME := "testLevel"
 
 build:
 	echo $(PWD)

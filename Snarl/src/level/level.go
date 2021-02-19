@@ -60,6 +60,55 @@ func (level Level) getTile(pos Position2D) *Tile {
 	return nil
 }
 
+func (level Level) GetWalkableTiles(pos Position2D, numSteps int) []*Tile {
+	var walkableTiles []*Tile
+	if numSteps > 0 {
+		adjacentWalkablePositions := level.getAdjacentWalkablePositions(pos)
+		for _, adjPosn := range adjacentWalkablePositions {
+			nextStep := level.GetWalkableTiles(adjPosn, numSteps - 1)
+			for _, tile := range nextStep {
+				walkableTiles = append(walkableTiles, tile)
+			}
+		}
+		return walkableTiles
+	} else {
+		return []*Tile{level.getTile(pos)}
+	}
+}
+
+func (level Level) GetWalkableTilePositions(pos Position2D, numSteps int) []Position2D{
+	var walkablePosns []Position2D
+	if numSteps > 0 {
+		adjacentWalkablePositions := level.getAdjacentWalkablePositions(pos)
+		for _, adjPosn := range adjacentWalkablePositions {
+			nextStep := level.GetWalkableTilePositions(adjPosn, numSteps - 1)
+			for _, posn := range nextStep {
+				walkablePosns = append(walkablePosns, posn)
+			}
+		}
+		return walkablePosns
+	} else {
+		return []Position2D{pos}
+	}
+}
+
+func (level Level) getAdjacentWalkablePositions(pos Position2D) []Position2D {
+	var walkablePositions []Position2D
+	if leftTile := level.getTile(NewPosition2D(pos.X - 1, pos.Y)); leftTile != nil && leftTile.Type == Walkable {
+		walkablePositions = append(walkablePositions, NewPosition2D(pos.X + 1, pos.Y))
+	}
+	if rightTile := level.getTile(NewPosition2D(pos.X + 1, pos.Y)); rightTile != nil && rightTile.Type == Walkable {
+		walkablePositions = append(walkablePositions, NewPosition2D(pos.X + 1, pos.Y))
+	}
+	if upTile := level.getTile(NewPosition2D(pos.X, pos.Y + 1)); upTile != nil && upTile.Type == Walkable {
+		walkablePositions = append(walkablePositions, NewPosition2D(pos.X + 1, pos.Y))
+	}
+	if downTile := level.getTile(NewPosition2D(pos.X, pos.Y - 1)); downTile != nil && downTile.Type == Walkable {
+		walkablePositions = append(walkablePositions, NewPosition2D(pos.X + 1, pos.Y))
+	}
+	return walkablePositions
+}
+
 /* -------------------------------- Room + Hallway Generation -------------------------------- */
 
 // adds a Room's tiles to a Level, and expands the Level if necessary
