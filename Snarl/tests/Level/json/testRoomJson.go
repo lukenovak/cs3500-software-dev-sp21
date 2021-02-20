@@ -10,10 +10,10 @@ const invalidMsg = "invalid input JSON"
 /* ---------- JSON structs ---------- */
 
 type levelTestRoom struct {
-	Type   string          `json:"type"`
-	Origin LevelTestPoint  `json:"origin"`
-	Bounds LevelTestPoint  `json:"bounds"`
-	Layout levelTestLayout `json:"layout"`
+	Type   string          	`json:"type"`
+	Origin LevelTestPoint  	`json:"origin"`
+	Bounds json.RawMessage	`json:"bounds"`
+	Layout levelTestLayout 	`json:"layout"`
 }
 
 type levelTestLayout [][]int

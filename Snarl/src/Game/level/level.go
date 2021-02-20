@@ -20,7 +20,7 @@ const (
 type Level struct {
 	Tiles [][]*Tile
 	Exits []*Tile
-	Size Position2D
+	Size  Position2D
 }
 
 // Generates a level with a nil-initialized 2-d tile array of the given size
@@ -28,9 +28,9 @@ func NewEmptyLevel(width int, length int) (Level, error) {
 	if width < 1 || length < 1 {
 		return Level{Tiles: nil, Size: NewPosition2D(0, 0)}, fmt.Errorf("invalid level size")
 	}
-	return Level {
+	return Level{
 		Tiles: allocateLevelTiles(width, length),
-		Size: NewPosition2D(width, length),
+		Size:  NewPosition2D(width, length),
 	}, nil
 }
 
@@ -76,7 +76,7 @@ func (level Level) GetWalkableTiles(pos Position2D, numSteps int) []*Tile {
 	}
 }
 
-func (level Level) GetWalkableTilePositions(pos Position2D, numSteps int) []Position2D{
+func (level Level) GetWalkableTilePositions(pos Position2D, numSteps int) []Position2D {
 	var walkablePosns []Position2D
 	if numSteps > 0 {
 		adjacentWalkablePositions := level.getAdjacentWalkablePositions(pos)

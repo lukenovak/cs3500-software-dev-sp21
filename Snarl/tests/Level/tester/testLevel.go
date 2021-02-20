@@ -6,12 +6,6 @@ import (
 	testJson "github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/tests/Level/json"
 )
 
-const (
-	inputWall = 0
-	inputWalkable = 1
-	inputDoor = 2
-)
-
 func TestLevel(testInput testJson.LevelTestInput) string {
 	newLevel, err := level.NewEmptyLevel(testInput.Point[0], testInput.Point[1])
 	if err != nil {

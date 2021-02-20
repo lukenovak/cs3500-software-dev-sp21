@@ -185,7 +185,7 @@ func testAllTilesEqual(expected [][]*Tile, actual [][]*Tile, t *testing.T) {
 
 // ------------------------------- SETUP FUNCTIONS ------------------------------- //
 
-func setupSmallTestLevel(t *testing.T) *Level {	// set up a test level
+func setupSmallTestLevel(t *testing.T) *Level { // set up a test level
 	level, _ := NewEmptyLevel(3, 3)
 	err := level.GenerateRectangularRoom(NewPosition2D(0, 0), 3, 3, nil)
 	if err != nil {

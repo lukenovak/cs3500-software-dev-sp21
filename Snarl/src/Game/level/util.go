@@ -14,7 +14,7 @@ func (d Position2D) Equals (cmpPos Position2D) bool {
 }
 
 func NewPosition2D(x int, y int) Position2D {
-	return Position2D {
+	return Position2D{
 		x,y,
 	}
 }
