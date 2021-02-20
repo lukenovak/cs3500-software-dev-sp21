@@ -2,7 +2,7 @@ package tester
 
 import (
 	"fmt"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/Game/level"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	testJson "github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/tests/Level/json"
 )
 
