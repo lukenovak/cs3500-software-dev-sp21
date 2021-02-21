@@ -1,7 +1,7 @@
 package level
 
 import (
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/Game/item"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/item"
 	"testing"
 )
 

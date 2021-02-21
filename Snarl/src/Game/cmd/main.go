@@ -3,6 +3,7 @@ package main
 import (
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/render"
+	"fyne.io/fyne/v2/app"
 )
 
 func main() {
@@ -18,6 +19,11 @@ func main() {
 	println("Level 3: Two rooms with hallways")
 	thirdLevel := generateThirdLevel()
 	print(render.ASCIILevel(thirdLevel))
+
+	a := app.New()
+	w := a.NewWindow("test render")
+	w.SetContent(render.GUILevel(thirdLevel))
+	w.ShowAndRun()
 }
 
 func generateFirstLevel() level.Level {
