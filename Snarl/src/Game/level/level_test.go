@@ -96,7 +96,7 @@ func TestPlaceExit(t *testing.T) {
 
 	// test a valid exit
 	err := level.PlaceExit(NewPosition2D(1, 1))
-	if err != nil || level.getTile(NewPosition2D(1, 1)).Type != LockedExit {
+	if err != nil || level.GetTile(NewPosition2D(1, 1)).Type != LockedExit {
 		t.Fail()
 	}
 
@@ -118,7 +118,7 @@ func TestPlaceItem(t *testing.T) {
 
 	// valid item position
 	err := level.PlaceItem(NewPosition2D(1, 1), item.KeyID)
-	if err != nil || level.getTile(NewPosition2D(1, 1)).Item != item.KeyID {
+	if err != nil || level.GetTile(NewPosition2D(1, 1)).Item != item.KeyID {
 		t.Fail()
 	}
 
@@ -139,7 +139,7 @@ func TestClearItem(t *testing.T) {
 
 	// test removing the placed item
 	level.ClearItem(NewPosition2D(1,1))
-	if level.getTile(NewPosition2D(1, 1)).Item != item.NoItem {
+	if level.GetTile(NewPosition2D(1, 1)).Item != item.NoItem {
 		t.Fail()
 	}
 }
