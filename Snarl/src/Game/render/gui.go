@@ -10,31 +10,44 @@ import (
 )
 
 func GUILevel(levelToRender level.Level) *fyne.Container {
-	var rectangles []*canvas2.Rectangle
+	var canvasObjects []fyne.CanvasObject
 	for x := range levelToRender.Tiles {
 		for y := range levelToRender.Tiles[x] {
-
-			var rectColor color.Color
-			if levelToRender.Tiles[x][y] != nil && levelToRender.Tiles[x][y].Type == level.Wall {
-				rectColor = color.RGBA{R:180, G:180, B:0}
-			} else if levelToRender.Tiles[x][y] != nil && levelToRender.Tiles[x][y].Type == level.Walkable {
-				rectColor = color.RGBA{R:20, G:180, B:20}
-			} else {
-				rectColor = color.RGBA{R:180, G:180, B:180}
-			}
-			rectangles = append(rectangles, canvas2.NewRectangle(rectColor))
+			canvasObjects = append(canvasObjects, renderGuiTile(levelToRender.Tiles[x][y]))
 		}
 	}
-	rectangles = reverseRectArray(rectangles)
+	canvasObjects = reverseRectArray(canvasObjects)
 	rectContainer := container.New(layout.NewGridLayout(levelToRender.Size.X))
-	for _, rectangle := range rectangles {
-		rectContainer.Add(rectangle)
+	for _, canvasObj := range canvasObjects {
+		rectContainer.Add(canvasObj)
 	}
 	return rectContainer
 }
 
-func reverseRectArray(rectArray []*canvas2.Rectangle) []*canvas2.Rectangle {
-	reversedArray := make([]*canvas2.Rectangle, len(rectArray))
+func renderGuiTile(tileToRender *level.Tile) fyne.CanvasObject {
+	var rectColor color.Color
+	if tileToRender == nil {
+		rectColor = color.RGBA{R:180, G:180, B:180}
+	} else if tileToRender.Type == level.Wall {
+		rectColor = color.RGBA{R:180, G:180, B:0}
+	} else if tileToRender.Type == level.Walkable {
+		rectColor = color.RGBA{R:20, G:180, B:20}
+	} else {
+		rectColor = color.RGBA{R:180, G:180, B:180}
+		text := canvas2.Text{
+			Color: rectColor,
+			Text: doorTile,
+			Alignment: fyne.TextAlignCenter,
+			TextSize: 32,
+			TextStyle: fyne.TextStyle{Bold: true,},
+		}
+		return &text
+	}
+	return canvas2.NewRectangle(rectColor)
+}
+
+func reverseRectArray(rectArray []fyne.CanvasObject) []fyne.CanvasObject {
+	reversedArray := make([]fyne.CanvasObject, len(rectArray))
 	for i, j := 0, len(rectArray) - 1; i < len(rectArray); i, j = i + 1, j - 1 {
 		reversedArray[i] = rectArray[j]
 	}
