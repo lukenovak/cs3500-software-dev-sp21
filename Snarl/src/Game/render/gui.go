@@ -5,7 +5,7 @@ import (
 	canvas2 "fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/Game/level"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"image/color"
 )
 

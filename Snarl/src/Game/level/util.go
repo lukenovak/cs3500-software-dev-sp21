@@ -7,14 +7,12 @@ type Position2D struct {
 	Y int
 }
 
-var originPosition = NewPosition2D(0, 0)
-
 func (d Position2D) Equals (cmpPos Position2D) bool {
 	return d.X == cmpPos.X && d.Y == cmpPos.Y
 }
 
 func NewPosition2D(x int, y int) Position2D {
-	return Position2D {
+	return Position2D{
 		x,y,
 	}
 }
