@@ -6,10 +6,17 @@ import (
 	"io"
 )
 
-const noAction = 0
+// actor type constants
+const (
+	PlayerType = 0
+	ghostType = 1
+	zombieType = 2
+)
+
 
 type Actor struct {
 	Type int
+	Id int
 	Position level.Position2D
 	Input io.Reader
 	Output io.Writer
@@ -17,4 +24,9 @@ type Actor struct {
 
 func (actor Actor) MoveActor(action int) error {
 	return fmt.Errorf("Not yet implemented")
+}
+
+// generates a new list of player actors
+func NewPlayerList() []Actor {
+	return nil
 }

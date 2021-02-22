@@ -1,7 +1,6 @@
 package state
 
 import (
-	"fmt"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 )
@@ -22,8 +21,12 @@ func (gs GameState) GenerateLevel(size level.Position2D) error {
 	return nil
 }
 
-func (gs GameState) SpawnActor(position level.Position2D, actor actor.Actor) error {
-	return fmt.Errorf("Not yet implemented")
+func (gs GameState) SpawnActor(actorToSpawn actor.Actor) {
+	if actorToSpawn.Type == actor.PlayerType {
+		gs.Players = append(gs.Players, &actorToSpawn)
+	} else {
+		gs.Players = append(gs.Adversaries, &actorToSpawn)
+	}
 }
 
 func (gs GameState) CheckVictory() bool {

@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fyne.io/fyne/v2"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/render"
 	"fyne.io/fyne/v2/app"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 )
 
 func main() {
@@ -21,9 +23,9 @@ func main() {
 	print(render.ASCIILevel(thirdLevel))
 
 	a := app.New()
-	w := a.NewWindow("test render")
-	w.SetContent(render.GUILevel(thirdLevel))
-	w.ShowAndRun()
+	w := a.NewWindow("snarl 0.0.1")
+	w.Resize(fyne.Size{Height: 800, Width: 800})
+	state.GameLoop(1, w)
 }
 
 func generateFirstLevel() level.Level {
@@ -52,7 +54,7 @@ func generateSecondLevel() level.Level {
 }
 
 func generateThirdLevel() level.Level {
-	genLevel, err := level.NewEmptyLevel(8, 8)
+	genLevel, err := level.NewEmptyLevel(16, 16)
 	if &genLevel == nil {
 		panic(err)
 	}

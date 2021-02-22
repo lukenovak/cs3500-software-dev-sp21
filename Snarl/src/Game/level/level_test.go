@@ -6,7 +6,7 @@ import (
 )
 
 func TestGenerateRectangularRoom(t *testing.T) {
-	// generate a level witha rectangular room
+	// generate a level with a rectangular room
 	genLevel, _ := NewEmptyLevel(3, 3)
 	doors := []Position2D{NewPosition2D(1, 0), NewPosition2D(1, 2)}
 	err := genLevel.GenerateRectangularRoom(NewPosition2D(0, 0), 3, 3, doors)
