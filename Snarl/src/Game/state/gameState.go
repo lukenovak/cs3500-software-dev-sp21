@@ -6,6 +6,7 @@ import (
 )
 
 type GameState struct {
+	LevelNum int
 	Level *level.Level
 	Players []*actor.Actor
 	Adversaries []*actor.Actor
@@ -21,7 +22,7 @@ func (gs GameState) GenerateLevel(size level.Position2D) error {
 	return nil
 }
 
-func (gs GameState) SpawnActor(actorToSpawn actor.Actor) {
+func (gs *GameState) SpawnActor(actorToSpawn actor.Actor) {
 	if actorToSpawn.Type == actor.PlayerType {
 		gs.Players = append(gs.Players, &actorToSpawn)
 	} else {
