@@ -187,6 +187,7 @@ func (level Level) GenerateHallway(start Position2D, end Position2D, waypoints [
 	return nil
 }
 
+// generates the "hallway" segments between hallway waypoints
 func (level Level) generateBetweenWaypoints(startPos *Position2D, endPos Position2D, shouldCapEnd bool) {
 	if endPos.X == startPos.X && endPos.Y > startPos.Y { // moving down
 		for !startPos.Equals(endPos) {
@@ -376,6 +377,7 @@ func (level Level) ClearItem(pos Position2D) {
 		itemTile.Item = item.NoItem
 	}
 }
+
 /* -------------------------------- Generation Utility Functions -------------------------------- */
 
 // used in room generation to determine what kind of tile should be generated

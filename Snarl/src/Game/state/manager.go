@@ -21,9 +21,9 @@ func initGameState(firstLevel level.Level, players []actor.Actor) GameState {
 
 func GameLoop(firstLevel level.Level, players []actor.Actor, gameWindow fyne.Window) {
 	state := initGameState(firstLevel, players)
-	gameWindow.Resize(fyne.Size{800, 800})
+	gameWindow.Resize(fyne.Size{Width: 800, Height: 800})
 	for !state.CheckVictory() {
-		render.GuiState(state.Level, state.Players, gameWindow)
+		render.GuiState(state.Level, state.Players, state.Adversaries, gameWindow)
 		gameWindow.ShowAndRun()
 	}
 }

@@ -1,7 +1,6 @@
 package render
 
 import (
-	"fmt"
 	"fyne.io/fyne/v2"
 	canvas2 "fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -11,8 +10,10 @@ import (
 	"image/color"
 )
 
-func GuiState(stateLevel *level.Level, statePlayers []*actor.Actor, gameWindow fyne.Window) {
-	levelTiles := renderGuiPlayers(renderGuiLevel(*stateLevel), statePlayers, stateLevel.Size)
+func GuiState(stateLevel *level.Level, statePlayers []*actor.Actor, stateAdversaries []*actor.Actor, gameWindow fyne.Window) {
+	levelTiles := renderGuiLevel(*stateLevel)
+	renderGuiActors(levelTiles, statePlayers, stateLevel.Size, renderPlayer)
+	renderGuiActors(levelTiles, stateAdversaries, stateLevel.Size, renderAdversary)
 	windowContainer := container.New(layout.NewGridLayout(stateLevel.Size.X))
 	for _, renderedTile := range levelTiles {
 		windowContainer.Add(renderedTile)
@@ -22,25 +23,18 @@ func GuiState(stateLevel *level.Level, statePlayers []*actor.Actor, gameWindow f
 }
 
 func renderGuiLevel(levelToRender level.Level) []*fyne.Container {
-	var canvasObjects []fyne.CanvasObject
+	tileContainers := make([]*fyne.Container, levelToRender.Size.X * levelToRender.Size.Y)
 	for y := range levelToRender.Tiles[0] {
 		for x := range levelToRender.Tiles {
-			canvasObjects = append(canvasObjects, renderGuiTile(levelToRender.Tiles[x][y]))
+			tileContainers[calc1DPosition(level.NewPosition2D(x, y), levelToRender.Size)] = renderGuiTile(levelToRender.Tiles[x][y])
 		}
 	}
-	rectContainer := make([]*fyne.Container, len(canvasObjects))
-	for i, canvasObj := range canvasObjects {
-		canvasObj.Resize(fyne.NewSize(100, 50))
-		tileContainer := container.New(layout.NewMaxLayout())
-		tileContainer.Add(canvasObj)
-		tileContainer.Resize(fyne.NewSize(100, 50))
-		rectContainer[i] = tileContainer
-	}
-	return rectContainer
+	return tileContainers
 }
 
-func renderGuiTile(tileToRender *level.Tile) fyne.CanvasObject {
+func renderGuiTile(tileToRender *level.Tile) *fyne.Container {
 	var rectColor color.Color
+	var containerContent fyne.CanvasObject
 	if tileToRender == nil {
 		rectColor = color.RGBA{R:180, G:180, B:180}
 	} else if tileToRender.Type == level.Wall {
@@ -56,23 +50,42 @@ func renderGuiTile(tileToRender *level.Tile) fyne.CanvasObject {
 			TextSize: 24,
 			TextStyle: fyne.TextStyle{Bold: true,},
 		}
-		return &text
+		containerContent = &text
 	}
-	return canvas2.NewRectangle(rectColor)
+	if containerContent == nil {
+		containerContent = canvas2.NewRectangle(rectColor)
+	}
+	containerContent.Resize(fyne.NewSize(100, 50))
+	tileContainer := container.New(layout.NewMaxLayout())
+	tileContainer.Add(containerContent)
+	tileContainer.Resize(fyne.NewSize(100, 50))
+	return tileContainer
 }
 
 // renders players on the GUI with an already existing grid array of containers
-func renderGuiPlayers(tileContainers []*fyne.Container, players []*actor.Actor, levelSize level.Position2D) []*fyne.Container {
-	for playerNum, player := range players {
-		tilePos := calc1DPosition(player.Position, levelSize)
-		tileContainers[tilePos].Add(canvas2.NewCircle(color.RGBA{R: 150, G: 150, B: 150, A: 255}))
-		tileContainers[tilePos].Add(canvas2.NewText(fmt.Sprintf("P%d", playerNum + 1), color.RGBA{R: 0, G: 0, B: 0, A: 255}))
-
+func renderGuiActors(tileContainers []*fyne.Container,
+	actors []*actor.Actor,
+	levelSize level.Position2D,
+	renderFunc actorRenderer)  {
+	for _, actorToRender := range actors {
+		tilePos := calc1DPosition(actorToRender.Position, levelSize)
+		renderFunc(tileContainers[tilePos])
 	}
-	return tileContainers
 }
 
 // utility function to find the 1d array index of a position in a level
 func calc1DPosition(pos level.Position2D, levelSize level.Position2D) int {
 	return pos.Y * levelSize.X + pos.X
+}
+
+/* ----------------------- Actor Render functions ----------------------------- */
+
+type actorRenderer func(*fyne.Container)
+
+func renderPlayer(baseContainer *fyne.Container) {
+	baseContainer.Add(canvas2.NewCircle(color.RGBA{R: 150, G: 150, B: 150, A: 255}))
+}
+
+func renderAdversary(baseContainer *fyne.Container) {
+	baseContainer.Add(canvas2.NewCircle(color.RGBA{R: 150, G: 150, B: 150, A: 255}))
 }
