@@ -1,6 +1,7 @@
 package render
 
 import (
+	"fmt"
 	"fyne.io/fyne/v2"
 	canvas2 "fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -62,9 +63,11 @@ func renderGuiTile(tileToRender *level.Tile) fyne.CanvasObject {
 
 // renders players on the GUI with an already existing grid array of containers
 func renderGuiPlayers(tileContainers []*fyne.Container, players []*actor.Actor, levelSize level.Position2D) []*fyne.Container {
-	for _, player := range players {
+	for playerNum, player := range players {
 		tilePos := calc1DPosition(player.Position, levelSize)
-		tileContainers[tilePos].Add(canvas2.NewCircle(color.RGBA{R: 40, G: 40, B: 40}))
+		tileContainers[tilePos].Add(canvas2.NewCircle(color.RGBA{R: 150, G: 150, B: 150, A: 255}))
+		tileContainers[tilePos].Add(canvas2.NewText(fmt.Sprintf("P%d", playerNum + 1), color.RGBA{R: 0, G: 0, B: 0, A: 255}))
+
 	}
 	return tileContainers
 }

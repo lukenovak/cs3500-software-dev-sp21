@@ -112,22 +112,41 @@ func (level Level) getAdjacentWalkablePositions(pos Position2D) []Position2D {
 /* -------------------------------- Room + Hallway Generation -------------------------------- */
 
 // adds a Room's tiles to a Level, and expands the Level if necessary
-func (level *Level) GenerateRectangularRoom(topLeft Position2D, width int, length int, doors []Position2D) error {
-	bottomRight := getRoomBottomRight(topLeft, width, length)
+func (level *Level) GenerateRectangularRoom(topLeft Position2D, width int, height int, doors []Position2D) error {
+	bottomRight := getRoomBottomRight(topLeft, width, height)
 	level.expandLevel(getMaxPosition(level.Size, bottomRight))
-	if width < 3 || length < 3 {
+	if width < 3 || height < 3 {
 		return fmt.Errorf("invalid room dimensions")
 	}
-	err := level.checkRoomValidity(topLeft, width, length)
+	err := level.checkRoomValidity(topLeft, width, height)
 	if err != nil {
 		return err
 	}
 	for i := topLeft.X; i < topLeft.X + width; i++ {
-		for j := topLeft.Y; j < topLeft.Y + length; j++ {
-			level.Tiles[i][j], err = generateRoomTile(topLeft, width, length, NewPosition2D(i, j), doors)
+		for j := topLeft.Y; j < topLeft.Y + height; j++ {
+			level.Tiles[i][j], err = generateRoomTile(topLeft, width, height, NewPosition2D(i, j), doors)
 			if err != nil {
 				return err
 			}
+		}
+	}
+	return nil
+}
+
+// given a top coordinate and a room layout, make the given rectangular room
+func (level *Level) GenerateRectangularRoomWithLayout(topLeft Position2D, width int, height int, layout [][]int) error {
+	bottomRight := getRoomBottomRight(topLeft, width, height)
+	level.expandLevel(getMaxPosition(level.Size, bottomRight))
+	if width < 3 || height < 3 || width != len(layout) || height != len(layout[0]) {
+		return fmt.Errorf("invalid room layout")
+	}
+	err := level.checkRoomValidity(topLeft, width, height)
+	if err != nil {
+		return err
+	}
+	for x := topLeft.X; x < topLeft.X + width; x++ {
+		for y := topLeft.Y; y < topLeft.Y +height; y++ {
+			level.Tiles[x][y] = GenerateTile(layout[x][y])
 		}
 	}
 	return nil

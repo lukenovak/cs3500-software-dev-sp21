@@ -7,34 +7,20 @@ import (
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/render"
 )
 
-const defaultLevelSize = 32
-
-func initGameState(numPlayers int) GameState {
-	firstLevel, err := level.GenerateNewLevel(level.NewPosition2D(defaultLevelSize, defaultLevelSize))
-	playerOne := actor.Actor{
-		Type:     actor.PlayerType,
-		Id:       1,
-		Position: level.Position2D{2, 2},
-		Input:    nil,
-		Output:   nil,
-	}
-	if err != nil {
-		panic(err)
-	}
+func initGameState(firstLevel level.Level, players []actor.Actor) GameState {
 	gs := GameState{
-		Level:         firstLevel,
-		//Players:     NewPlayerList(numPlayers, ),
+		Level:         &firstLevel,
 		//Adversaries: GenerateAdversaries(numPlayers),
 	}
-	gs.SpawnActor(playerOne)
-	//players := actor.NewPlayerList(numPlayers, firstLevel)
-	//adversaries := actor.GenerateAdversaries(numPlayers, firstLevel)
+	for _, player := range players {
+		gs.SpawnActor(player)
+	}
 	return gs
 }
 
 
-func GameLoop(numPlayers int, gameWindow fyne.Window) {
-	state := initGameState(numPlayers)
+func GameLoop(firstLevel level.Level, players []actor.Actor, gameWindow fyne.Window) {
+	state := initGameState(firstLevel, players)
 	gameWindow.Resize(fyne.Size{800, 800})
 	for !state.CheckVictory() {
 		render.GuiState(state.Level, state.Players, gameWindow)

@@ -3,6 +3,7 @@ package main
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/render"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
@@ -25,7 +26,7 @@ func main() {
 	a := app.New()
 	w := a.NewWindow("snarl 0.0.1")
 	w.Resize(fyne.Size{Height: 800, Width: 800})
-	state.GameLoop(1, w)
+	state.GameLoop(thirdLevel, generatePlayers(),  w)
 }
 
 func generateFirstLevel() level.Level {
@@ -72,4 +73,8 @@ func generateThirdLevel() level.Level {
 		panic(err)
 	}
 	return genLevel
+}
+
+func generatePlayers() []actor.Actor {
+	return []actor.Actor{{Type: actor.PlayerType}}
 }
