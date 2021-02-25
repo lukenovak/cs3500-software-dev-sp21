@@ -60,6 +60,9 @@ func (gs *GameState) UnlockExits() {
 	}
 }
 
+
+/* ---------------------------- Internal Use Functions ------------------------------------- */
+
 // Creates the initial game state. For internal use
 func initGameState(firstLevel level.Level, players []actor.Actor, adversaries[]actor.Actor) *GameState {
 	gs := &GameState{
