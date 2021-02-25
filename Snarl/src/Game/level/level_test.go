@@ -117,13 +117,13 @@ func TestPlaceItem(t *testing.T) {
 	level := setupSmallTestLevel(t)
 
 	// valid item position
-	err := level.PlaceItem(NewPosition2D(1, 1), item.KeyID)
-	if err != nil || level.GetTile(NewPosition2D(1, 1)).Item != item.KeyID {
+	err := level.PlaceItem(NewPosition2D(1, 1), item.Item{Type: item.KeyID})
+	if err != nil || level.GetTile(NewPosition2D(1, 1)).Item.Type != item.KeyID {
 		t.Fail()
 	}
 
 	// invalid item position
-	err = level.PlaceItem(NewPosition2D(0, 0), item.KeyID)
+	err = level.PlaceItem(NewPosition2D(0, 0), item.Item{Type: item.KeyID})
 	if err == nil {
 		t.Fail()
 	}
@@ -132,14 +132,14 @@ func TestPlaceItem(t *testing.T) {
 func TestClearItem(t *testing.T) {
 	// setup
 	level := setupSmallTestLevel(t)
-	err := level.PlaceItem(NewPosition2D(1, 1), item.KeyID)
+	err := level.PlaceItem(NewPosition2D(1, 1), item.Item{Type: item.KeyID})
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// test removing the placed item
 	level.ClearItem(NewPosition2D(1,1))
-	if level.GetTile(NewPosition2D(1, 1)).Item != item.NoItem {
+	if level.GetTile(NewPosition2D(1, 1)).Item.Type != item.NoItem {
 		t.Fail()
 	}
 }

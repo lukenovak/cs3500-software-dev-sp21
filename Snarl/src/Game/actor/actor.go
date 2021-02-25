@@ -1,9 +1,7 @@
 package actor
 
 import (
-	"fmt"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
-	"io"
 )
 
 // actor type constants
@@ -16,14 +14,13 @@ const (
 
 type Actor struct {
 	Type int
-	Id int
+	Id int // must be unique
 	Position level.Position2D
-	Input io.Reader
-	Output io.Writer
 }
 
-func (actor Actor) MoveActor(action int) error {
-	return fmt.Errorf("Not yet implemented")
+// Returns a new actor at the new position
+func (actor Actor) MoveActor(newPos level.Position2D) Actor {
+	return Actor{Type: actor.Type, Id: actor.Id, Position: newPos}
 }
 
 // generates a new list of player actors

@@ -363,9 +363,9 @@ func (level *Level) PlaceExit(exitPos Position2D) error {
 }
 
 // Places an item on a tile if it does not currently have one
-func (level Level) PlaceItem(pos Position2D, itemId int) error {
-	if itemTile := level.GetTile(pos); itemTile != nil && itemTile.Item == item.NoItem {
-		itemTile.Item = itemId
+func (level Level) PlaceItem(pos Position2D, itemToPlace item.Item) error {
+	if itemTile := level.GetTile(pos); itemTile != nil && itemTile.Item == nil {
+		itemTile.Item = &itemToPlace
 		return nil
 	}
 	return fmt.Errorf("invalid item placement")
@@ -374,7 +374,7 @@ func (level Level) PlaceItem(pos Position2D, itemId int) error {
 // Clears a tile's item if it has one
 func (level Level) ClearItem(pos Position2D) {
 	if itemTile := level.GetTile(pos); itemTile != nil {
-		itemTile.Item = item.NoItem
+		itemTile.Item = nil
 	}
 }
 

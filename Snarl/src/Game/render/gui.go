@@ -10,7 +10,7 @@ import (
 	"image/color"
 )
 
-func GuiState(stateLevel *level.Level, statePlayers []*actor.Actor, stateAdversaries []*actor.Actor, gameWindow fyne.Window) {
+func GuiState(stateLevel *level.Level, statePlayers []actor.Actor, stateAdversaries []actor.Actor, gameWindow fyne.Window) {
 	levelTiles := renderGuiLevel(*stateLevel)
 	renderGuiActors(levelTiles, statePlayers, stateLevel.Size, renderPlayer)
 	renderGuiActors(levelTiles, stateAdversaries, stateLevel.Size, renderAdversary)
@@ -64,7 +64,7 @@ func renderGuiTile(tileToRender *level.Tile) *fyne.Container {
 
 // renders players on the GUI with an already existing grid array of containers
 func renderGuiActors(tileContainers []*fyne.Container,
-	actors []*actor.Actor,
+	actors []actor.Actor,
 	levelSize level.Position2D,
 	renderFunc actorRenderer)  {
 	for _, actorToRender := range actors {
