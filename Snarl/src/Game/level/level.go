@@ -95,16 +95,16 @@ func (level Level) GetWalkableTilePositions(pos Position2D, numSteps int) []Posi
 func (level Level) getAdjacentWalkablePositions(pos Position2D) []Position2D {
 	var walkablePositions []Position2D
 
-	if leftTile := level.getTile(NewPosition2D(pos.X-1, pos.Y)); leftTile != nil && (leftTile.Type == Walkable || leftTile.Type == Door) {
+	if leftTile := level.GetTile(NewPosition2D(pos.X-1, pos.Y)); leftTile != nil && (leftTile.Type == Walkable || leftTile.Type == Door) {
 		walkablePositions = append(walkablePositions, NewPosition2D(pos.X-1, pos.Y))
 	}
-	if rightTile := level.getTile(NewPosition2D(pos.X+1, pos.Y)); rightTile != nil && (rightTile.Type == Walkable || rightTile.Type == Door) {
+	if rightTile := level.GetTile(NewPosition2D(pos.X+1, pos.Y)); rightTile != nil && (rightTile.Type == Walkable || rightTile.Type == Door) {
 		walkablePositions = append(walkablePositions, NewPosition2D(pos.X+1, pos.Y))
 	}
-	if upTile := level.getTile(NewPosition2D(pos.X, pos.Y+1)); upTile != nil && (upTile.Type == Walkable || upTile.Type == Door) {
+	if upTile := level.GetTile(NewPosition2D(pos.X, pos.Y+1)); upTile != nil && (upTile.Type == Walkable || upTile.Type == Door) {
 		walkablePositions = append(walkablePositions, NewPosition2D(pos.X, pos.Y+1))
 	}
-	if downTile := level.getTile(NewPosition2D(pos.X, pos.Y-1)); downTile != nil && (downTile.Type == Walkable || downTile.Type == Door) {
+	if downTile := level.GetTile(NewPosition2D(pos.X, pos.Y-1)); downTile != nil && (downTile.Type == Walkable || downTile.Type == Door) {
 		walkablePositions = append(walkablePositions, NewPosition2D(pos.X, pos.Y-1))
 	}
 	return walkablePositions
