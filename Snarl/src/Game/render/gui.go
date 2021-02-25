@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/item"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"image/color"
 )
@@ -32,32 +33,68 @@ func renderGuiLevel(levelToRender level.Level) []*fyne.Container {
 	return tileContainers
 }
 
+// creates a single tile to be rendered
 func renderGuiTile(tileToRender *level.Tile) *fyne.Container {
 	var rectColor color.Color
 	var containerContent fyne.CanvasObject
 	if tileToRender == nil {
-		rectColor = color.RGBA{R:180, G:180, B:180}
+		rectColor = color.RGBA{R:0, G:0, B:0}
 	} else if tileToRender.Type == level.Wall {
 		rectColor = color.RGBA{R:180, G:180, B:0}
 	} else if tileToRender.Type == level.Walkable {
 		rectColor = color.RGBA{R:20, G:180, B:20}
-	} else {
-		rectColor = color.RGBA{R:180, G:180, B:180}
+	} else if tileToRender.Type == level.Door {
 		text := canvas2.Text{
-			Color: rectColor,
-			Text: doorTile,
+			Color:     color.RGBA{R: 180, G: 180, B: 180},
+			Text:      doorTile,
 			Alignment: fyne.TextAlignCenter,
-			TextSize: 24,
+			TextSize:  24,
+			TextStyle: fyne.TextStyle{Bold: true,},
+		}
+		containerContent = &text
+	} else if tileToRender.Type == level.LockedExit {
+		text := canvas2.Text{
+			Color:     color.RGBA{R: 180, G: 180, B: 180},
+			Text:      "L",
+			Alignment: fyne.TextAlignCenter,
+			TextSize:  24,
+			TextStyle: fyne.TextStyle{Bold: true,},
+		}
+		containerContent = &text
+	} else if tileToRender.Type == level.UnlockedExit {
+		text := canvas2.Text{
+			Color:     color.RGBA{R: 180, G: 180, B: 180},
+			Text:      unlockedTile,
+			Alignment: fyne.TextAlignCenter,
+			TextSize:  24,
+			TextStyle: fyne.TextStyle{Bold: true,},
+		}
+		containerContent = &text
+	} else {
+		text := canvas2.Text{
+			Color:     color.RGBA{R: 180, G: 180, B: 180},
+			Text:      unknownTile,
+			Alignment: fyne.TextAlignCenter,
+			TextSize:  24,
 			TextStyle: fyne.TextStyle{Bold: true,},
 		}
 		containerContent = &text
 	}
+
 	if containerContent == nil {
 		containerContent = canvas2.NewRectangle(rectColor)
 	}
-	containerContent.Resize(fyne.NewSize(100, 50))
+
 	tileContainer := container.New(layout.NewMaxLayout())
 	tileContainer.Add(containerContent)
+
+	if tileToRender != nil && tileToRender.Item != nil {
+		switch tileToRender.Item.Type {
+		case item.KeyID:
+			tileContainer.Add(canvas2.NewText("K", color.Black))
+		}
+	}
+
 	tileContainer.Resize(fyne.NewSize(100, 50))
 	return tileContainer
 }
@@ -66,7 +103,7 @@ func renderGuiTile(tileToRender *level.Tile) *fyne.Container {
 func renderGuiActors(tileContainers []*fyne.Container,
 	actors []actor.Actor,
 	levelSize level.Position2D,
-	renderFunc actorRenderer)  {
+	renderFunc func(*fyne.Container))  {
 	for _, actorToRender := range actors {
 		tilePos := calc1DPosition(actorToRender.Position, levelSize)
 		renderFunc(tileContainers[tilePos])
@@ -80,12 +117,11 @@ func calc1DPosition(pos level.Position2D, levelSize level.Position2D) int {
 
 /* ----------------------- Actor Render functions ----------------------------- */
 
-type actorRenderer func(*fyne.Container)
-
 func renderPlayer(baseContainer *fyne.Container) {
 	baseContainer.Add(canvas2.NewCircle(color.RGBA{R: 150, G: 150, B: 150, A: 255}))
 }
 
 func renderAdversary(baseContainer *fyne.Container) {
-	baseContainer.Add(canvas2.NewCircle(color.RGBA{R: 150, G: 150, B: 150, A: 255}))
+	baseContainer.Add(canvas2.NewCircle(color.RGBA{R: 200, G: 100, B: 100, A: 255}))
 }
+

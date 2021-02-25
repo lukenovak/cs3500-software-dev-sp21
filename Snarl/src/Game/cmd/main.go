@@ -15,7 +15,7 @@ func main() {
 	w := a.NewWindow("snarl 0.0.1")
 	w.Resize(fyne.Size{Height: 800, Width: 800})
 	w.SetOnClosed(func() {os.Exit(0)})
-	state.GameLoop(generateGameStateLevel(), generatePlayers(),  w)
+	state.GameLoop(generateGameStateLevel(), generatePlayers(), generateAdversaries(), w)
 }
 
 func generateGameStateLevel() level.Level {
@@ -72,4 +72,8 @@ func generateGameStateLevel() level.Level {
 
 func generatePlayers() []actor.Actor {
 	return []actor.Actor{{Type: actor.PlayerType}, {Type: actor.PlayerType}, {Type: actor.PlayerType}, {Type: actor.PlayerType}}
+}
+
+func generateAdversaries() []actor.Actor {
+	return []actor.Actor{{Type: 1}, {Type: 2}, {Type: 1}, {Type: 2}}
 }

@@ -8,11 +8,11 @@ import (
 )
 
 // runs the main game loop
-func GameLoop(firstLevel level.Level, players []actor.Actor, gameWindow fyne.Window) {
+func GameLoop(firstLevel level.Level, players []actor.Actor, adversaries []actor.Actor, gameWindow fyne.Window) {
 	if len(players) < 1 || len(players) > 4 { // we cannot start the game without the right number of players
 		return
 	}
-	state := initGameState(firstLevel, players)
+	state := initGameState(firstLevel, players, adversaries)
 	gameWindow.Resize(fyne.Size{Width: 800, Height: 800})
 
 	// main game loop
