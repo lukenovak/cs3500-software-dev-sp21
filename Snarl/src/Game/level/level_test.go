@@ -6,7 +6,7 @@ import (
 )
 
 func TestGenerateRectangularRoom(t *testing.T) {
-	// generate a level witha rectangular room
+	// generate a level with a rectangular room
 	genLevel, _ := NewEmptyLevel(3, 3)
 	doors := []Position2D{NewPosition2D(1, 0), NewPosition2D(1, 2)}
 	err := genLevel.GenerateRectangularRoom(NewPosition2D(0, 0), 3, 3, doors)
@@ -96,7 +96,7 @@ func TestPlaceExit(t *testing.T) {
 
 	// test a valid exit
 	err := level.PlaceExit(NewPosition2D(1, 1))
-	if err != nil || level.getTile(NewPosition2D(1, 1)).Type != LockedExit {
+	if err != nil || level.GetTile(NewPosition2D(1, 1)).Type != LockedExit {
 		t.Fail()
 	}
 
@@ -117,13 +117,13 @@ func TestPlaceItem(t *testing.T) {
 	level := setupSmallTestLevel(t)
 
 	// valid item position
-	err := level.PlaceItem(NewPosition2D(1, 1), item.KeyID)
-	if err != nil || level.getTile(NewPosition2D(1, 1)).Item != item.KeyID {
+	err := level.PlaceItem(NewPosition2D(1, 1), item.Item{Type: item.KeyID})
+	if err != nil || level.GetTile(NewPosition2D(1, 1)).Item.Type != item.KeyID {
 		t.Fail()
 	}
 
 	// invalid item position
-	err = level.PlaceItem(NewPosition2D(0, 0), item.KeyID)
+	err = level.PlaceItem(NewPosition2D(0, 0), item.Item{Type: item.KeyID})
 	if err == nil {
 		t.Fail()
 	}
@@ -132,14 +132,14 @@ func TestPlaceItem(t *testing.T) {
 func TestClearItem(t *testing.T) {
 	// setup
 	level := setupSmallTestLevel(t)
-	err := level.PlaceItem(NewPosition2D(1, 1), item.KeyID)
+	err := level.PlaceItem(NewPosition2D(1, 1), item.Item{Type: item.KeyID})
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// test removing the placed item
 	level.ClearItem(NewPosition2D(1,1))
-	if level.getTile(NewPosition2D(1, 1)).Item != item.NoItem {
+	if level.GetTile(NewPosition2D(1, 1)).Item.Type != item.NoItem {
 		t.Fail()
 	}
 }

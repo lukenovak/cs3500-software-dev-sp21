@@ -1,13 +1,16 @@
 package level
 
-import "testing"
+import (
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/item"
+	"testing"
+)
 
 func TestTile_Equals(t *testing.T) {
 	testTile := newWalkable()
 	identicalTest := newWalkable()
 	differentType := newWall()
 	differentItem := newWalkable()
-	differentItem.Item = 1
+	differentItem.Item = &item.Item{Type: 1}
 
 	if !testTile.Equals(identicalTest) {
 		t.Fail()
@@ -29,10 +32,10 @@ func TestGenerateTile(t *testing.T) {
 
 // returns a new Walkable tile without calling the tile generation function
 func newWalkable() Tile {
-	return Tile{Type: Walkable, Item: 0}
+	return Tile{Type: Walkable, Item: &item.Item{0}}
 }
 
 // returns a new Wall tile without calling the tile generation function
 func newWall() Tile {
-	return Tile{Type: Wall, Item: 0}
+	return Tile{Type: Wall, Item: &item.Item{0}}
 }
