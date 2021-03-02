@@ -17,7 +17,6 @@ func GameLoop(firstLevel level.Level, players []actor.Actor, adversaries []actor
 
 	// main game loop
 	for !state.CheckVictory() {
-		print("got here")
 		// check for input here
 
 		// create an intermediate game state from the resulting input

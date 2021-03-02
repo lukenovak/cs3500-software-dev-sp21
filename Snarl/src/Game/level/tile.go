@@ -12,14 +12,16 @@ const (
 
 type Tile struct {
 	Type        int
+	RoomId		int
 	Item        *item.Item
 }
 
 
 // generates a tile with no object at the given position
-func GenerateTile(tileType int) *Tile {
+func GenerateTile(tileType int, roomId int) *Tile {
 	return &Tile{
 		Type: tileType,
+		RoomId: roomId,
 		Item: nil,
 	}
 }
