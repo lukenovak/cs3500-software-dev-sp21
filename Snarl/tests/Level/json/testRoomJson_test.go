@@ -21,7 +21,7 @@ func TestParseLevelTestJson(t *testing.T) {
 ]`
 	expected := MakeExampleLevelTestInput()
 
-	actual := ParseLevelTestJson(bytes.NewReader([]byte(rawInput)))
+	actual := ParseRoomTestJson(bytes.NewReader([]byte(rawInput)))
 
 	if expected.Room.Type != actual.Room.Type ||
 		!reflect.DeepEqual(actual.Room.Layout, expected.Room.Layout) ||

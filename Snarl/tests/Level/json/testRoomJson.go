@@ -26,7 +26,7 @@ type levelTestHall struct {
 
 type LevelTestPoint [2]int
 
-type levelTestLevel struct {
+type LevelTestLevel struct {
 	Rooms []levelTestRoom		`json:"rooms"`
 	Hallways []levelTestHall	`json:"hallways"`
 	Objects []levelTestObject	`json:"objects"`
@@ -44,7 +44,7 @@ type LevelTestRoomInput struct {
 
 /* ---------- Parsing JSON ---------- */
 
-func ParseLevelTestJson(r io.Reader) LevelTestRoomInput {
+func ParseRoomTestJson(r io.Reader) LevelTestRoomInput {
 	d := json.NewDecoder(r)
 	var input []json.RawMessage
 
@@ -64,4 +64,27 @@ func ParseLevelTestJson(r io.Reader) LevelTestRoomInput {
 		Point: point,
 	}
 
+}
+
+// Converts the raw json from a level tile data test into go structs
+func ParseLevelTileDataTestJson(r io.Reader) LevelTestLevel {
+	d := json.NewDecoder(r)
+	var topLevelInputData []json.RawMessage
+
+	err := d.Decode(&topLevelInputData)
+	if err != nil {
+		panic(invalidMsg)
+	}
+
+	var testLevel LevelTestLevel
+	err = json.Unmarshal(topLevelInputData[0], &testLevel)
+
+	var point LevelTestPoint
+	err = json.Unmarshal(topLevelInputData[1], &point)
+
+	if err != nil {
+		panic(invalidMsg)
+	}
+
+	return testLevel
 }

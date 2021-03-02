@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	outputMsg := tester.TestLevel(testJson.ParseLevelTestJson(os.Stdin))
+	outputMsg := tester.TestRoomTraversables(testJson.ParseRoomTestJson(os.Stdin))
 	outputJsonBytes, err := json.Marshal(outputMsg)
 	if err != nil {
 		panic(err)
