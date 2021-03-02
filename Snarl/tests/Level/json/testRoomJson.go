@@ -18,31 +18,33 @@ type levelTestRoom struct {
 
 type levelTestLayout [][]int
 
-/*func (layout levelTestLayout) equals(cmpLayout levelTestLayout) bool {
-	if len(layout) != len(cmpLayout) {
-		return false
-	} else {
-		for idx, row := range layout {
-			if len(row) != len(cmpLayout)
-			layout.
-		}
-	}
-} */
+type levelTestHall struct {
+	From LevelTestPoint			`json:"from"`
+	To LevelTestPoint			`json:"to"`
+	Waypoints []LevelTestPoint	`json:"waypoints"`
+}
 
 type LevelTestPoint [2]int
 
-/*func (point LevelTestPoint) equals(cmpPoint LevelTestPoint) bool {
-	return point[0] == cmpPoint[0] && point[1] == cmpPoint [1]
-} */
+type levelTestLevel struct {
+	Rooms []levelTestRoom		`json:"rooms"`
+	Hallways []levelTestHall	`json:"hallways"`
+	Objects []levelTestObject	`json:"objects"`
+}
 
-type LevelTestInput struct {
+type levelTestObject struct {
+	Type string
+	Position LevelTestPoint
+}
+
+type LevelTestRoomInput struct {
 	Room  levelTestRoom
 	Point LevelTestPoint
 }
 
 /* ---------- Parsing JSON ---------- */
 
-func ParseLevelTestJson(r io.Reader) LevelTestInput {
+func ParseLevelTestJson(r io.Reader) LevelTestRoomInput {
 	d := json.NewDecoder(r)
 	var input []json.RawMessage
 
@@ -57,7 +59,7 @@ func ParseLevelTestJson(r io.Reader) LevelTestInput {
 	var point LevelTestPoint
 	err = json.Unmarshal(input[1], &point)
 
-	return LevelTestInput{
+	return LevelTestRoomInput{
 		Room: room,
 		Point: point,
 	}
