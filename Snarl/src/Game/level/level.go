@@ -18,10 +18,10 @@ const (
 
 // Represents the level and all of its tiles.
 type Level struct {
-	Tiles 			[][]*Tile	// The raw tile data as laid out on a 2d plane
-	Exits 			[]*Tile		// Pointers to tiles that have exits (to be easily unlocked)
-	Size  			Position2D	// The size of the room
-	RoomDataGraph	[]RoomData	// A graph of RoomData objects, where index == room id
+	Tiles 			[][]*Tile		// The raw tile data as laid out on a 2d plane
+	Exits 			[]*Tile			// Pointers to tiles that have exits (to be easily unlocked)
+	Size  			Position2D		// The size of the room
+	RoomDataGraph	[]RoomGraphNode	// A graph of RoomGraphNode, where index == room id. Useful for room metadata
 }
 
 // Generates a level with a nil-initialized 2-d tile array of the given size
@@ -129,6 +129,8 @@ func (level *Level) GenerateRectangularRoom(topLeft Position2D, width int, heigh
 	if err != nil {
 		return err
 	}
+
+	// tile generation for the room
 	for i := topLeft.X; i < topLeft.X + width; i++ {
 		for j := topLeft.Y; j < topLeft.Y + height; j++ {
 			level.Tiles[i][j], err = generateRoomTile(topLeft, width, height, NewPosition2D(i, j), doors, newRoomId)
@@ -137,6 +139,13 @@ func (level *Level) GenerateRectangularRoom(topLeft Position2D, width int, heigh
 			}
 		}
 	}
+
+	// add the new room to the graph
+	level.RoomDataGraph = append(level.RoomDataGraph, &RoomData{
+		Id:      newRoomId,
+		TopLeft: topLeft,
+		Size:    NewPosition2D(width, height),
+	})
 	return nil
 }
 
@@ -158,6 +167,14 @@ func (level *Level) GenerateRectangularRoomWithLayout(topLeft Position2D, width 
 			level.Tiles[x][y] = GenerateTile(layout[x][y], newRoomId)
 		}
 	}
+
+	// add the new room to the graph
+	level.RoomDataGraph = append(level.RoomDataGraph, &RoomData{
+		Id:      newRoomId,
+		TopLeft: topLeft,
+		Size:    NewPosition2D(width, height),
+	})
+
 	return nil
 }
 
@@ -195,6 +212,19 @@ func (level Level) GenerateHallway(start Position2D, end Position2D, waypoints [
 		level.generateBetweenWaypoints(&currPos, end, false, newHallwayId)
 	}
 	level.GetTile(end).Type = Door
+
+	// add the new room to the graph
+	level.RoomDataGraph = append(level.RoomDataGraph, &HallData{
+		Id:      newHallwayId,
+		Start: start,
+		End: end,
+		Waypoints: waypoints,
+	})
+
+	// Add the room connections (we know this is a valid hallway so we gan get rooms directly)
+	level.RoomDataGraph[newHallwayId].ConnectNode(level.RoomDataGraph[level.GetTile(start).RoomId])
+	level.RoomDataGraph[newHallwayId].ConnectNode(level.RoomDataGraph[level.GetTile(end).RoomId])
+
 	return nil
 }
 

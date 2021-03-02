@@ -11,7 +11,6 @@ type RoomGraphNode interface {
 // Keeps track of room metadata
 type RoomData struct {
 	Id			int
-	Type 		string
 	TopLeft 	Position2D
 	Size		Position2D
 	Connections []RoomGraphNode
@@ -36,7 +35,6 @@ func (room *RoomData) insertConnection(connectingNode RoomGraphNode) {
 // Keeps track of hallway metadata, which is slightly different than room metadata
 type HallData struct {
 	Id			int
-	Type 		string
 	Start		Position2D
 	End			Position2D
 	Waypoints	[]Position2D
