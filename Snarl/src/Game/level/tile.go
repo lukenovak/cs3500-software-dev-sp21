@@ -31,26 +31,3 @@ func (t Tile) Equals(secondTile Tile) bool {
 	return t.Type == secondTile.Type && t.Item.Type == secondTile.Item.Type
 }
 
-// generates data ablut the tile for use in a testing task
-func (t Tile) TileData() map[string]interface{} {
-	var tileData map[string]interface{}
-
-	switch t.Type {
-	case Wall:
-		tileData["traversable"] = false
-	case LockedExit, UnlockedExit:
-		tileData["object"] = "exit"
-		tileData["traversable"] = true
-	case Walkable, Door:
-		tileData["traversable"] = true
-	}
-
-	switch t.Item.Type {
-	case item.NoItem:
-		tileData["object"] = nil
-	case item.KeyID:
-		tileData["object"] = "key"
-	}
-
-	return tileData
-}

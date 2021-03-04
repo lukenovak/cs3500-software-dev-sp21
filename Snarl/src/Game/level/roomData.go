@@ -1,11 +1,12 @@
 package level
 
 type RoomGraphNode interface {
-	GetId() int                                    // returns the room or hallway ID. Useful for surveying tiles in a specific room
-	ConnectNode(connectingNode RoomGraphNode)      // Adds the given room as a connection to the room it's called on, and vice versa
-	insertConnection(connectingNode RoomGraphNode) // Inserts a single node into a room graph's connections. Internal Use Only!
-	Type() string                                  // returns a string representing the type of the room
-	GetReachableRooms() [][]int
+	GetId() int                                     // returns the room or hallway ID. Useful for surveying tiles in a specific room
+	ConnectNode(connectingNode RoomGraphNode)       // Adds the given room as a connection to the room it's called on, and vice versa
+	insertConnection(connectingNode RoomGraphNode) 	// Inserts a single node into a room graph's connections. Internal Use Only!
+	Type() string                                  	// returns a string representing the type of the room
+	GetConnections() []RoomGraphNode				// Gets the list of this room's connections
+	GetStartPoint()	Position2D
 }
 
 /* ------------------------- Room Metadata ------------------------------- */
@@ -36,20 +37,12 @@ func (room RoomData) Type() string {
 	return "room"
 }
 
-func (room RoomData) GetReachableRooms() [][]int {
-	// TODO: get this working or think of some other way to do this
+func (room RoomData) GetConnections() []RoomGraphNode {
+	return room.Connections
+}
 
-	var roomOrigins [][]int
-
-	for _, hall := range room.Connections {
-		for _, reachableRoom := range HallData(hall).Connections {
-			if reachableRoom.Id != room.Id {
-				roomOrigins = append(roomOrigins, []int{reachableRoom.TopLeft.X, reachableRoom.TopLeft.Y})
-			}
-		}
-	}
-
-	return roomOrigins
+func (room RoomData) GetStartPoint() Position2D {
+	return room.TopLeft
 }
 
 /* ------------------------- Hallway Metadata ------------------------------- */
@@ -80,6 +73,10 @@ func (hall HallData) Type() string {
 	return "hallway"
 }
 
-func (hall HallData) GetReachableRooms() [][]int {
-	// TODO: do this part too
+func (hall HallData) GetConnections() []RoomGraphNode {
+	return hall.Connections
+}
+
+func (hall HallData) GetStartPoint() Position2D {
+	return hall.Start
 }

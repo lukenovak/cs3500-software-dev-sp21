@@ -14,7 +14,7 @@ func TestRoomTraversables(testInput testJson.LevelTestRoomInput) []interface{} {
 	// figure out where the doors may be located
 	for r := 0; r < len(testInput.Room.Layout); r++ {
 		for c := 0; c < len(testInput.Room.Layout[r]); c++ {
-			newLevel.Tiles[c+testInput.Room.Origin[1]][r+testInput.Room.Origin[0]] = level.GenerateTile(testInput.Room.Layout[r][c])
+			newLevel.Tiles[c+testInput.Room.Origin[1]][r+testInput.Room.Origin[0]] = level.GenerateTile(testInput.Room.Layout[r][c], 0)
 		}
 	}
 

@@ -61,25 +61,6 @@ func (level Level) GetTile(pos Position2D) *Tile {
 	return nil
 }
 
-func (level Level) GetTileData(pos Position2D) map[string]interface{} {
-	tile := level.GetTile(pos)
-
-	if tile == nil {
-		return map[string]interface{}{
-			"traversable": false,
-			"object":      nil,
-			"type":        "void",
-			"reachable":   make([]interface{}, 0),
-		}
-	}
-
-	tileData := tile.TileData()
-	roomData := level.RoomDataGraph[tile.RoomId]
-	tileData["type"] = roomData.Type()
-
-	// TODO: compute reachable and add to return
-	return tileData
-}
 
 // Gets the actual traversable Tiles that are numSteps number of steps away from the current position
 func (level Level) GetWalkableTiles(pos Position2D, numSteps int) []*Tile {
@@ -182,9 +163,9 @@ func (level *Level) GenerateRectangularRoomWithLayout(topLeft Position2D, width 
 	if err != nil {
 		return err
 	}
-	for x := topLeft.X; x < topLeft.X+width; x++ {
-		for y := topLeft.Y; y < topLeft.Y+height; y++ {
-			level.Tiles[x][y] = GenerateTile(layout[x][y], newRoomId)
+	for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
+			level.Tiles[topLeft.X + x][topLeft.Y + y] = GenerateTile(layout[y][x], newRoomId)
 		}
 	}
 

@@ -102,5 +102,5 @@ func ParseLevelTileDataTestJson(r io.Reader) LevelTestLevelInput {
 
 // Converts a LevelTestPoint to a Position2D
 func (point *LevelTestPoint) To2DPosition() level.Position2D {
-	return level.NewPosition2D(point[0], point[1])
+	return level.NewPosition2D(point[1], point[0])
 }
