@@ -156,7 +156,7 @@ func (level *Level) GenerateRectangularRoomWithLayout(topLeft Position2D, width 
 
 	bottomRight := NewPosition2D(topLeft.X+width, topLeft.Y+height)
 	level.expandLevel(getMaxPosition(level.Size, bottomRight))
-	if width < 3 || height < 3 || width != len(layout) || height != len(layout[0]) {
+	if width < 3 || height < 3 || width != len(layout[0]) || height != len(layout) {
 		return fmt.Errorf("invalid room layout")
 	}
 	err := level.checkRoomValidity(topLeft, width, height)

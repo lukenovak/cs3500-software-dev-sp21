@@ -112,7 +112,11 @@ func getTileData(tileLevel level.Level, pos level.Position2D) TileData {
 
 
 	// Reachable
-	tileData.Reachable = getReachableRooms(roomData)
+	if roomData != nil {
+		tileData.Reachable = getReachableRooms(roomData)
+	} else {
+		tileData.Reachable = make([]json.LevelTestPoint, 0)
+	}
 
 	return *tileData
 }
