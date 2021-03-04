@@ -2,17 +2,11 @@
 
 # go variables
 GOBASE := $(shell pwd)
-ROOM_MAINFILE := $(wildcard ./cmd/roomTest/main.go)
-LEVEL_MAINFILE := $(wildcard ./cmd/levelTest/main.go)
+LEVEL_MAINFILE := $(wildcard ./cmd/main.go)
 
 BINARYNAME := "testLevel"
 
-roomTest:
-	echo $(PWD)
-	go build -o $(BINARYNAME) $(ROOM_MAINFILE)
-	chmod +x $(BINARYNAME)
-
-levelTest:
+build:
 	echo $(PWD)
 	go build -o $(BINARYNAME) $(LEVEL_MAINFILE)
 	chmod +x $(BINARYNAME)
