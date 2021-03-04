@@ -18,9 +18,10 @@ const (
 
 // Represents the level and all of its tiles.
 type Level struct {
-	Tiles [][]*Tile
-	Exits []*Tile
-	Size  Position2D
+	Tiles         [][]*Tile       // The raw tile data as laid out on a 2d plane
+	Exits         []*Tile         // Pointers to tiles that have exits (to be easily unlocked)
+	Size          Position2D      // The size of the room
+	RoomDataGraph []RoomGraphNode // A graph of RoomGraphNode, where index == room id. Useful for room metadata
 }
 
 // Generates a level with a nil-initialized 2-d tile array of the given size
@@ -60,6 +61,8 @@ func (level Level) GetTile(pos Position2D) *Tile {
 	return nil
 }
 
+
+// Gets the actual traversable Tiles that are numSteps number of steps away from the current position
 func (level Level) GetWalkableTiles(pos Position2D, numSteps int) []*Tile {
 	var walkableTiles []*Tile
 	if numSteps > 0 {
@@ -76,6 +79,7 @@ func (level Level) GetWalkableTiles(pos Position2D, numSteps int) []*Tile {
 	}
 }
 
+// gets traversable positions that are numSteps number of steps away from the current position
 func (level Level) GetWalkableTilePositions(pos Position2D, numSteps int) []Position2D {
 	var walkablePosns []Position2D
 	if numSteps > 0 {
@@ -92,6 +96,7 @@ func (level Level) GetWalkableTilePositions(pos Position2D, numSteps int) []Posi
 	}
 }
 
+// gets traversable positions in the level that are adjacent to the given position
 func (level Level) getAdjacentWalkablePositions(pos Position2D) []Position2D {
 	var walkablePositions []Position2D
 
@@ -114,7 +119,9 @@ func (level Level) getAdjacentWalkablePositions(pos Position2D) []Position2D {
 
 // adds a Room's tiles to a Level, and expands the Level if necessary
 func (level *Level) GenerateRectangularRoom(topLeft Position2D, width int, height int, doors []Position2D) error {
-	bottomRight := getRoomBottomRight(topLeft, width, height)
+	newRoomId := len(level.RoomDataGraph)
+
+	bottomRight := NewPosition2D(topLeft.X+width, topLeft.Y+height)
 	level.expandLevel(getMaxPosition(level.Size, bottomRight))
 	if width < 3 || height < 3 {
 		return fmt.Errorf("invalid room dimensions")
@@ -123,33 +130,52 @@ func (level *Level) GenerateRectangularRoom(topLeft Position2D, width int, heigh
 	if err != nil {
 		return err
 	}
-	for i := topLeft.X; i < topLeft.X + width; i++ {
-		for j := topLeft.Y; j < topLeft.Y + height; j++ {
-			level.Tiles[i][j], err = generateRoomTile(topLeft, width, height, NewPosition2D(i, j), doors)
+
+	// tile generation for the room
+	for i := topLeft.X; i < topLeft.X+width; i++ {
+		for j := topLeft.Y; j < topLeft.Y+height; j++ {
+			level.Tiles[i][j], err = generateRoomTile(topLeft, width, height, NewPosition2D(i, j), doors, newRoomId)
 			if err != nil {
 				return err
 			}
 		}
 	}
+
+	// add the new room to the graph
+	level.RoomDataGraph = append(level.RoomDataGraph, &RoomData{
+		Id:      newRoomId,
+		TopLeft: topLeft,
+		Size:    NewPosition2D(width, height),
+	})
 	return nil
 }
 
 // given a top coordinate and a room layout, make the given rectangular room
 func (level *Level) GenerateRectangularRoomWithLayout(topLeft Position2D, width int, height int, layout [][]int) error {
-	bottomRight := getRoomBottomRight(topLeft, width, height)
+	newRoomId := len(level.RoomDataGraph)
+
+	bottomRight := NewPosition2D(topLeft.X+width, topLeft.Y+height)
 	level.expandLevel(getMaxPosition(level.Size, bottomRight))
-	if width < 3 || height < 3 || width != len(layout) || height != len(layout[0]) {
+	if width < 3 || height < 3 || width != len(layout[0]) || height != len(layout) {
 		return fmt.Errorf("invalid room layout")
 	}
 	err := level.checkRoomValidity(topLeft, width, height)
 	if err != nil {
 		return err
 	}
-	for x := topLeft.X; x < topLeft.X + width; x++ {
-		for y := topLeft.Y; y < topLeft.Y +height; y++ {
-			level.Tiles[x][y] = GenerateTile(layout[x][y])
+	for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
+			level.Tiles[topLeft.X + x][topLeft.Y + y] = GenerateTile(layout[y][x], newRoomId)
 		}
 	}
+
+	// add the new room to the graph
+	level.RoomDataGraph = append(level.RoomDataGraph, &RoomData{
+		Id:      newRoomId,
+		TopLeft: topLeft,
+		Size:    NewPosition2D(width, height),
+	})
+
 	return nil
 }
 
@@ -166,7 +192,9 @@ func (level Level) checkRoomValidity(topLeft Position2D, width int, length int) 
 }
 
 // generates a "hallway", which is a start and end point, with an ordered list of waypoints
-func (level Level) GenerateHallway(start Position2D, end Position2D, waypoints []Position2D) error {
+func (level *Level) GenerateHallway(start Position2D, end Position2D, waypoints []Position2D) error {
+	newHallwayId := len(level.RoomDataGraph)
+
 	err := level.validateHallway(start, end, waypoints)
 	if err != nil {
 		return err
@@ -177,50 +205,63 @@ func (level Level) GenerateHallway(start Position2D, end Position2D, waypoints [
 
 	// go through the waypoints and generate all the necessary tiles
 	for _, waypoint := range waypoints {
-		level.generateBetweenWaypoints(&currPos, waypoint, true)
+		level.generateBetweenWaypoints(&currPos, waypoint, true, newHallwayId)
 	}
 
 	// the last "sub-hallway" to the end is special because it doesn't get capped
 	if !currPos.Equals(end) {
-		level.generateBetweenWaypoints(&currPos, end, false)
+		level.generateBetweenWaypoints(&currPos, end, false, newHallwayId)
 	}
 	level.GetTile(end).Type = Door
+
+	// add the new room to the graph
+	level.RoomDataGraph = append(level.RoomDataGraph, &HallData{
+		Id:        newHallwayId,
+		Start:     start,
+		End:       end,
+		Waypoints: waypoints,
+	})
+
+	// Add the room connections (we know this is a valid hallway so we gan get rooms directly)
+	level.RoomDataGraph[newHallwayId].ConnectNode(level.RoomDataGraph[level.GetTile(start).RoomId])
+	level.RoomDataGraph[newHallwayId].ConnectNode(level.RoomDataGraph[level.GetTile(end).RoomId])
+
 	return nil
 }
 
 // generates the "hallway" segments between hallway waypoints
-func (level Level) generateBetweenWaypoints(startPos *Position2D, endPos Position2D, shouldCapEnd bool) {
+func (level Level) generateBetweenWaypoints(startPos *Position2D, endPos Position2D, shouldCapEnd bool, hallwayId int) {
 	if endPos.X == startPos.X && endPos.Y > startPos.Y { // moving down
 		for !startPos.Equals(endPos) {
 			startPos.Y += 1
-			level.generateHallwayStep(*startPos, vertical)
+			level.generateHallwayStep(*startPos, vertical, hallwayId)
 		}
 		if shouldCapEnd {
-			level.capHallwayEnd(*startPos, down)
+			level.capHallwayEnd(*startPos, down, hallwayId)
 		}
 	} else if endPos.X == startPos.X && endPos.Y < startPos.Y { // moving up
 		for !startPos.Equals(endPos) {
 			startPos.Y -= 1
-			level.generateHallwayStep(*startPos, vertical)
+			level.generateHallwayStep(*startPos, vertical, hallwayId)
 		}
 		if shouldCapEnd {
-			level.capHallwayEnd(*startPos, up)
+			level.capHallwayEnd(*startPos, up, hallwayId)
 		}
 	} else if endPos.X > startPos.X { // moving right
 		for !startPos.Equals(endPos) {
 			startPos.X += 1
-			level.generateHallwayStep(*startPos, horizontal)
+			level.generateHallwayStep(*startPos, horizontal, hallwayId)
 		}
 		if shouldCapEnd {
-			level.capHallwayEnd(*startPos, right)
+			level.capHallwayEnd(*startPos, right, hallwayId)
 		}
 	} else if endPos.Y < startPos.Y { // moving left
 		for !startPos.Equals(endPos) {
 			startPos.X -= 1
-			level.generateHallwayStep(*startPos, horizontal)
+			level.generateHallwayStep(*startPos, horizontal, hallwayId)
 		}
 		if shouldCapEnd {
-			level.capHallwayEnd(*startPos, left)
+			level.capHallwayEnd(*startPos, left, hallwayId)
 		}
 	}
 }
@@ -290,16 +331,16 @@ func (level Level) validateHallwayStep(rowCenter Position2D, direction int) erro
 	centerTile := level.GetTile(rowCenter)
 	switch direction {
 	case vertical:
-		leftTile := level.GetTile(NewPosition2D(rowCenter.X - 1, rowCenter.Y))
-		rightTile := level.GetTile(NewPosition2D(rowCenter.X + 1, rowCenter.Y))
+		leftTile := level.GetTile(NewPosition2D(rowCenter.X-1, rowCenter.Y))
+		rightTile := level.GetTile(NewPosition2D(rowCenter.X+1, rowCenter.Y))
 		if (centerTile != nil && centerTile.Type != Door) ||
 			(leftTile != nil && leftTile.Type != Wall) ||
 			(rightTile != nil && rightTile.Type != Wall) {
 			return fmt.Errorf("row is invalid")
 		}
 	case horizontal:
-		topTile := level.GetTile(NewPosition2D(rowCenter.X, rowCenter.Y - 1))
-		bottomTile := level.GetTile(NewPosition2D(rowCenter.X, rowCenter.Y + 1))
+		topTile := level.GetTile(NewPosition2D(rowCenter.X, rowCenter.Y-1))
+		bottomTile := level.GetTile(NewPosition2D(rowCenter.X, rowCenter.Y+1))
 		if (centerTile != nil && centerTile.Type != Door) ||
 			(topTile != nil && topTile.Type != Wall) ||
 			(bottomTile != nil && bottomTile.Type != Wall) {
@@ -312,41 +353,41 @@ func (level Level) validateHallwayStep(rowCenter Position2D, direction int) erro
 }
 
 // generates the tiles in a single, 3-tile "step" of the hallway
-func (level Level) generateHallwayStep(rowCenter Position2D, direction int) {
+func (level Level) generateHallwayStep(rowCenter Position2D, direction int, hallwayId int) {
 	if level.GetTile(rowCenter) == nil || level.GetTile(rowCenter).Type == Wall {
-		level.Tiles[rowCenter.X][rowCenter.Y] = GenerateTile(Walkable)
+		level.Tiles[rowCenter.X][rowCenter.Y] = GenerateTile(Walkable, hallwayId)
 	}
 	switch direction {
 	case vertical:
-		level.Tiles[rowCenter.X-1][rowCenter.Y] = GenerateTile(Wall)
-		level.Tiles[rowCenter.X+1][rowCenter.Y] = GenerateTile(Wall)
+		level.Tiles[rowCenter.X-1][rowCenter.Y] = GenerateTile(Wall, hallwayId)
+		level.Tiles[rowCenter.X+1][rowCenter.Y] = GenerateTile(Wall, hallwayId)
 	case horizontal:
-		level.Tiles[rowCenter.X][rowCenter.Y-1] = GenerateTile(Wall)
-		level.Tiles[rowCenter.X][rowCenter.Y+1] = GenerateTile(Wall)
+		level.Tiles[rowCenter.X][rowCenter.Y-1] = GenerateTile(Wall, hallwayId)
+		level.Tiles[rowCenter.X][rowCenter.Y+1] = GenerateTile(Wall, hallwayId)
 	default:
 		panic("invalid hallway direction")
 	}
 }
 
 // "Caps" the end of a hallway by adding a wall one tile set past the waypoint
-func (level Level) capHallwayEnd(startPos Position2D, direction int) {
+func (level Level) capHallwayEnd(startPos Position2D, direction int, hallwayId int) {
 	switch direction {
 	case up:
-		level.Tiles[startPos.X+1][startPos.Y-1] = GenerateTile(Wall)
-		level.Tiles[startPos.X][startPos.Y-1] = GenerateTile(Wall)
-		level.Tiles[startPos.X-1][startPos.Y-1] = GenerateTile(Wall)
+		level.Tiles[startPos.X+1][startPos.Y-1] = GenerateTile(Wall, hallwayId)
+		level.Tiles[startPos.X][startPos.Y-1] = GenerateTile(Wall, hallwayId)
+		level.Tiles[startPos.X-1][startPos.Y-1] = GenerateTile(Wall, hallwayId)
 	case down:
-		level.Tiles[startPos.X+1][startPos.Y+1] = GenerateTile(Wall)
-		level.Tiles[startPos.X][startPos.Y+1] = GenerateTile(Wall)
-		level.Tiles[startPos.X-1][startPos.Y+1] = GenerateTile(Wall)
+		level.Tiles[startPos.X+1][startPos.Y+1] = GenerateTile(Wall, hallwayId)
+		level.Tiles[startPos.X][startPos.Y+1] = GenerateTile(Wall, hallwayId)
+		level.Tiles[startPos.X-1][startPos.Y+1] = GenerateTile(Wall, hallwayId)
 	case right:
-		level.Tiles[startPos.X+1][startPos.Y+1] = GenerateTile(Wall)
-		level.Tiles[startPos.X+1][startPos.Y] = GenerateTile(Wall)
-		level.Tiles[startPos.X+1][startPos.Y-1] = GenerateTile(Wall)
+		level.Tiles[startPos.X+1][startPos.Y+1] = GenerateTile(Wall, hallwayId)
+		level.Tiles[startPos.X+1][startPos.Y] = GenerateTile(Wall, hallwayId)
+		level.Tiles[startPos.X+1][startPos.Y-1] = GenerateTile(Wall, hallwayId)
 	case left:
-		level.Tiles[startPos.X-1][startPos.Y+1] = GenerateTile(Wall)
-		level.Tiles[startPos.X-1][startPos.Y] = GenerateTile(Wall)
-		level.Tiles[startPos.X-1][startPos.Y-1] = GenerateTile(Wall)
+		level.Tiles[startPos.X-1][startPos.Y+1] = GenerateTile(Wall, hallwayId)
+		level.Tiles[startPos.X-1][startPos.Y] = GenerateTile(Wall, hallwayId)
+		level.Tiles[startPos.X-1][startPos.Y-1] = GenerateTile(Wall, hallwayId)
 	default:
 		panic("unknown hallway cap direction.")
 	}
@@ -382,17 +423,17 @@ func (level Level) ClearItem(pos Position2D) {
 /* -------------------------------- Generation Utility Functions -------------------------------- */
 
 // used in room generation to determine what kind of tile should be generated
-func generateRoomTile(topLeft Position2D, width int, length int, newTilePos Position2D, doors []Position2D) (*Tile, error) {
+func generateRoomTile(topLeft Position2D, width int, length int, newTilePos Position2D, doors []Position2D, roomId int) (*Tile, error) {
 	if isPerimeter(topLeft, width, length, newTilePos) {
 		if isDoor(newTilePos, doors) {
-			return GenerateTile(Door), nil
+			return GenerateTile(Door, roomId), nil
 		} else {
-			return GenerateTile(Wall), nil
+			return GenerateTile(Wall, roomId), nil
 		}
 	} else if isDoor(newTilePos, doors) {
 		return nil, fmt.Errorf("invalid Door at %d, %d", newTilePos.X, newTilePos.Y)
 	} else {
-		return GenerateTile(Walkable), nil
+		return GenerateTile(Walkable, roomId), nil
 	}
 }
 
@@ -412,10 +453,7 @@ func isDoor(tilePos Position2D, doors []Position2D) bool {
 	return false
 }
 
-func getRoomBottomRight(topLeft Position2D, width int, length int) Position2D {
-	return NewPosition2D(topLeft.X+width, topLeft.Y+length)
-}
-
+// Allocates array space for all of the levels tiles. May produce a sparse array
 func allocateLevelTiles(w int, l int) [][]*Tile {
 	room := make([][]*Tile, w)
 	for i := range room {

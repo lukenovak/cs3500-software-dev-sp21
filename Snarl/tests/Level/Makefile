@@ -2,13 +2,13 @@
 
 # go variables
 GOBASE := $(shell pwd)
-MAINFILE := $(wildcard ./cmd/main.go)
+LEVEL_MAINFILE := $(wildcard ./cmd/main.go)
 
 BINARYNAME := "testLevel"
 
 build:
 	echo $(PWD)
-	go build -o $(BINARYNAME) $(MAINFILE)
+	go build -o $(BINARYNAME) $(LEVEL_MAINFILE)
 	chmod +x $(BINARYNAME)
 
 clean:

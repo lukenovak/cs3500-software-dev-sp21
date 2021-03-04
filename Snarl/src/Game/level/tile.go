@@ -1,6 +1,8 @@
 package level
 
-import "github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/item"
+import (
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/item"
+)
 
 const (
 	Wall         = 0
@@ -11,19 +13,21 @@ const (
 )
 
 type Tile struct {
-	Type        int
-	Item        *item.Item
+	Type   int
+	RoomId int
+	Item   *item.Item
 }
 
-
 // generates a tile with no object at the given position
-func GenerateTile(tileType int) *Tile {
+func GenerateTile(tileType int, roomId int) *Tile {
 	return &Tile{
-		Type: tileType,
-		Item: nil,
+		Type:   tileType,
+		RoomId: roomId,
+		Item:   nil,
 	}
 }
 
 func (t Tile) Equals(secondTile Tile) bool {
 	return t.Type == secondTile.Type && t.Item.Type == secondTile.Item.Type
 }
+

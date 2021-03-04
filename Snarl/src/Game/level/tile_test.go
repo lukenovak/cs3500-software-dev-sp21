@@ -25,17 +25,17 @@ func TestTile_Equals(t *testing.T) {
 
 func TestGenerateTile(t *testing.T) {
 	expectedTile := newWalkable()
-	if !expectedTile.Equals(*GenerateTile(Walkable)) {
+	if !expectedTile.Equals(*GenerateTile(Walkable, 0)) {
 		t.Fail()
 	}
 }
 
 // returns a new Walkable tile without calling the tile generation function
 func newWalkable() Tile {
-	return Tile{Type: Walkable, Item: &item.Item{0}}
+	return Tile{Type: Walkable, RoomId: 0, Item: &item.Item{0}}
 }
 
 // returns a new Wall tile without calling the tile generation function
 func newWall() Tile {
-	return Tile{Type: Wall, Item: &item.Item{0}}
+	return Tile{Type: Wall, RoomId: 0, Item: &item.Item{0}}
 }
