@@ -192,7 +192,7 @@ func (level Level) checkRoomValidity(topLeft Position2D, width int, length int) 
 }
 
 // generates a "hallway", which is a start and end point, with an ordered list of waypoints
-func (level Level) GenerateHallway(start Position2D, end Position2D, waypoints []Position2D) error {
+func (level *Level) GenerateHallway(start Position2D, end Position2D, waypoints []Position2D) error {
 	newHallwayId := len(level.RoomDataGraph)
 
 	err := level.validateHallway(start, end, waypoints)

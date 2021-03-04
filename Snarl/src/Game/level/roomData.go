@@ -23,13 +23,13 @@ func (room RoomData) GetId() int {
 	return room.Id
 }
 
-func (room RoomData) ConnectNode(connectingNode RoomGraphNode) {
+func (room *RoomData) ConnectNode(connectingNode RoomGraphNode) {
 	room.Connections = append(room.Connections, connectingNode)
 	connectingNode.insertConnection(room)
 
 }
 
-func (room RoomData) insertConnection(connectingNode RoomGraphNode) {
+func (room *RoomData) insertConnection(connectingNode RoomGraphNode) {
 	room.Connections = append(room.Connections, connectingNode)
 }
 
@@ -60,12 +60,12 @@ func (hall HallData) GetId() int {
 	return hall.Id
 }
 
-func (hall HallData) ConnectNode(connectingNode RoomGraphNode) {
+func (hall *HallData) ConnectNode(connectingNode RoomGraphNode) {
 	hall.Connections = append(hall.Connections, connectingNode)
 	connectingNode.insertConnection(hall)
 }
 
-func (hall HallData) insertConnection(connectingNode RoomGraphNode) {
+func (hall *HallData) insertConnection(connectingNode RoomGraphNode) {
 	hall.Connections = append(hall.Connections, connectingNode)
 }
 

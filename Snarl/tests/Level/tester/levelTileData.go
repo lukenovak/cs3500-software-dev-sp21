@@ -82,6 +82,9 @@ func getTileData(tileLevel level.Level, pos level.Position2D) TileData {
 	// traversability
 	switch tile.Type {
 	case level.Wall:
+		if tileLevel.RoomDataGraph[tile.RoomId].Type() == "hallway" {
+			tileData.Type = "void"
+		}
 		tileData.Traversable = false
 	case level.LockedExit, level.UnlockedExit:
 		tileData.Object = "exit"
@@ -101,8 +104,12 @@ func getTileData(tileLevel level.Level, pos level.Position2D) TileData {
 	}
 
 	// type
-	roomData := tileLevel.RoomDataGraph[tile.RoomId]
-	tileData.Type = roomData.Type()
+	var roomData level.RoomGraphNode
+	if tileData.Type != "void" { // handling the strange edge case on hallways
+		roomData = tileLevel.RoomDataGraph[tile.RoomId]
+		tileData.Type = roomData.Type()
+	}
+
 
 	// Reachable
 	tileData.Reachable = getReachableRooms(roomData)
@@ -113,7 +120,6 @@ func getTileData(tileLevel level.Level, pos level.Position2D) TileData {
 // gets the reachable rooms from a room
 func getReachableRooms(roomData level.RoomGraphNode) []json.LevelTestPoint {
 	var reachables []json.LevelTestPoint
-	reachables = append(reachables, [2]int{roomData.GetStartPoint().Y, roomData.GetStartPoint().X})
 
 	switch roomData.Type() {
 	// in the case of rooms, we traverse the hallways to their ends
@@ -123,6 +129,12 @@ func getReachableRooms(roomData level.RoomGraphNode) []json.LevelTestPoint {
 				if room.GetId() != roomData.GetId() {
 					reachables = append(reachables, [2]int{room.GetStartPoint().Y, room.GetStartPoint().X})
 				}
+			}
+
+			// edge case for room self-link
+			startRoom := hallway.GetConnections()[0]
+			if hallway.GetConnections()[0].GetId() == hallway.GetConnections()[1].GetId() {
+				reachables = append(reachables, [2]int{startRoom.GetStartPoint().Y, startRoom.GetStartPoint().X})
 			}
 		}
 	// in hallways, we simply use the two connections
