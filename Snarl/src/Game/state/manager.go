@@ -8,7 +8,7 @@ import (
 )
 
 // runs the main game loop
-func GameLoop(firstLevel level.Level, players []actor.Actor, adversaries []actor.Actor, gameWindow fyne.Window) {
+func GameManager(firstLevel level.Level, players []actor.Actor, adversaries []actor.Actor, gameWindow fyne.Window) {
 	if len(players) < 1 || len(players) > 4 { // we cannot start the game without the right number of players
 		return
 	}

@@ -15,7 +15,7 @@ func main() {
 	w := a.NewWindow("snarl 0.0.1")
 	w.Resize(fyne.Size{Height: 800, Width: 800})
 	w.SetOnClosed(func() {os.Exit(0)})
-	state.GameLoop(generateGameStateLevel(), generatePlayers(), generateAdversaries(), w)
+	state.GameManager(generateGameStateLevel(), generatePlayers(), generateAdversaries(), w)
 }
 
 func generateGameStateLevel() level.Level {
