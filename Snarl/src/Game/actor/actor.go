@@ -13,20 +13,20 @@ const (
 
 type Actor struct {
 	Type 			int
-	Id 				int // must be unique
 	Name 			string
 	Position 		level.Position2D
 	CanOccupyTile 	func(*level.Tile) bool
+	MaxMoveDistance int
 }
 
 
 // Returns a new actor at the new position
 func (actor Actor) MoveActor(newPos level.Position2D) Actor {
 	return Actor{Type: actor.Type,
-		Id: actor.Id,
 		Position: newPos,
 		Name: actor.Name,
 		CanOccupyTile: actor.CanOccupyTile,
+		MaxMoveDistance: actor.MaxMoveDistance,
 	}
 }
 
@@ -38,7 +38,7 @@ func NewPlayerList() []Actor {
 
 /* ------------ Tile occupancy functions --------------- */
 
-func canOccupyWalkable(currTile *level.Tile) bool {
+func canOccupyWalkable2Steps(currTile *level.Tile, newPosition level.Position2D) bool {
 	if currTile != nil && currTile.Type == level.Walkable {
 		return true
 	}

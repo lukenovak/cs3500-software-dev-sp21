@@ -60,6 +60,25 @@ func (gs *GameState) UnlockExits() {
 	}
 }
 
+// Searches a gamestate for an actor with the given name (which functions as an id
+func (gs GameState) GetActor(name string) *actor.Actor {
+
+	findActor := func(actorList []actor.Actor) *actor.Actor {
+		for _, player := range gs.Players {
+			if player.Name == name {
+				return &player
+			}
+		}
+		return nil
+	}
+
+	if player := findActor(gs.Players); player != nil {
+		return player
+	}
+
+	return findActor(gs.Adversaries)
+}
+
 
 /* ---------------------------- Internal Use Functions ------------------------------------- */
 
