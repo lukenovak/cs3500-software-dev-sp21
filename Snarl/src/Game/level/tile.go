@@ -24,6 +24,10 @@ func GenerateTile(tileType int, roomId int) *Tile {
 }
 
 func (t Tile) Equals(secondTile Tile) bool {
-	return t.Type == secondTile.Type && t.Item.Type == secondTile.Item.Type
+	return t.Type == secondTile.Type &&
+		!(t.Item == nil && secondTile.Item != nil) &&
+		!(t.Item != nil && secondTile.Item == nil) &&
+		(t.Item == nil && secondTile.Item == nil ||
+			(t.Item.Type == secondTile.Item.Type))
 }
 

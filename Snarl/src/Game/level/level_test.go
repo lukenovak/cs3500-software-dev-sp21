@@ -138,7 +138,7 @@ func TestClearItem(t *testing.T) {
 
 	// test removing the placed item
 	level.ClearItem(NewPosition2D(1,1))
-	if level.GetTile(NewPosition2D(1, 1)).Item.Type != NoItem {
+	if level.GetTile(NewPosition2D(1, 1)).Item != nil {
 		t.Fail()
 	}
 }

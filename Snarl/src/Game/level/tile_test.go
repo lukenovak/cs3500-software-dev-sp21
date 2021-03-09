@@ -31,10 +31,10 @@ func TestGenerateTile(t *testing.T) {
 
 // returns a new Walkable tile without calling the tile generation function
 func newWalkable() Tile {
-	return Tile{Type: Walkable, RoomId: 0, Item: &Item{0}}
+	return Tile{Type: Walkable, RoomId: 0, Item: nil}
 }
 
 // returns a new Wall tile without calling the tile generation function
 func newWall() Tile {
-	return Tile{Type: Wall, RoomId: 0, Item: &Item{0}}
+	return Tile{Type: Wall, RoomId: 0, Item: nil}
 }
