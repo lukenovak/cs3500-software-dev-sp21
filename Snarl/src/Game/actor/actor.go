@@ -30,15 +30,19 @@ func (actor Actor) MoveActor(newPos level.Position2D) Actor {
 	}
 }
 
-// generates a new list of player actors
-func NewPlayerList() []Actor {
-	return nil
+
+func NewWalkableActor(name string, actorType int, moveDistance int) Actor {
+	return Actor{
+		Type: actorType,
+		Position: level.NewPosition2D(0, 0),
+		Name: name,
+		CanOccupyTile: canOccupyWalkable2Steps,
+		MaxMoveDistance: moveDistance,
+	}
 }
-
-
 /* ------------ Tile occupancy functions --------------- */
 
-func canOccupyWalkable2Steps(currTile *level.Tile, newPosition level.Position2D) bool {
+func canOccupyWalkable2Steps(currTile *level.Tile) bool {
 	if currTile != nil && currTile.Type == level.Walkable {
 		return true
 	}

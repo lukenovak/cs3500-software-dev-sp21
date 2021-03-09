@@ -88,6 +88,7 @@ func (level Level) GetWalkableTilePositions(pos Position2D, numSteps int) []Posi
 			for _, posn := range nextStep {
 				walkablePosns = append(walkablePosns, posn)
 			}
+			walkablePosns = append(walkablePosns, adjPosn)
 		}
 		return walkablePosns
 	} else {

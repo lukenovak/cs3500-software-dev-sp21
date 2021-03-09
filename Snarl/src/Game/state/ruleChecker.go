@@ -28,10 +28,10 @@ func IsValidMove(oldState GameState, newState GameState) bool {
 	return validMove
 }
 
-func IsLevelEnd() bool {
+func IsLevelEnd(state GameState) bool {
 	return false
 }
 
-func IsGameEnd() bool {
+func IsGameEnd(state GameState) bool {
 	return false
 }
