@@ -1,9 +1,5 @@
 package level
 
-import (
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/item"
-)
-
 const (
 	Wall         = 0
 	Walkable     = 1
@@ -15,7 +11,7 @@ const (
 type Tile struct {
 	Type   int
 	RoomId int
-	Item   *item.Item
+	Item   *Item
 }
 
 // generates a tile with no object at the given position

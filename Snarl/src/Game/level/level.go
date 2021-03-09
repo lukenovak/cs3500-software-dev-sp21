@@ -2,7 +2,6 @@ package level
 
 import (
 	"fmt"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/item"
 )
 
 const (
@@ -405,7 +404,7 @@ func (level *Level) PlaceExit(exitPos Position2D) error {
 }
 
 // Places an item on a tile if it does not currently have one
-func (level Level) PlaceItem(pos Position2D, itemToPlace item.Item) error {
+func (level Level) PlaceItem(pos Position2D, itemToPlace Item) error {
 	if itemTile := level.GetTile(pos); itemTile != nil && itemTile.Item == nil {
 		itemTile.Item = &itemToPlace
 		return nil

@@ -4,7 +4,6 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/item"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 	"os"
@@ -65,7 +64,7 @@ func generateGameStateLevel() level.Level {
 
 	newLevel.PlaceExit(level.NewPosition2D(12, 14))
 
-	newLevel.PlaceItem(level.NewPosition2D(25, 25), item.Item{Type: item.KeyID})
+	newLevel.PlaceItem(level.NewPosition2D(25, 25), level.Item{Type: level.KeyID})
 
 	return newLevel
 }

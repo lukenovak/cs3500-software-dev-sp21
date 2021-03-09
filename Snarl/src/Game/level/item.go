@@ -1,4 +1,4 @@
-package item
+package level
 
 // Item ID Constants (exposed to be usasble)
 const (

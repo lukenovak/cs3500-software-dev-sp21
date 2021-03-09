@@ -2,7 +2,6 @@ package tester
 
 import (
 	"fmt"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/item"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/tests/Level/json"
 )
@@ -48,7 +47,7 @@ func TestLevelTileData(testLevel json.LevelTestLevelInput) TileData {
 	for _, object := range testLevel.Level.Objects {
 		switch object.Type {
 		case "key":
-			err = newLevel.PlaceItem(object.Position.To2DPosition(), item.NewKey())
+			err = newLevel.PlaceItem(object.Position.To2DPosition(), level.NewKey())
 		case "exit":
 			err = newLevel.PlaceExit(object.Position.To2DPosition())
 		default:
@@ -96,7 +95,7 @@ func getTileData(tileLevel level.Level, pos level.Position2D) TileData {
 	// objects (exits are handled with tile types above)
 	if tile.Item != nil {
 		switch tile.Item.Type {
-		case item.KeyID:
+		case level.KeyID:
 			tileData.Object = "key"
 		default:
 			tileData.Object = "unknown object"

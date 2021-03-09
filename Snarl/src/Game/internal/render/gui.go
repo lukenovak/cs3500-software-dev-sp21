@@ -6,7 +6,6 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/item"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"image/color"
 )
@@ -90,7 +89,7 @@ func renderGuiTile(tileToRender *level.Tile) *fyne.Container {
 
 	if tileToRender != nil && tileToRender.Item != nil {
 		switch tileToRender.Item.Type {
-		case item.KeyID:
+		case level.KeyID:
 			tileContainer.Add(canvas2.NewText("K", color.Black))
 		}
 	}
