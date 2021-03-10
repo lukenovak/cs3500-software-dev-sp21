@@ -24,6 +24,22 @@ func (gs GameState) CreateUpdatedGameState(updatedPlayers []actor.Actor, updated
 	}
 }
 
+// Creates a deep copy of the game state
+func (gs GameState) CopyGameState() GameState {
+
+	copiedPlayers := make([]actor.Actor, 0)
+	copy(copiedPlayers, gs.Players)
+	copiedAdversaries := make([]actor.Actor, 0)
+	copy(copiedAdversaries, gs.Adversaries)
+
+	return GameState{
+		LevelNum: gs.LevelNum,
+		Level: gs.Level,
+		Players: copiedPlayers,
+		Adversaries: copiedAdversaries,
+	}
+}
+
 // Generates a new level
 func (gs GameState) GenerateLevel(size level.Position2D) error {
 	newLevel, err := level.NewEmptyLevel(size.X, size.Y)
@@ -60,6 +76,10 @@ func (gs *GameState) UnlockExits() {
 	for _, exit := range gs.Level.Exits {
 		exit.Type = level.UnlockedExit
 	}
+}
+
+func (gs *GameState) MoveActor(name string, newPosition level.Position2D) {
+
 }
 
 // Searches a gamestate for an actor with the given name (which functions as an id

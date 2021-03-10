@@ -13,10 +13,13 @@ type UserClient interface {
 	SendMessage(string) error
 
 	// Waits for a player input then returns the player's action after input
-	GetInput() []ClientResponse
+	GetInput() Response
+
+	// Used on startup- gets the unique name Id for this client
+	GetName() string
 }
 
-type ClientResponse struct {
+type Response struct {
 	PlayerId   int
 	PlayerName string
 	Move       level.Position2D
