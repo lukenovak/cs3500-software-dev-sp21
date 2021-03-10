@@ -4,6 +4,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/client"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 	"os"
@@ -69,8 +70,8 @@ func generateGameStateLevel() level.Level {
 	return newLevel
 }
 
-func generatePlayers() []actor.Actor {
-	return []actor.Actor{{Type: actor.PlayerType}, {Type: actor.PlayerType}, {Type: actor.PlayerType}, {Type: actor.PlayerType}}
+func generatePlayers() []client.UserClient {
+	return []client.UserClient{client.LocalPlayer{Name: "Luke"}}
 }
 
 func generateAdversaries() []actor.Actor {

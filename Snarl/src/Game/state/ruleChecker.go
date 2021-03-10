@@ -43,9 +43,15 @@ func IsValidMove(oldState GameState, newState GameState) bool {
 }
 
 func IsLevelEnd(state GameState) bool {
+	for _, player := range state.Players {
+		position_tile := state.Level.GetTile(player.Position)
+		if position_tile.Type == level.UnlockedExit {
+			return true
+		}
+	}
 	return false
 }
 
 func IsGameEnd(state GameState) bool {
-	return false
+	return IsLevelEnd(state)
 }

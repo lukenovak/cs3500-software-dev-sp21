@@ -2,23 +2,41 @@ package state
 
 import (
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/client"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 )
 
 type GameState struct {
-	LevelNum int
-	Level *level.Level
-	Players []actor.Actor
-	Adversaries []actor.Actor
+	LevelNum      int
+	Level         *level.Level
+	Players       []actor.Actor
+	PlayerClients []client.UserClient
+	Adversaries   []actor.Actor
 }
 
 // Creates a new game state with the players and adversaries moved to new positions
 func (gs GameState) CreateUpdatedGameState(updatedPlayers []actor.Actor, updatedAdversaries []actor.Actor) *GameState {
 	return &GameState{
+		LevelNum:    gs.LevelNum,
+		Level:       gs.Level,
+		Players:     updatedPlayers,
+		Adversaries: updatedAdversaries,
+	}
+}
+
+// Creates a deep copy of the game state
+func (gs GameState) CopyGameState() GameState {
+
+	copiedPlayers := make([]actor.Actor, 0)
+	copy(copiedPlayers, gs.Players)
+	copiedAdversaries := make([]actor.Actor, 0)
+	copy(copiedAdversaries, gs.Adversaries)
+
+	return GameState{
 		LevelNum: gs.LevelNum,
 		Level: gs.Level,
-		Players: updatedPlayers,
-		Adversaries: updatedAdversaries,
+		Players: copiedPlayers,
+		Adversaries: copiedAdversaries,
 	}
 }
 
@@ -60,6 +78,10 @@ func (gs *GameState) UnlockExits() {
 	}
 }
 
+func (gs *GameState) MoveActor(name string, newPosition level.Position2D) {
+
+}
+
 // Searches a gamestate for an actor with the given name (which functions as an id
 func (gs GameState) GetActor(name string) *actor.Actor {
 
@@ -79,13 +101,12 @@ func (gs GameState) GetActor(name string) *actor.Actor {
 	return findActor(gs.Adversaries)
 }
 
-
 /* ---------------------------- Internal Use Functions ------------------------------------- */
 
 // Creates the initial game state. For internal use
-func initGameState(firstLevel level.Level, players []actor.Actor, adversaries[]actor.Actor) *GameState {
+func initGameState(firstLevel level.Level, players []actor.Actor, adversaries []actor.Actor) *GameState {
 	gs := &GameState{
-		Level:      &firstLevel,
+		Level: &firstLevel,
 		//Adversaries: GenerateAdversaries(numPlayers),
 	}
 	placeActors(gs, players, getTopLeftUnoccupiedWalkable, level.NewPosition2D(0, 0))
@@ -107,11 +128,10 @@ func getTopLeftUnoccupiedWalkable(gameState GameState, startPosn level.Position2
 	closestDistance := gameState.Level.Size.GetManhattanDistance(startPosn)
 	closestTilePosn := gameState.Level.Size
 
-	for x := startPosn.X; x < gameState.Level.Size.X && x - startPosn.X < closestDistance; x++ {
-		for y := startPosn.Y; y < gameState.Level.Size.Y && y - startPosn.Y < closestDistance; y++ {
+	for x := startPosn.X; x < gameState.Level.Size.X && x-startPosn.X < closestDistance; x++ {
+		for y := startPosn.Y; y < gameState.Level.Size.Y && y-startPosn.Y < closestDistance; y++ {
 			currPos := level.NewPosition2D(x, y)
-			if currPosTile := gameState.Level.GetTile(currPos);
-			currPosTile != nil && currPosTile.Type == level.Walkable &&
+			if currPosTile := gameState.Level.GetTile(currPos); currPosTile != nil && currPosTile.Type == level.Walkable &&
 				!isOccupiedByActor(gameState, currPos) &&
 				currPos.GetManhattanDistance(startPosn) < closestDistance {
 				closestTilePosn = currPos
@@ -123,21 +143,19 @@ func getTopLeftUnoccupiedWalkable(gameState GameState, startPosn level.Position2
 	return closestTilePosn
 }
 
-
 // gets the bottom right most unoccupied tile relative to the start position
 func getBottomRightUnoccupiedWalkable(gameState GameState, startPosn level.Position2D) level.Position2D {
 	closestDistance := level.NewPosition2D(0, 0).GetManhattanDistance(startPosn)
-	closestTilePosn :=  level.NewPosition2D(0, 0)
+	closestTilePosn := level.NewPosition2D(0, 0)
 
-	for x := startPosn.X; x > 0 && x - startPosn.X < closestDistance; x-- {
-		for y := startPosn.Y; y > 0 && y - startPosn.Y < closestDistance; y-- {
+	for x := startPosn.X; x > 0 && x-startPosn.X < closestDistance; x-- {
+		for y := startPosn.Y; y > 0 && y-startPosn.Y < closestDistance; y-- {
 			currPos := level.NewPosition2D(x, y)
-			if currPosTile := gameState.Level.GetTile(currPos);
-				currPosTile != nil && currPosTile.Type == level.Walkable &&
-					!isOccupiedByActor(gameState, currPos) &&
-					currPos.GetManhattanDistance(startPosn) < closestDistance {
-					closestTilePosn = currPos
-					closestDistance = currPos.GetManhattanDistance(startPosn)
+			if currPosTile := gameState.Level.GetTile(currPos); currPosTile != nil && currPosTile.Type == level.Walkable &&
+				!isOccupiedByActor(gameState, currPos) &&
+				currPos.GetManhattanDistance(startPosn) < closestDistance {
+				closestTilePosn = currPos
+				closestDistance = currPos.GetManhattanDistance(startPosn)
 			}
 		}
 	}
