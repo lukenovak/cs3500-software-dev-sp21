@@ -24,7 +24,6 @@ func IsValidMove(currState GameState, movingActorName string, relativeMove level
 			return false
 		}
 
-
 		newPosition := movingActor.Position.AddPosition(relativeMove)
 
 		validMove = validMove &&

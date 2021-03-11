@@ -13,7 +13,7 @@ const invalidMsg = "invalid input JSON"
 type levelTestRoom struct {
 	Type   string          `json:"type"`
 	Origin LevelTestPoint  `json:"origin"`
-	Bounds []int           `json:"bounds"`
+	Bounds json.RawMessage `json:"bounds"`
 	Layout levelTestLayout `json:"layout"`
 }
 
@@ -27,7 +27,7 @@ type levelTestHall struct {
 
 type LevelTestPoint [2]int
 
-type levelTestLevel struct {
+type TestLevelObject struct {
 	Rooms    []levelTestRoom   `json:"rooms"`
 	Hallways []levelTestHall   `json:"hallways"`
 	Objects  []levelTestObject `json:"objects"`
@@ -44,7 +44,7 @@ type LevelTestRoomInput struct {
 }
 
 type LevelTestLevelInput struct {
-	Level levelTestLevel
+	Level TestLevelObject
 	Point LevelTestPoint
 }
 
@@ -82,7 +82,7 @@ func ParseLevelTileDataTestJson(r io.Reader) LevelTestLevelInput {
 		panic(invalidMsg)
 	}
 
-	var testLevel levelTestLevel
+	var testLevel TestLevelObject
 	err = json.Unmarshal(topLevelInputData[0], &testLevel)
 
 	var point LevelTestPoint

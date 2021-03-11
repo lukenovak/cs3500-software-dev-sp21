@@ -1,4 +1,4 @@
-package tester
+package internal
 
 import (
 	"fmt"
