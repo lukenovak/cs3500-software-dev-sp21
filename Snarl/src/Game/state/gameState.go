@@ -79,7 +79,19 @@ func (gs *GameState) UnlockExits() {
 }
 
 func (gs *GameState) MoveActor(name string, newPosition level.Position2D) {
+	// players
+	for i := range gs.Players {
+		if gs.Players[i].Name == name {
+			gs.Players[i] = gs.Players[i].MoveActor(newPosition)
+		}
+	}
 
+	// adversaries
+	for i := range gs.Adversaries {
+		if gs.Adversaries[i].Name == name {
+			gs.Adversaries[i] = gs.Adversaries[i].MoveActor(newPosition)
+		}
+	}
 }
 
 // Searches a gamestate for an actor with the given name (which functions as an id

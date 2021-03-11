@@ -9,36 +9,39 @@ import (
 func IsValidMove(oldState GameState, newState GameState) bool {
 	validMove := true
 	for _, p := range newState.Players {
-		oldPos := oldState.GetActor(p.Name).Position
-		validTiles := oldState.Level.GetWalkableTilePositions(oldPos, p.MaxMoveDistance)
+		oldActor := oldState.GetActor(p.Name)
+		if oldActor == nil {
+			validMove = validMove && p.CanOccupyTile(newState.Level.GetTile(p.Position))
+		} else {
+			oldPos := oldState.GetActor(p.Name).Position
+			validTiles := oldState.Level.GetWalkableTilePositions(oldPos, p.MaxMoveDistance)
 
-		// generic contains functions for posns (no generics)
-		posnListContains := func(posnList []level.Position2D, searchPosn level.Position2D) bool {
-			for _, listPosn := range posnList {
-				if listPosn.Equals(searchPosn) {
-					return true
+			// generic contains functions for posns (no generics)
+			posnListContains := func(posnList []level.Position2D, searchPosn level.Position2D) bool {
+				for _, listPosn := range posnList {
+					if listPosn.Equals(searchPosn) {
+						return true
+					}
 				}
+				return false
 			}
-			return false
-		}
 
-		// local function to check if all actors don't occupy a position
-		actorsOccupyPosition := func(actors []actor.Actor, pos level.Position2D) bool {
-			for _, actr := range actors {
-				if actr.Position.Equals(pos) {
-					return true
+			// local function to check if all actors don't occupy a position
+			actorsOccupyPosition := func(actors []actor.Actor, pos level.Position2D, name string) bool {
+				for _, actr := range actors {
+					if actr.Position.Equals(pos) && actr.Name != name {
+						return true
+					}
 				}
+				return false
 			}
-			return false
-		}
 
-		// TODO: MAKE SURE PLAYERS DON'T OVERLAP
-		validMove = validMove &&
-			p.CanOccupyTile(newState.Level.GetTile(p.Position)) &&
-			posnListContains(validTiles, p.Position) &&
-			!actorsOccupyPosition(oldState.Players, p.Position)
+			validMove = validMove &&
+				p.CanOccupyTile(newState.Level.GetTile(p.Position)) &&
+				posnListContains(validTiles, p.Position) &&
+				!actorsOccupyPosition(oldState.Players, p.Position, p.Name)
+		}
 	}
-
 	return validMove
 }
 

@@ -11,6 +11,8 @@ func TestIsValidMove(t *testing.T) {
 	// level setup
 	gs := generateTestGameState()
 	testPlayer := actor.NewWalkableActor("Luke", actor.PlayerType, 2)
+	secondTestPlayer := actor.NewWalkableActor("Will", actor.PlayerType, 2)
+
 	gs.SpawnActor(testPlayer, level.NewPosition2D(1, 1))
 	if IsGameEnd(*gs) {
 		t.Fail()
@@ -18,11 +20,40 @@ func TestIsValidMove(t *testing.T) {
 
 	movedPlayer := actor.NewWalkableActor("Luke", actor.PlayerType, 2)
 	movedPlayer.Position = level.NewPosition2D(1, 2)
-	newState := gs.CreateUpdatedGameState([]actor.Actor{movedPlayer}, gs.Adversaries)
+	newState := *gs.CreateUpdatedGameState([]actor.Actor{movedPlayer}, gs.Adversaries)
 
-	if !IsValidMove(*gs, *newState) {
+
+	// testing a valid move
+	if !IsValidMove(*gs, newState) {
 		t.Fail()
 	}
+
+	// testing a valid move over a player
+	newState = gs.CopyGameState()
+	newState.SpawnActor(secondTestPlayer, level.NewPosition2D(1, 2))
+	newState.MoveActor("Luke", level.NewPosition2D(1, 3))
+
+	if !IsValidMove(*gs, newState) {
+		t.Fail()
+	}
+
+	// TODO: testing a valid move to a door
+
+	// TODO: testing an invalid move over a wall
+
+	// testing an invalid move into a wall
+	newState = *newState.CreateUpdatedGameState([]actor.Actor{
+		newState.Players[0].MoveActor(level.NewPosition2D(2, 0)),
+	}, gs.Adversaries)
+
+	if IsValidMove(*gs, newState) {
+		t.Fail()
+	}
+
+	// TODO: testing a valid move of an adversary
+
+	// TODO: testing an invalid move of an adversary
+
 }
 
 func TestIsGameEnd(t *testing.T) {
