@@ -37,12 +37,9 @@ func GameManager(firstLevel level.Level,
 			// check for input here
 			response := client.GetInput()
 
-			// create an intermediate game state from the resulting input
-			newGameState := state.CreateUpdatedGameState(players, adversaries)
-			newGameState.MoveActor(client.GetName(), response.Move)
 			// check that the new game state is valid
-			if IsValidMove(*state, *newGameState) {
-				state = newGameState
+			if IsValidMove(*state, client.GetName(), response.Move) {
+				state.MoveActorRelative(client.GetName(), level.NewPosition2D(response.Move.X, response.Move.Y))
 			}
 
 			// render the new game state

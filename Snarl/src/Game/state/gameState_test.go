@@ -95,7 +95,7 @@ func TestGameState_UnlockExits(t *testing.T) {
 func TestGameState_MoveActor(t *testing.T) {
 	testGameState := generateTestGameState()
 	testGameState.SpawnActor(actor.NewWalkableActor("Luke", actor.PlayerType, 2), level.NewPosition2D(1, 1))
-	testGameState.MoveActor("Luke", level.NewPosition2D(1, 2))
+	testGameState.MoveActorRelative("Luke", level.NewPosition2D(0, 2))
 
 	if testGameState.GetActor("Luke").Position != level.NewPosition2D(1, 2) {
 		t.Fail()

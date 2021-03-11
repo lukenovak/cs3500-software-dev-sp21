@@ -6,46 +6,40 @@ import (
 	"testing"
 )
 
+const lukeActorName = "Luke"
+const willActorName = "Will"
+
 func TestIsValidMove(t *testing.T) {
 
 	// level setup
 	gs := generateTestGameState()
-	testPlayer := actor.NewWalkableActor("Luke", actor.PlayerType, 2)
-	secondTestPlayer := actor.NewWalkableActor("Will", actor.PlayerType, 2)
+	testPlayer := actor.NewWalkableActor(lukeActorName, actor.PlayerType, 2)
+	secondTestPlayer := actor.NewWalkableActor(willActorName, actor.PlayerType, 2)
 
 	gs.SpawnActor(testPlayer, level.NewPosition2D(1, 1))
 
-	movedPlayer := actor.NewWalkableActor("Luke", actor.PlayerType, 2)
-	movedPlayer.Position = level.NewPosition2D(1, 2)
-	newState := *gs.CreateUpdatedGameState([]actor.Actor{movedPlayer}, gs.Adversaries)
-
-
 	// testing a valid move
-	if !IsValidMove(*gs, newState) {
+	if !IsValidMove(*gs, lukeActorName, level.NewPosition2D(0, 2)) {
 		t.Fail()
 	}
 
 	// testing a valid move over a player
-	newState = gs.CopyGameState()
-	newState.SpawnActor(secondTestPlayer, level.NewPosition2D(1, 2))
-	newState.MoveActor("Luke", level.NewPosition2D(1, 3))
+	gs.SpawnActor(secondTestPlayer, level.NewPosition2D(1, 2))
 
-	if !IsValidMove(*gs, newState) {
+	if !IsValidMove(*gs, lukeActorName, level.NewPosition2D(0, 2)) {
 		t.Fail()
 	}
+
+	// testing an invalid move into a wall
+	if IsValidMove(*gs, lukeActorName, level.NewPosition2D(0, -1)) {
+		t.Fail()
+	}
+
 
 	// TODO: testing a valid move to a door
 
 	// TODO: testing an invalid move over a wall
 
-	// testing an invalid move into a wall
-	newState = *newState.CreateUpdatedGameState([]actor.Actor{
-		newState.Players[0].MoveActor(level.NewPosition2D(2, 0)),
-	}, gs.Adversaries)
-
-	if IsValidMove(*gs, newState) {
-		t.Fail()
-	}
 
 	// TODO: testing a valid move of an adversary
 

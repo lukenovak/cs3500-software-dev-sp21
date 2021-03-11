@@ -6,41 +6,41 @@ import (
 )
 
 // main rule checking function
-func IsValidMove(oldState GameState, newState GameState) bool {
+func IsValidMove(currState GameState, movingActorName string, relativeMove level.Position2D) bool {
 	validMove := true
-	for _, p := range newState.Players {
-		oldActor := oldState.GetActor(p.Name)
-		if oldActor == nil {
-			validMove = validMove && p.CanOccupyTile(newState.Level.GetTile(p.Position))
-		} else {
-			oldPos := oldState.GetActor(p.Name).Position
-			validTiles := oldState.Level.GetWalkableTilePositions(oldPos, p.MaxMoveDistance)
+	movingActor := currState.GetActor(movingActorName)
+	if movingActor == nil {
+		return false
+	} else {
 
-			// generic contains functions for posns (no generics)
-			posnListContains := func(posnList []level.Position2D, searchPosn level.Position2D) bool {
-				for _, listPosn := range posnList {
-					if listPosn.Equals(searchPosn) {
-						return true
-					}
+		validTiles := currState.Level.GetWalkableTilePositions(movingActor.Position, movingActor.MaxMoveDistance)
+
+		// generic contains functions for posns (no generics)
+		posnListContains := func(posnList []level.Position2D, searchPosn level.Position2D) bool {
+			for _, listPosn := range posnList {
+				if listPosn.Equals(searchPosn) {
+					return true
 				}
-				return false
 			}
-
-			// local function to check if all actors don't occupy a position
-			actorsOccupyPosition := func(actors []actor.Actor, pos level.Position2D, name string) bool {
-				for _, actr := range actors {
-					if actr.Position.Equals(pos) && actr.Name != name {
-						return true
-					}
-				}
-				return false
-			}
-
-			validMove = validMove &&
-				p.CanOccupyTile(newState.Level.GetTile(p.Position)) &&
-				posnListContains(validTiles, p.Position) &&
-				!actorsOccupyPosition(oldState.Players, p.Position, p.Name)
+			return false
 		}
+
+		// local function to check if all actors don't occupy a position (no generics in go)
+		actorsOccupyPosition := func(actors []actor.Actor, pos level.Position2D) bool {
+			for _, actr := range actors {
+				if actr.Position.Equals(pos) {
+					return true
+				}
+			}
+			return false
+		}
+
+		newPosition := movingActor.Position.AddPosition(relativeMove)
+
+		validMove = validMove &&
+			movingActor.CanOccupyTile(currState.Level.GetTile(newPosition)) &&
+			posnListContains(validTiles, newPosition) &&
+			!actorsOccupyPosition(currState.Players, newPosition)
 	}
 	return validMove
 }

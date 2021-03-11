@@ -78,20 +78,19 @@ func (gs *GameState) UnlockExits() {
 	}
 }
 
-func (gs *GameState) MoveActor(name string, newPosition level.Position2D) {
-	// players
-	for i := range gs.Players {
-		if gs.Players[i].Name == name {
-			gs.Players[i] = gs.Players[i].MoveActor(newPosition)
+func (gs *GameState) MoveActorRelative(name string, relativeMove level.Position2D) {
+	moveActorifExists := func (actorList []actor.Actor) {
+		for i := range actorList {
+			if actorList[i].Name == name {
+				oldPos := actorList[i].Position
+				newPos := oldPos.AddPosition(relativeMove)
+				actorList[i] = actorList[i].MoveActor(newPos)
+			}
 		}
 	}
 
-	// adversaries
-	for i := range gs.Adversaries {
-		if gs.Adversaries[i].Name == name {
-			gs.Adversaries[i] = gs.Adversaries[i].MoveActor(newPosition)
-		}
-	}
+	moveActorifExists(gs.Players)
+	moveActorifExists(gs.Adversaries)
 }
 
 // Searches a gamestate for an actor with the given name (which functions as an id
