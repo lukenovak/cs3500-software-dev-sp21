@@ -55,6 +55,6 @@ func IsLevelEnd(state GameState) bool {
 	return false
 }
 
-func IsGameEnd(state GameState) bool {
-	return IsLevelEnd(state)
+func IsGameEnd(state GameState, maxLevel int) bool {
+	return IsLevelEnd(state) && state.LevelNum == maxLevel
 }

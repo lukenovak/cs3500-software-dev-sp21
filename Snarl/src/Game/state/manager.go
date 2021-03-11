@@ -9,7 +9,11 @@ import (
 )
 
 // runs the main game loop
-func GameManager(firstLevel level.Level, playerClients []client.UserClient, adversaries []actor.Actor, gameWindow fyne.Window) {
+func GameManager(firstLevel level.Level,
+				 playerClients []client.UserClient,
+				 adversaries []actor.Actor,
+				 gameWindow fyne.Window,
+				 numLevels int) {
 	if len(playerClients) < 1 || len(playerClients) > 4 { // we cannot start the game without the right number of players
 		return
 	}
