@@ -8,6 +8,8 @@ import (
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 )
 
+const viewDistance = 2
+
 // runs the main game loop
 func GameManager(firstLevel level.Level,
 				 playerClients []client.UserClient,
@@ -42,7 +44,14 @@ func GameManager(firstLevel level.Level,
 				state.MoveActorRelative(client.GetName(), level.NewPosition2D(response.Move.X, response.Move.Y))
 			}
 
+			// update all clients
+			for _, updateClient := range playerClients {
+				clientPosition := state.GetActor(client.GetName()).Position
+				updateClient.SendPartialState(state.GeneratePartialState(clientPosition, viewDistance))
+			}
+
 			// render the new game state
+			// TODO: Remove this in future milestones. This information can be handled at the playerClient level
 			render.GuiState(state.Level, state.Players, state.Adversaries, gameWindow)
 			gameWindow.ShowAndRun()
 

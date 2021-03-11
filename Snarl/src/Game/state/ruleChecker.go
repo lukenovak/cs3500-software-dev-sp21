@@ -1,7 +1,6 @@
 package state
 
 import (
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 )
 
@@ -25,15 +24,6 @@ func IsValidMove(currState GameState, movingActorName string, relativeMove level
 			return false
 		}
 
-		// local function to check if all actors don't occupy a position (no generics in go)
-		actorsOccupyPosition := func(actors []actor.Actor, pos level.Position2D) bool {
-			for _, actr := range actors {
-				if actr.Position.Equals(pos) {
-					return true
-				}
-			}
-			return false
-		}
 
 		newPosition := movingActor.Position.AddPosition(relativeMove)
 
