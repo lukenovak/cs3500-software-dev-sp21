@@ -13,7 +13,7 @@ This memo presents our plan for the Observer component that will be used in our 
 2. Render the current game state
 3. Not make changes to the game state
 
-### Planed Code
+### Planned Code
 
 ```Go
 type GameObserver struct {
@@ -51,4 +51,15 @@ for _, observer := range observers {
 }
 ```
 
-Our Observer will use the same code as our player client to render the current game state.
+Our Observer will use the same rendering code as our player client to render the current game state. Because
+the Observer has access to the entire game level, however, they will be able to render the entire level unlike 
+the Player Clients. For the additional debug info, the Observer window will also render a number of data points 
+about the Game overall below the Level. If time permits, we would also like to implement a system where clicking
+on a tile or `Actor` displays some information about it specifically, however this feature is time sensitive.
+
+Note that the call to render the observer's state will be done as a local observer's `callback`.
+
+For future extensions of the Observer that work over the network, the callback will just need to be changed to
+a function that sends the necessary data over a TCP connection. Since the callback determines the action that is
+performed on the game state, we can use the same structure for all sorts of actions, using a render function or sending
+info over the network.
