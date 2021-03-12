@@ -45,11 +45,26 @@ func GameManager(firstLevel level.Level,
 				// move the player
 				state.MoveActorRelative(client.GetName(), level.NewPosition2D(response.Move.X, response.Move.Y))
 
-				// handle any interactions
-				if ActorsOccupyPosition(adversaries, state.GetActor(clientName).Position) {
-					// if there's an adversary here, kill the player
+				// handle interactions
+				newPos := state.GetActor(clientName).Position
+				// if there's an adversary here, kill the player
+				if ActorsOccupyPosition(adversaries, newPos) {
 					state.RemoveActor(clientName)
 				}
+
+				playerTile := state.Level.GetTile(newPos)
+				// if there's a key there, remove the key and unlock the doors {
+				if playerTile != nil && playerTile.Item.Type == level.KeyID {
+					state.Level.UnlockExits()
+					state.Level.ClearItem(newPos)
+				}
+
+				// if the player's new pos is an unlocked door, remove the player from the gamestate
+				if playerTile != nil && playerTile.Type == level.UnlockedExit {
+					// TODO: Add this to a temporary array somewhere. Right now it isn't an issue because there's only 1 level
+					state.RemoveActor(clientName)
+				}
+
 			}
 
 			// update all clients
