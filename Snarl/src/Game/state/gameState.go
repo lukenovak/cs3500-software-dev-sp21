@@ -134,14 +134,18 @@ func (gs *GameState) RemoveActor(name string) {
 			if actorList[i].Name == name {
 				// reorders the array, but order doesn't matter
 				actorList[len(actorList) - 1], actorList[i] = actorList[i], actorList[len(actorList) - 1]
-				return actorList[:len(actorList) - 1]
+				if len(actorList) == 1 {
+					return []actor.Actor{}
+				} else {
+					return actorList[:len(actorList) - 1]
+				}
 			}
 		}
 		return actorList
 	}
 
-	removeActor(gs.Players)
-	removeActor(gs.Adversaries)
+	gs.Players = removeActor(gs.Players)
+	gs.Adversaries = removeActor(gs.Adversaries)
 }
 
 // Generates a "partial game state" showing all tiles with in an n x n square as well as all actors in that square

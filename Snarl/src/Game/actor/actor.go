@@ -43,7 +43,7 @@ func NewWalkableActor(name string, actorType int, moveDistance int) Actor {
 /* ------------ Tile occupancy functions --------------- */
 
 func canOccupyWalkable(currTile *level.Tile) bool {
-	if currTile != nil && currTile.Type == level.Walkable {
+	if currTile != nil && currTile.Type == level.Walkable || currTile.Type == level.Door || currTile.Type == level.UnlockedExit {
 		return true
 	}
 	return false

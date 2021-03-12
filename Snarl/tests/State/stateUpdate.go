@@ -41,6 +41,7 @@ func TestUpdateState(initialState GameStateObject, name string, newPos testJson.
 	// convert the level to our level representation
 	gameLevel := initialState.Level.ToGameLevel()
 
+
 	// convert game state json to actual game state
 	initialGameState := state.GameState{
 		Players: players,
@@ -49,6 +50,11 @@ func TestUpdateState(initialState GameStateObject, name string, newPos testJson.
 		LevelNum: 1,
 		PlayerClients: nil,
 	}
+
+	if !initialState.ExitLocked {
+		initialGameState.Level.UnlockExits()
+	}
+
 
 	// handle player not part of input
 	namedPlayer := initialGameState.GetActor(name)
@@ -90,13 +96,13 @@ func TestUpdateState(initialState GameStateObject, name string, newPos testJson.
 
 func generateInvalidDestinationMessage(pos level.Position2D) []interface{} {
 	var msgArray []interface{}
-	msgArray = append(msgArray, "Failure", "The destination position ", testJson.NewTestPointFromPosition2D(pos), "is invalid.")
+	msgArray = append(msgArray, "Failure", "The destination position ", testJson.NewTestPointFromPosition2D(pos), " is invalid.")
 	return msgArray
 }
 
 func generateInvalidPlayerMessage(name string) []interface{} {
 	var msgArray []interface{}
-	msgArray = append(msgArray, "Failure", "Player ", name, "is not a part of the game.")
+	msgArray = append(msgArray, "Failure", "Player ", name, " is not a part of the game.")
 	return msgArray
 }
 
