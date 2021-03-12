@@ -35,8 +35,11 @@ func TestIsValidMove(t *testing.T) {
 		t.Fail()
 	}
 
-
 	// TODO: testing a valid move to a door
+	gs.MoveActorAbsolute(lukeActorName, level.NewPosition2D(1, 3))
+	if !IsValidMove(*gs, lukeActorName, level.NewPosition2D(0, 1)) {
+		t.Fail()
+	}
 
 	// TODO: testing an invalid move over a wall
 

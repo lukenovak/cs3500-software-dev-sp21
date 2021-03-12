@@ -8,7 +8,7 @@ import (
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 )
 
-const viewDistance = 2
+const defaultPlayerViewDistance = 2
 
 // runs the main game loop
 func GameManager(firstLevel level.Level,
@@ -38,24 +38,43 @@ func GameManager(firstLevel level.Level,
 
 			// check for input here
 			response := client.GetInput()
+			clientName := client.GetName()
 
 			// check that the new game state is valid
-			if IsValidMove(*state, client.GetName(), response.Move) {
+			if IsValidMove(*state, clientName, response.Move) {
+				// move the player
 				state.MoveActorRelative(client.GetName(), level.NewPosition2D(response.Move.X, response.Move.Y))
+
+				// handle any interactions
+				if ActorsOccupyPosition(adversaries, state.GetActor(clientName).Position) {
+					// if there's an adversary here, kill the player
+					state.RemoveActor(clientName)
+				}
 			}
 
 			// update all clients
 			for _, updateClient := range playerClients {
 				clientPosition := state.GetActor(client.GetName()).Position
-				updateClient.SendPartialState(state.GeneratePartialState(clientPosition, viewDistance))
+				updateClient.SendPartialState(state.GeneratePartialState(clientPosition, defaultPlayerViewDistance))
 			}
 
 			// render the new game state
-			// TODO: Remove this in future milestones. This information can be handled at the playerClient level
+			// TODO: Remove this from the game loop in future milestones. This information can be handled at the playerClient level
 			render.GuiState(state.Level, state.Players, state.Adversaries, gameWindow)
 			gameWindow.ShowAndRun()
 
+			// check if this is the end of the level
+			if IsLevelEnd(*state) {
+				if IsGameEnd(*state, numLevels) {
+					break
+				} else {
+					// TODO: FUTURE MILESTONE PROVIDES MULTI_LEVEL_SUPPORT
+				}
+			}
 		}
+
+		// TODO: Move the adversaries
+		// for _, adversary := range adversaries { ... }
 	}
 }
 
