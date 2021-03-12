@@ -2,7 +2,6 @@ package level
 
 import (
 	"fmt"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/item"
 )
 
 const (
@@ -89,6 +88,7 @@ func (level Level) GetWalkableTilePositions(pos Position2D, numSteps int) []Posi
 			for _, posn := range nextStep {
 				walkablePosns = append(walkablePosns, posn)
 			}
+			walkablePosns = append(walkablePosns, adjPosn)
 		}
 		return walkablePosns
 	} else {
@@ -404,9 +404,16 @@ func (level *Level) PlaceExit(exitPos Position2D) error {
 	return nil
 }
 
+// Unlocks all exits in a level
+func (level *Level) UnlockExits() {
+	for _, exit := range level.Exits {
+		exit.Type = UnlockedExit
+	}
+}
+
 // Places an item on a tile if it does not currently have one
-func (level Level) PlaceItem(pos Position2D, itemToPlace item.Item) error {
-	if itemTile := level.GetTile(pos); itemTile != nil && itemTile.Item == nil {
+func (level Level) PlaceItem(pos Position2D, itemToPlace Item) error {
+	if itemTile := level.GetTile(pos); itemTile != nil && itemTile.Item == nil && itemTile.Type != Wall {
 		itemTile.Item = &itemToPlace
 		return nil
 	}

@@ -2,7 +2,6 @@ package state
 
 import (
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/item"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"testing"
 )
@@ -93,6 +92,16 @@ func TestGameState_UnlockExits(t *testing.T) {
 	}
 }
 
+func TestGameState_MoveActor(t *testing.T) {
+	testGameState := generateTestGameState()
+	testGameState.SpawnActor(actor.NewWalkableActor("Luke", actor.PlayerType, 2), level.NewPosition2D(1, 1))
+	testGameState.MoveActorRelative("Luke", level.NewPosition2D(0, 2))
+
+	if testGameState.GetActor("Luke").Position != level.NewPosition2D(1, 2) {
+		t.Fail()
+	}
+}
+
 /* ----------------------- TEST DATA GENERATION FUNCTIONS ------------------------------- */
 
 func generateTestGameState() *GameState {
@@ -152,7 +161,7 @@ func generateTestLevel() level.Level {
 
 	newLevel.PlaceExit(level.NewPosition2D(12, 14))
 
-	newLevel.PlaceItem(level.NewPosition2D(25, 25), item.Item{Type: item.KeyID})
+	newLevel.PlaceItem(level.NewPosition2D(25, 25), level.Item{Type: level.KeyID})
 
 	return newLevel
 }

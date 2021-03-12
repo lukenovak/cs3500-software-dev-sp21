@@ -1,9 +1,5 @@
 package level
 
-import (
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/item"
-)
-
 const (
 	Wall         = 0
 	Walkable     = 1
@@ -15,7 +11,7 @@ const (
 type Tile struct {
 	Type   int
 	RoomId int
-	Item   *item.Item
+	Item   *Item
 }
 
 // generates a tile with no object at the given position
@@ -28,6 +24,10 @@ func GenerateTile(tileType int, roomId int) *Tile {
 }
 
 func (t Tile) Equals(secondTile Tile) bool {
-	return t.Type == secondTile.Type && t.Item.Type == secondTile.Item.Type
+	return t.Type == secondTile.Type &&
+		!(t.Item == nil && secondTile.Item != nil) &&
+		!(t.Item != nil && secondTile.Item == nil) &&
+		(t.Item == nil && secondTile.Item == nil ||
+			(t.Item.Type == secondTile.Item.Type))
 }
 
