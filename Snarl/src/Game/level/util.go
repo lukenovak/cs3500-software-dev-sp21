@@ -11,6 +11,10 @@ func (d Position2D) Equals (cmpPos Position2D) bool {
 	return d.X == cmpPos.X && d.Y == cmpPos.Y
 }
 
+func (d Position2D) AddPosition (addend Position2D) Position2D {
+	return NewPosition2D(d.X + addend.X, d.Y + addend.Y)
+}
+
 func (d Position2D) GetManhattanDistance (cmpPos Position2D) int {
 	return max(d.X - cmpPos.X, cmpPos.X - d.X) + max(d.Y - cmpPos.Y, cmpPos.Y - d.Y)
 }

@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	testJson "github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/tests/Level/json"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/tests/Level/tester"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/tests/Level/internal"
 	"os"
 )
 
 func main() {
-	outputMsg := tester.TestLevelTileData(testJson.ParseLevelTileDataTestJson(os.Stdin))
+	outputMsg := internal.TestLevelTileData(testJson.ParseLevelTileDataTestJson(os.Stdin))
 	outputJsonBytes, err := json.Marshal(outputMsg)
 	if err != nil {
 		panic(err)
