@@ -8,6 +8,7 @@ import (
 
 const lukeActorName = "Luke"
 const willActorName = "Will"
+const ghostActorName = "Casper"
 
 func TestIsValidMove(t *testing.T) {
 
@@ -15,6 +16,7 @@ func TestIsValidMove(t *testing.T) {
 	gs := generateTestGameState()
 	testPlayer := actor.NewWalkableActor(lukeActorName, actor.PlayerType, 2)
 	secondTestPlayer := actor.NewWalkableActor(willActorName, actor.PlayerType, 2)
+	testAdversary := actor.NewWalkableActor(ghostActorName, actor.GhostType, 1)
 
 	gs.SpawnActor(testPlayer, level.NewPosition2D(1, 1))
 
@@ -35,19 +37,29 @@ func TestIsValidMove(t *testing.T) {
 		t.Fail()
 	}
 
-	// TODO: testing a valid move to a door
+	// testing a valid move to a door
 	gs.MoveActorAbsolute(lukeActorName, level.NewPosition2D(1, 3))
 	if !IsValidMove(*gs, lukeActorName, level.NewPosition2D(0, 1)) {
 		t.Fail()
 	}
 
-	// TODO: testing an invalid move over a wall
+	// testing an invalid move over a wall
+	gs.MoveActorAbsolute(lukeActorName, level.NewPosition2D(4, 3))
+	if IsValidMove(*gs, lukeActorName, level.NewPosition2D(2, 0)) {
+		t.Fail()
+	}
 
+	gs.SpawnActor(testAdversary, level.NewPosition2D(2, 2))
 
-	// TODO: testing a valid move of an adversary
+	// testing a valid move of an adversary
+	if !IsValidMove(*gs, ghostActorName, level.NewPosition2D(-1, 0)) {
+		t.Fail()
+	}
 
-	// TODO: testing an invalid move of an adversary
-
+	// testing an invalid move of an adversary
+	if IsValidMove(*gs, ghostActorName, level.NewPosition2D(1, 1)) {
+		t.Fail()
+	}
 }
 
 func TestIsGameEnd(t *testing.T) {
