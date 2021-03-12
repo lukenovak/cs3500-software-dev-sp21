@@ -2,6 +2,7 @@ package json
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"io"
 )
@@ -101,6 +102,72 @@ func ParseLevelTileDataTestJson(r io.Reader) LevelTestLevelInput {
 /* ---------- Utility ---------- */
 
 // Converts a LevelTestPoint to a Position2D
-func (point *LevelTestPoint) To2DPosition() level.Position2D {
+func (point *LevelTestPoint) ToPosition2D() level.Position2D {
 	return level.NewPosition2D(point[1], point[0])
+}
+
+func NewTestPointFromPosition2D(d level.Position2D) LevelTestPoint {
+	return [2]int{d.Y, d.X}
+}
+
+
+func (testLevel TestLevelObject) ToGameLevel() level.Level {
+	var newLevel, err = level.NewEmptyLevel(4, 4)
+	if err != nil {
+		panic(err)
+	}
+	// generate rooms
+	for _, room := range testLevel.Rooms {
+		newOrigin := room.Origin.ToPosition2D()
+		err = newLevel.GenerateRectangularRoomWithLayout(newOrigin, len(room.Layout[0]), len(room.Layout), room.Layout)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	// generate hallways
+	for _, hallway := range testLevel.Hallways {
+		newFrom := hallway.From.ToPosition2D()
+		newTo := hallway.To.ToPosition2D()
+		var newWaypoints []level.Position2D
+		for _, point := range hallway.Waypoints {
+			newWaypoints = append(newWaypoints, point.ToPosition2D())
+		}
+		err = newLevel.GenerateHallway(newFrom, newTo, newWaypoints)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	hasKey := false
+	// place objects
+	for _, object := range testLevel.Objects {
+		switch object.Type {
+		case "key":
+			err = newLevel.PlaceItem(object.Position.ToPosition2D(), level.NewKey())
+			hasKey = true
+		case "exit":
+			err = newLevel.PlaceExit(object.Position.ToPosition2D())
+		default:
+			err = fmt.Errorf("unknown item type")
+		}
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	// if there's no key we assume the exit is unlocked
+	if !hasKey {
+		newLevel.UnlockExits()
+	}
+
+	return newLevel
+}
+
+func (testLevel *TestLevelObject) UnlockExits() {
+	for idx, item := range testLevel.Objects {
+		if item.Type == "key" {
+			testLevel.Objects = append(testLevel.Objects[:idx], testLevel.Objects[idx + 1:]...)
+		}
+	}
 }

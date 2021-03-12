@@ -404,6 +404,13 @@ func (level *Level) PlaceExit(exitPos Position2D) error {
 	return nil
 }
 
+// Unlocks all exits in a level
+func (level *Level) UnlockExits() {
+	for _, exit := range level.Exits {
+		exit.Type = UnlockedExit
+	}
+}
+
 // Places an item on a tile if it does not currently have one
 func (level Level) PlaceItem(pos Position2D, itemToPlace Item) error {
 	if itemTile := level.GetTile(pos); itemTile != nil && itemTile.Item == nil && itemTile.Type != Wall {

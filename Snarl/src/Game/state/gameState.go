@@ -93,6 +93,20 @@ func (gs *GameState) MoveActorRelative(name string, relativeMove level.Position2
 	moveActorifExists(gs.Adversaries)
 }
 
+func (gs *GameState) MoveActorAbsolute(name string, newPosition level.Position2D) {
+
+	moveActorIfExists := func (actorList []actor.Actor) {
+		for i := range actorList {
+			if actorList[i].Name == name {
+				actorList[i] = actorList[i].MoveActor(newPosition)
+			}
+		}
+	}
+
+	moveActorIfExists(gs.Players)
+	moveActorIfExists(gs.Adversaries)
+}
+
 // Searches a gamestate for an actor with the given name (which functions as an id)
 func (gs GameState) GetActor(name string) *actor.Actor {
 
@@ -112,6 +126,24 @@ func (gs GameState) GetActor(name string) *actor.Actor {
 	return findActor(gs.Adversaries)
 }
 
+// Mutates the current game state and removes the actor from the array
+func (gs *GameState) RemoveActor(name string) {
+
+	removeActor := func(actorList []actor.Actor) []actor.Actor {
+		for i := range actorList {
+			if actorList[i].Name == name {
+				// reorders the array, but order doesn't matter
+				actorList[len(actorList) - 1], actorList[i] = actorList[i], actorList[len(actorList) - 1]
+				return actorList[:len(actorList) - 1]
+			}
+		}
+		return actorList
+	}
+
+	removeActor(gs.Players)
+	removeActor(gs.Adversaries)
+}
+
 // Generates a "partial game state" showing all tiles with in an n x n square as well as all actors in that square
 func (gs GameState) GeneratePartialState(position level.Position2D, viewDistance int) ([][]*level.Tile, []actor.Actor) {
 	// allocation
@@ -128,9 +160,9 @@ func (gs GameState) GeneratePartialState(position level.Position2D, viewDistance
 			// add the tile to the new state
 			visibleTiles[partialX][partialY] = gs.Level.GetTile(tilePos)
 			// if there's an adversary here, generate a new one with the relative location and move it there
-			tileActor := getActorAtPosition(gs.Players, tilePos)
+			tileActor := GetActorAtPosition(gs.Players, tilePos)
 			if tileActor == nil {
-				tileActor = getActorAtPosition(gs.Adversaries, tilePos)
+				tileActor = GetActorAtPosition(gs.Adversaries, tilePos)
 			}
 			if tileActor != nil {
 				visibleActors = append(visibleActors, tileActor.MoveActor(level.NewPosition2D(partialX, partialY)))
@@ -172,8 +204,8 @@ func getTopLeftUnoccupiedWalkable(gameState GameState, startPosn level.Position2
 		for y := startPosn.Y; y < gameState.Level.Size.Y && y-startPosn.Y < closestDistance; y++ {
 			currPos := level.NewPosition2D(x, y)
 			if currPosTile := gameState.Level.GetTile(currPos); currPosTile != nil && currPosTile.Type == level.Walkable &&
-				!actorsOccupyPosition(gameState.Players, currPos) &&
-				!actorsOccupyPosition(gameState.Adversaries, currPos) &&
+				!ActorsOccupyPosition(gameState.Players, currPos) &&
+				!ActorsOccupyPosition(gameState.Adversaries, currPos) &&
 				currPos.GetManhattanDistance(startPosn) < closestDistance {
 				closestTilePosn = currPos
 				closestDistance = currPos.GetManhattanDistance(startPosn)
@@ -193,8 +225,8 @@ func getBottomRightUnoccupiedWalkable(gameState GameState, startPosn level.Posit
 		for y := startPosn.Y; y > 0 && y-startPosn.Y < closestDistance; y-- {
 			currPos := level.NewPosition2D(x, y)
 			if currPosTile := gameState.Level.GetTile(currPos); currPosTile != nil && currPosTile.Type == level.Walkable &&
-				!actorsOccupyPosition(gameState.Players, currPos) &&
-				!actorsOccupyPosition(gameState.Adversaries, currPos) &&
+				!ActorsOccupyPosition(gameState.Players, currPos) &&
+				!ActorsOccupyPosition(gameState.Adversaries, currPos) &&
 				currPos.GetManhattanDistance(startPosn) < closestDistance {
 				closestTilePosn = currPos
 				closestDistance = currPos.GetManhattanDistance(startPosn)
@@ -206,7 +238,7 @@ func getBottomRightUnoccupiedWalkable(gameState GameState, startPosn level.Posit
 }
 
 // function to check if all actors don't occupy a position
-func actorsOccupyPosition (actors []actor.Actor, pos level.Position2D) bool {
+func ActorsOccupyPosition(actors []actor.Actor, pos level.Position2D) bool {
 	for _, actr := range actors {
 		if actr.Position.Equals(pos) {
 			return true
@@ -216,7 +248,7 @@ func actorsOccupyPosition (actors []actor.Actor, pos level.Position2D) bool {
 }
 
 // gets an actor at a position if it exists. else return nil
-func getActorAtPosition (actors []actor.Actor, pos level.Position2D) *actor.Actor {
+func GetActorAtPosition(actors []actor.Actor, pos level.Position2D) *actor.Actor {
 	for _, actr := range actors {
 		if actr.Position.Equals(pos) {
 			return &actr

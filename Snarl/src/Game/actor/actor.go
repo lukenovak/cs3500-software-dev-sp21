@@ -7,8 +7,8 @@ import (
 // actor type constants
 const (
 	PlayerType = 0
-	ghostType = 1
-	zombieType = 2
+	GhostType = 1
+	ZombieType = 2
 )
 
 type Actor struct {

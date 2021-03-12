@@ -29,7 +29,7 @@ func IsValidMove(currState GameState, movingActorName string, relativeMove level
 		validMove = validMove &&
 			movingActor.CanOccupyTile(currState.Level.GetTile(newPosition)) &&
 			posnListContains(validTiles, newPosition) &&
-			!actorsOccupyPosition(currState.Players, newPosition)
+			!ActorsOccupyPosition(currState.Players, newPosition)
 	}
 	return validMove
 }

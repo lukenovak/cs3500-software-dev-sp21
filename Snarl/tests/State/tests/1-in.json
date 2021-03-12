@@ -62,7 +62,7 @@
     ],
     "adversaries": [
     ],
-    "exit-locked": false
+    "exit-locked": true
   },
   "Ferd",
   [1, 2]

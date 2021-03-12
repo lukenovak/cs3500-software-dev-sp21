@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"fmt"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/tests/Level/json"
 )
@@ -15,51 +14,9 @@ type TileData struct {
 
 // Given a point, gives information about that particular tile
 func TestLevelTileData(testLevel json.LevelTestLevelInput) TileData {
-	newLevel, err := level.NewEmptyLevel(4, 4)
-	if err != nil {
-		panic("unable to generate new empty level")
-	}
-
-	// generate rooms
-	for _, room := range testLevel.Level.Rooms {
-		newOrigin := room.Origin.To2DPosition()
-		err = newLevel.GenerateRectangularRoomWithLayout(newOrigin, len(room.Layout[0]), len(room.Layout), room.Layout)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	// generate hallways
-	for _, hallway := range testLevel.Level.Hallways {
-		newFrom := hallway.From.To2DPosition()
-		newTo := hallway.To.To2DPosition()
-		var newWaypoints []level.Position2D
-		for _, point := range hallway.Waypoints {
-			newWaypoints = append(newWaypoints, point.To2DPosition())
-		}
-		err = newLevel.GenerateHallway(newFrom, newTo, newWaypoints)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	// place objects
-	for _, object := range testLevel.Level.Objects {
-		switch object.Type {
-		case "key":
-			err = newLevel.PlaceItem(object.Position.To2DPosition(), level.NewKey())
-		case "exit":
-			err = newLevel.PlaceExit(object.Position.To2DPosition())
-		default:
-			err = fmt.Errorf("unknown item type")
-		}
-		if err != nil {
-			panic(err)
-		}
-	}
-
+	newLevel := testLevel.Level.ToGameLevel()
 	// get the data from the requested tile
-	return getTileData(newLevel, testLevel.Point.To2DPosition())
+	return getTileData(newLevel, testLevel.Point.ToPosition2D())
 }
 
 // gets the tile data in a struct corresponding to
