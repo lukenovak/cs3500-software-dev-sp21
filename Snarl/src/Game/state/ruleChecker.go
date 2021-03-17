@@ -35,13 +35,16 @@ func IsValidMove(currState GameState, movingActorName string, relativeMove level
 }
 
 func IsLevelEnd(state GameState) bool {
+	var isEnd = true
 	for _, player := range state.Players {
 		position_tile := state.Level.GetTile(player.Position)
 		if position_tile.Type == level.UnlockedExit {
-			return true
+			isEnd = true && isEnd
+		} else {
+			isEnd = false
 		}
 	}
-	return false
+	return isEnd
 }
 
 func IsGameEnd(state GameState, maxLevel int) bool {
