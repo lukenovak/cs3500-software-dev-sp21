@@ -18,7 +18,7 @@ func GuiState(stateLevel *level.Level, statePlayers []actor.Actor, stateAdversar
 	levelTiles := renderGuiLevel(*stateLevel)
 	renderGuiActors(levelTiles, statePlayers, stateLevel.Size, renderPlayer)
 	renderGuiActors(levelTiles, stateAdversaries, stateLevel.Size, renderAdversary)
-	windowContainer := container.New(layout.NewGridLayout(stateLevel.Size.X))
+	windowContainer := container.New(layout.NewGridLayout(stateLevel.Size.Row))
 	for _, renderedTile := range levelTiles {
 		windowContainer.Add(renderedTile)
 	}
@@ -27,10 +27,10 @@ func GuiState(stateLevel *level.Level, statePlayers []actor.Actor, stateAdversar
 }
 
 func renderGuiLevel(levelToRender level.Level) []*fyne.Container {
-	tileContainers := make([]*fyne.Container, levelToRender.Size.X * levelToRender.Size.Y)
-	for y := range levelToRender.Tiles[0] {
-		for x := range levelToRender.Tiles {
-			tileContainers[calc1DPosition(level.NewPosition2D(x, y), levelToRender.Size)] = renderGuiTile(levelToRender.Tiles[x][y])
+	tileContainers := make([]*fyne.Container, levelToRender.Size.Row*levelToRender.Size.Col)
+	for row := range levelToRender.Tiles {
+		for col := range levelToRender.Tiles {
+			tileContainers[calc1DPosition(level.NewPosition2D(row, col), levelToRender.Size)] = renderGuiTile(levelToRender.Tiles[row][col])
 		}
 	}
 	return tileContainers
@@ -94,7 +94,7 @@ func renderGuiTile(tileToRender *level.Tile) *fyne.Container {
 func renderGuiActors(tileContainers []*fyne.Container,
 	actors []actor.Actor,
 	levelSize level.Position2D,
-	renderFunc func(*fyne.Container))  {
+	renderFunc func(*fyne.Container)) {
 	for _, actorToRender := range actors {
 		tilePos := calc1DPosition(actorToRender.Position, levelSize)
 		renderFunc(tileContainers[tilePos])
@@ -103,7 +103,7 @@ func renderGuiActors(tileContainers []*fyne.Container,
 
 // utility function to find the 1d array index of a position in a level
 func calc1DPosition(pos level.Position2D, levelSize level.Position2D) int {
-	return pos.Y * levelSize.X + pos.X
+	return pos.Row*levelSize.Col + pos.Col
 }
 
 /* ----------------------- Actor Render functions ----------------------------- */
@@ -115,4 +115,3 @@ func renderPlayer(baseContainer *fyne.Container) {
 func renderAdversary(baseContainer *fyne.Container) {
 	baseContainer.Add(canvas2.NewCircle(color.RGBA{R: 200, G: 100, B: 100, A: 255}))
 }
-

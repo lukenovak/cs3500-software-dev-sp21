@@ -30,7 +30,7 @@ func TestRoomTraversables(testInput testJson.LevelTestRoomInput) []interface{} {
 func generateTraversableSuccessMessage(point testJson.LevelTestPoint, origin testJson.LevelTestPoint, traversablePts []level.Position2D) []interface{} {
 	var traversablePtsAsSlice []testJson.LevelTestPoint
 	for _, pt := range traversablePts {
-		traversablePtsAsSlice = append(traversablePtsAsSlice, testJson.LevelTestPoint{0: pt.Y, 1: pt.X})
+		traversablePtsAsSlice = append(traversablePtsAsSlice, testJson.LevelTestPoint{0: pt.Col, 1: pt.Row})
 	}
 
 	var msg []interface{}
