@@ -19,9 +19,9 @@ func (d Position2D) GetManhattanDistance(cmpPos Position2D) int {
 	return max(d.Row-cmpPos.Row, cmpPos.Row-d.Row) + max(d.Col-cmpPos.Col, cmpPos.Col-d.Col)
 }
 
-func NewPosition2D(x int, y int) Position2D {
+func NewPosition2D(row int, col int) Position2D {
 	return Position2D{
-		x, y,
+		row, col,
 	}
 }
 

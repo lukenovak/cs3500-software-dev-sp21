@@ -24,9 +24,9 @@ func GuiState(stateLevel *level.Level, statePlayers []actor.Actor, stateAdversar
 
 func renderGuiLevel(levelToRender level.Level) []*fyne.Container {
 	tileContainers := make([]*fyne.Container, levelToRender.Size.Row*levelToRender.Size.Col)
-	for y := range levelToRender.Tiles[0] {
-		for x := range levelToRender.Tiles {
-			tileContainers[calc1DPosition(level.NewPosition2D(x, y), levelToRender.Size)] = renderGuiTile(levelToRender.Tiles[x][y])
+	for row := range levelToRender.Tiles {
+		for col := range levelToRender.Tiles {
+			tileContainers[calc1DPosition(level.NewPosition2D(row, col), levelToRender.Size)] = renderGuiTile(levelToRender.Tiles[row][col])
 		}
 	}
 	return tileContainers
@@ -111,7 +111,7 @@ func renderGuiActors(tileContainers []*fyne.Container,
 
 // utility function to find the 1d array index of a position in a level
 func calc1DPosition(pos level.Position2D, levelSize level.Position2D) int {
-	return pos.Col*levelSize.Row + pos.Row
+	return pos.Row*levelSize.Col + pos.Col
 }
 
 /* ----------------------- Actor Render functions ----------------------------- */
