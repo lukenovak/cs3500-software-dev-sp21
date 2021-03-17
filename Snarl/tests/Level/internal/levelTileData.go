@@ -6,10 +6,10 @@ import (
 )
 
 type TileData struct {
-	Traversable bool 					`json:"traversable"`
-	Object		interface{}				`json:"object"` // we cannot have type safety with Object as it may be nil
-	Type		string					`json:"type"`
-	Reachable	[]json.LevelTestPoint	`json:"reachable"`
+	Traversable bool                  `json:"traversable"`
+	Object      interface{}           `json:"object"` // we cannot have type safety with Object as it may be nil
+	Type        string                `json:"type"`
+	Reachable   []json.LevelTestPoint `json:"reachable"`
 }
 
 // Given a point, gives information about that particular tile
@@ -66,7 +66,6 @@ func getTileData(tileLevel level.Level, pos level.Position2D) TileData {
 		tileData.Type = roomData.Type()
 	}
 
-
 	// Reachable
 	if roomData != nil {
 		tileData.Reachable = getReachableRooms(roomData)
@@ -87,20 +86,20 @@ func getReachableRooms(roomData level.RoomGraphNode) []json.LevelTestPoint {
 		for _, hallway := range roomData.GetConnections() {
 			for _, room := range hallway.GetConnections() {
 				if room.GetId() != roomData.GetId() {
-					reachables = append(reachables, [2]int{room.GetStartPoint().Y, room.GetStartPoint().X})
+					reachables = append(reachables, [2]int{room.GetStartPoint().Col, room.GetStartPoint().Row})
 				}
 			}
 
 			// edge case for room self-link
 			startRoom := hallway.GetConnections()[0]
 			if hallway.GetConnections()[0].GetId() == hallway.GetConnections()[1].GetId() {
-				reachables = append(reachables, [2]int{startRoom.GetStartPoint().Y, startRoom.GetStartPoint().X})
+				reachables = append(reachables, [2]int{startRoom.GetStartPoint().Col, startRoom.GetStartPoint().Row})
 			}
 		}
 	// in hallways, we simply use the two connections
 	case "hallway":
 		for _, room := range roomData.GetConnections() {
-			reachables = append(reachables, [2]int{room.GetStartPoint().Y, room.GetStartPoint().X})
+			reachables = append(reachables, [2]int{room.GetStartPoint().Col, room.GetStartPoint().Row})
 		}
 
 	}
