@@ -10,6 +10,10 @@ import (
 	"image/color"
 )
 
+const (
+	fontSize = 16
+)
+
 func GuiState(stateLevel *level.Level, statePlayers []actor.Actor, stateAdversaries []actor.Actor, gameWindow fyne.Window) {
 	levelTiles := renderGuiLevel(*stateLevel)
 	renderGuiActors(levelTiles, statePlayers, stateLevel.Size, renderPlayer)
@@ -36,48 +40,36 @@ func renderGuiLevel(levelToRender level.Level) []*fyne.Container {
 func renderGuiTile(tileToRender *level.Tile) *fyne.Container {
 	var rectColor color.Color
 	var containerContent fyne.CanvasObject
+
+	// local function for rendering text
+	newTileText := func(text string) fyne.CanvasObject {
+		textRender := canvas2.Text{
+			Color:     color.RGBA{R: 180, G: 180, B: 180},
+			Text:      text,
+			Alignment: fyne.TextAlignCenter,
+			TextSize:  fontSize,
+			TextStyle: fyne.TextStyle{Bold: true,},
+		}
+		return &textRender
+	}
+
 	if tileToRender == nil {
-		rectColor = color.RGBA{R: 0, G: 0, B: 0}
-	} else if tileToRender.Type == level.Wall {
-		rectColor = color.RGBA{R: 180, G: 180, B: 0}
-	} else if tileToRender.Type == level.Walkable {
-		rectColor = color.RGBA{R: 20, G: 180, B: 20}
-	} else if tileToRender.Type == level.Door {
-		text := canvas2.Text{
-			Color:     color.RGBA{R: 180, G: 180, B: 180},
-			Text:      doorTile,
-			Alignment: fyne.TextAlignCenter,
-			TextSize:  24,
-			TextStyle: fyne.TextStyle{Bold: true},
-		}
-		containerContent = &text
-	} else if tileToRender.Type == level.LockedExit {
-		text := canvas2.Text{
-			Color:     color.RGBA{R: 180, G: 180, B: 180},
-			Text:      "L",
-			Alignment: fyne.TextAlignCenter,
-			TextSize:  24,
-			TextStyle: fyne.TextStyle{Bold: true},
-		}
-		containerContent = &text
-	} else if tileToRender.Type == level.UnlockedExit {
-		text := canvas2.Text{
-			Color:     color.RGBA{R: 180, G: 180, B: 180},
-			Text:      unlockedTile,
-			Alignment: fyne.TextAlignCenter,
-			TextSize:  24,
-			TextStyle: fyne.TextStyle{Bold: true},
-		}
-		containerContent = &text
+		rectColor = color.RGBA{R:0, G:0, B:0}
 	} else {
-		text := canvas2.Text{
-			Color:     color.RGBA{R: 180, G: 180, B: 180},
-			Text:      unknownTile,
-			Alignment: fyne.TextAlignCenter,
-			TextSize:  24,
-			TextStyle: fyne.TextStyle{Bold: true},
+		switch tileToRender.Type {
+		case level.Wall:
+			rectColor = color.RGBA{R:180, G:180, B:0}
+		case level.Walkable:
+			rectColor = color.RGBA{R:20, G:180, B:20}
+		case level.Door :
+			containerContent = newTileText(doorTile)
+		case level.LockedExit :
+			containerContent = newTileText("L")
+		case level.UnlockedExit :
+			containerContent = newTileText(unlockedTile)
+		default:
+			containerContent = newTileText(unknownTile)
 		}
-		containerContent = &text
 	}
 
 	if containerContent == nil {
@@ -94,7 +86,7 @@ func renderGuiTile(tileToRender *level.Tile) *fyne.Container {
 		}
 	}
 
-	tileContainer.Resize(fyne.NewSize(100, 50))
+	tileContainer.Resize(fyne.NewSize(100, 100))
 	return tileContainer
 }
 
