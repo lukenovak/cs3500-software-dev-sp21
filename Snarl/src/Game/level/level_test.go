@@ -7,7 +7,7 @@ import (
 func TestGenerateRectangularRoom(t *testing.T) {
 	// generate a level with a rectangular room
 	genLevel, _ := NewEmptyLevel(3, 3)
-	doors := []Position2D{NewPosition2D(1, 0), NewPosition2D(1, 2)}
+	doors := []Position2D{NewPosition2D(0, 1), NewPosition2D(2, 1)}
 	err := genLevel.GenerateRectangularRoom(NewPosition2D(0, 0), 3, 3, doors)
 	if err != nil {
 		t.Fatal("unable to generate room")
@@ -35,15 +35,13 @@ func TestGenerateRectangularRoom(t *testing.T) {
 		t.Fail()
 	}
 	testAllTilesEqual(expectedLevelTiles, genLevel.Tiles, t)
-
-
 }
 
 func TestGenerateHallway(t *testing.T) {
 	// set up the expected level
 	genLevel, _ := NewEmptyLevel(8, 8)
-	firstRoomDoor, secondRoomDoor := []Position2D{NewPosition2D(3,2)}, []Position2D{NewPosition2D(5,4)}
-	err := genLevel.GenerateRectangularRoom(NewPosition2D(0,0), 4, 4, firstRoomDoor)
+	firstRoomDoor, secondRoomDoor := []Position2D{NewPosition2D(2, 3)}, []Position2D{NewPosition2D(4, 5)}
+	err := genLevel.GenerateRectangularRoom(NewPosition2D(0, 0), 4, 4, firstRoomDoor)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,7 +49,7 @@ func TestGenerateHallway(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = genLevel.GenerateHallway(firstRoomDoor[0], secondRoomDoor[0], []Position2D{NewPosition2D(5, 2)})
+	err = genLevel.GenerateHallway(firstRoomDoor[0], secondRoomDoor[0], []Position2D{NewPosition2D(2, 5)})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,11 +57,9 @@ func TestGenerateHallway(t *testing.T) {
 	// generate the level using the functions
 	expectedLevelTiles := generateTestLevelWithHallwaysTiles()
 	testAllTilesEqual(expectedLevelTiles, genLevel.Tiles, t)
-
 }
 
 func TestNewEmptyLevel(t *testing.T) {
-
 	// test a valid level
 	level, err := NewEmptyLevel(3, 3)
 	if &level == nil || !level.Size.Equals(NewPosition2D(3, 3)) || err != nil {
@@ -90,7 +86,6 @@ func TestNewEmptyLevel(t *testing.T) {
 }
 
 func TestPlaceExit(t *testing.T) {
-
 	level := setupSmallTestLevel(t)
 
 	// test a valid exit
@@ -137,7 +132,7 @@ func TestClearItem(t *testing.T) {
 	}
 
 	// test removing the placed item
-	level.ClearItem(NewPosition2D(1,1))
+	level.ClearItem(NewPosition2D(1, 1))
 	if level.GetTile(NewPosition2D(1, 1)).Item != nil {
 		t.Fail()
 	}
@@ -168,9 +163,9 @@ func TestExpandLevel(t *testing.T) {
 
 // checks that all tiles are the same
 func testAllTilesEqual(expected [][]*Tile, actual [][]*Tile, t *testing.T) {
-	for x := range expected {
-		for y := range expected[x] {
-			testTile, generatedTile := expected[x][y], actual[x][y]
+	for r := range expected {
+		for c := range expected[r] {
+			testTile, generatedTile := expected[r][c], actual[r][c]
 			if generatedTile != nil { // needs to be nested to avoid nil dereference
 				if testTile == nil || !(testTile.Equals(*generatedTile)) {
 					t.Fail()
@@ -197,13 +192,13 @@ func setupSmallTestLevel(t *testing.T) *Level { // set up a test level
 func generateSmallTestLevelTiles() [][]*Tile {
 	roomTiles := allocateLevelTiles(3, 3)
 	roomTiles[0][0] = GenerateTile(Wall, 0)
-	roomTiles[0][1] = GenerateTile(Wall, 0)
+	roomTiles[0][1] = GenerateTile(Door, 0)
 	roomTiles[0][2] = GenerateTile(Wall, 0)
-	roomTiles[1][0] = GenerateTile(Door, 0)
+	roomTiles[1][0] = GenerateTile(Wall, 0)
 	roomTiles[1][1] = GenerateTile(Walkable, 0)
-	roomTiles[1][2] = GenerateTile(Door, 0)
+	roomTiles[1][2] = GenerateTile(Wall, 0)
 	roomTiles[2][0] = GenerateTile(Wall, 0)
-	roomTiles[2][1] = GenerateTile(Wall, 0)
+	roomTiles[2][1] = GenerateTile(Door, 0)
 	roomTiles[2][2] = GenerateTile(Wall, 0)
 	return roomTiles
 }
@@ -224,40 +219,40 @@ func generateTestLevelWithHallwaysTiles() [][]*Tile {
 	levelTiles[2][0] = GenerateTile(Wall, 0)
 	levelTiles[2][1] = GenerateTile(Walkable, 0)
 	levelTiles[2][2] = GenerateTile(Walkable, 0)
-	levelTiles[2][3] = GenerateTile(Wall, 0)
+	levelTiles[2][3] = GenerateTile(Door, 0)
 	levelTiles[3][0] = GenerateTile(Wall, 0)
 	levelTiles[3][1] = GenerateTile(Wall, 0)
-	levelTiles[3][2] = GenerateTile(Door, 0)
+	levelTiles[3][2] = GenerateTile(Wall, 0)
 	levelTiles[3][3] = GenerateTile(Wall, 0)
 
 	// generate the second room
-	levelTiles[4][4] = GenerateTile(Wall,1)
-	levelTiles[4][5] = GenerateTile(Wall,1)
-	levelTiles[4][6] = GenerateTile(Wall,1)
-	levelTiles[4][7] = GenerateTile(Wall,1)
-	levelTiles[5][4] = GenerateTile(Door,1)
-	levelTiles[5][5] = GenerateTile(Walkable,1)
-	levelTiles[5][6] = GenerateTile(Walkable,1)
-	levelTiles[5][7] = GenerateTile(Wall,1)
-	levelTiles[6][4] = GenerateTile(Wall,1)
-	levelTiles[6][5] = GenerateTile(Walkable,1)
-	levelTiles[6][6] = GenerateTile(Walkable,1)
-	levelTiles[6][7] = GenerateTile(Wall,1)
-	levelTiles[7][4] = GenerateTile(Wall,1)
-	levelTiles[7][5] = GenerateTile(Wall,1)
-	levelTiles[7][6] = GenerateTile(Wall,1)
-	levelTiles[7][7] = GenerateTile(Wall,1)
+	levelTiles[4][4] = GenerateTile(Wall, 1)
+	levelTiles[4][5] = GenerateTile(Door, 1)
+	levelTiles[4][6] = GenerateTile(Wall, 1)
+	levelTiles[4][7] = GenerateTile(Wall, 1)
+	levelTiles[5][4] = GenerateTile(Wall, 1)
+	levelTiles[5][5] = GenerateTile(Walkable, 1)
+	levelTiles[5][6] = GenerateTile(Walkable, 1)
+	levelTiles[5][7] = GenerateTile(Wall, 1)
+	levelTiles[6][4] = GenerateTile(Wall, 1)
+	levelTiles[6][5] = GenerateTile(Walkable, 1)
+	levelTiles[6][6] = GenerateTile(Walkable, 1)
+	levelTiles[6][7] = GenerateTile(Wall, 1)
+	levelTiles[7][4] = GenerateTile(Wall, 1)
+	levelTiles[7][5] = GenerateTile(Wall, 1)
+	levelTiles[7][6] = GenerateTile(Wall, 1)
+	levelTiles[7][7] = GenerateTile(Wall, 1)
 
 	// generate the hallway
-	levelTiles[4][3] = GenerateTile(Wall, 2)
-	levelTiles[4][2] = GenerateTile(Walkable, 2)
-	levelTiles[5][2] = GenerateTile(Walkable, 2)
-	levelTiles[5][3] = GenerateTile(Walkable, 2)
-	levelTiles[6][3] = GenerateTile(Wall, 2)
-	levelTiles[6][2] = GenerateTile(Wall, 2)
-	levelTiles[6][1] = GenerateTile(Wall, 2)
-	levelTiles[5][1] = GenerateTile(Wall, 2)
-	levelTiles[4][1] = GenerateTile(Wall, 2)
+	levelTiles[1][4] = GenerateTile(Wall, 2)
+	levelTiles[1][5] = GenerateTile(Wall, 2)
+	levelTiles[1][6] = GenerateTile(Wall, 2)
+	levelTiles[2][4] = GenerateTile(Walkable, 2)
+	levelTiles[2][5] = GenerateTile(Walkable, 2)
+	levelTiles[2][6] = GenerateTile(Wall, 2)
+	levelTiles[3][4] = GenerateTile(Wall, 2)
+	levelTiles[3][5] = GenerateTile(Walkable, 2)
+	levelTiles[3][6] = GenerateTile(Wall, 2)
 
 	return levelTiles
 }
