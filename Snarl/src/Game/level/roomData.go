@@ -1,12 +1,12 @@
 package level
 
 type RoomGraphNode interface {
-	GetId() int                                     // returns the room or hallway ID. Useful for surveying tiles in a specific room
-	ConnectNode(connectingNode RoomGraphNode)       // Adds the given room as a connection to the room it's called on, and vice versa
-	insertConnection(connectingNode RoomGraphNode) 	// Inserts a single node into a room graph's connections. Internal Use Only!
-	Type() string                                  	// returns a string representing the type of the room
-	GetConnections() []RoomGraphNode				// Gets the list of this room's connections
-	GetStartPoint()	Position2D
+	GetId() int                                    // returns the room or hallway ID. Useful for surveying tiles in a specific room
+	ConnectNode(connectingNode RoomGraphNode)      // Adds the given room as a connection to the room it's called on, and vice versa
+	insertConnection(connectingNode RoomGraphNode) // Inserts a single node into a room graph's connections. Internal Use Only!
+	Type() string                                  // returns a string representing the type of the room
+	GetConnections() []RoomGraphNode               // Gets the list of this room's connections
+	GetStartPoint() Position2D
 }
 
 /* ------------------------- Room Metadata ------------------------------- */

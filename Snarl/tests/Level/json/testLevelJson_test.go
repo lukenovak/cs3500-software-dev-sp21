@@ -26,16 +26,16 @@ func TestParseLevelTestJson(t *testing.T) {
 	if expected.Room.Type != actual.Room.Type ||
 		!reflect.DeepEqual(actual.Room.Layout, expected.Room.Layout) ||
 		!reflect.DeepEqual(actual.Room.Origin, expected.Room.Origin) ||
-		!reflect.DeepEqual(actual.Point, expected.Point){
+		!reflect.DeepEqual(actual.Point, expected.Point) {
 		t.Fail()
 	}
 }
 
 func MakeExampleLevelTestInput() LevelTestRoomInput {
 	return LevelTestRoomInput{
-		Room: levelTestRoom{Type:"room", Origin:[2]int{0,0},
-			Bounds:[]byte{},
-			Layout: [][]int{{0, 0, 0}, {0,1,0}, {0,0,0}},
+		Room: levelTestRoom{Type: "room", Origin: [2]int{0, 0},
+			Bounds: []byte{},
+			Layout: [][]int{{0, 0, 0}, {0, 1, 0}, {0, 0, 0}},
 		},
 		Point: [2]int{1, 0},
 	}

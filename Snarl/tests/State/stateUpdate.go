@@ -41,20 +41,18 @@ func TestUpdateState(initialState GameStateObject, name string, newPos testJson.
 	// convert the level to our level representation
 	gameLevel := initialState.Level.ToGameLevel()
 
-
 	// convert game state json to actual game state
 	initialGameState := state.GameState{
-		Players: players,
-		Adversaries: adversaries,
-		Level: &gameLevel,
-		LevelNum: 1,
+		Players:       players,
+		Adversaries:   adversaries,
+		Level:         &gameLevel,
+		LevelNum:      1,
 		PlayerClients: nil,
 	}
 
 	if !initialState.ExitLocked {
 		initialGameState.Level.UnlockExits()
 	}
-
 
 	// handle player not part of input
 	namedPlayer := initialGameState.GetActor(name)
@@ -119,4 +117,3 @@ func generateGoodMoveMessage(gameState state.GameState, testLevel testJson.TestL
 	msgArray = append(msgArray, "Success", outputState)
 	return msgArray
 }
-

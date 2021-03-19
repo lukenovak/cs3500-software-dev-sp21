@@ -48,24 +48,24 @@ func renderGuiTile(tileToRender *level.Tile) *fyne.Container {
 			Text:      text,
 			Alignment: fyne.TextAlignCenter,
 			TextSize:  fontSize,
-			TextStyle: fyne.TextStyle{Bold: true,},
+			TextStyle: fyne.TextStyle{Bold: true},
 		}
 		return &textRender
 	}
 
 	if tileToRender == nil {
-		rectColor = color.RGBA{R:0, G:0, B:0}
+		rectColor = color.RGBA{R: 0, G: 0, B: 0}
 	} else {
 		switch tileToRender.Type {
 		case level.Wall:
-			rectColor = color.RGBA{R:180, G:180, B:0}
+			rectColor = color.RGBA{R: 180, G: 180, B: 0}
 		case level.Walkable:
-			rectColor = color.RGBA{R:20, G:180, B:20}
-		case level.Door :
+			rectColor = color.RGBA{R: 20, G: 180, B: 20}
+		case level.Door:
 			containerContent = newTileText(doorTile)
-		case level.LockedExit :
+		case level.LockedExit:
 			containerContent = newTileText("L")
-		case level.UnlockedExit :
+		case level.UnlockedExit:
 			containerContent = newTileText(unlockedTile)
 		default:
 			containerContent = newTileText(unknownTile)

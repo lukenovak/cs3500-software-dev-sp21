@@ -18,7 +18,7 @@ func TestRenderLevelSingleRoom(t *testing.T) {
 	}
 	render := ASCIILevel(testLevel)
 	exampleRender :=
-			"▓▓▓\n" +
+		"▓▓▓\n" +
 			"▓░▓\n" +
 			"▓▓▓\n"
 
@@ -39,7 +39,7 @@ func TestRenderLevelSingleRoom(t *testing.T) {
 	}
 	render = ASCIILevel(testLevel)
 	secondTestRender :=
-			"▓▓▓▓▓▓▓▓▓\n" +
+		"▓▓▓▓▓▓▓▓▓\n" +
 			"▓░░░░░░░▓\n" +
 			"▓░░░░░░░▓\n" +
 			"▓░░░░░░░▓\n" +
@@ -58,8 +58,8 @@ func TestRenderFullLevel(t *testing.T) {
 	if &genLevel == nil {
 		t.Fatal("unable to generate empty level")
 	}
-	firstRoomDoor, secondRoomDoor := []level.Position2D{level.NewPosition2D(3,2)}, []level.Position2D{level.NewPosition2D(5,4)}
-	err = genLevel.GenerateRectangularRoom(level.NewPosition2D(0,0), 4, 4, firstRoomDoor)
+	firstRoomDoor, secondRoomDoor := []level.Position2D{level.NewPosition2D(3, 2)}, []level.Position2D{level.NewPosition2D(5, 4)}
+	err = genLevel.GenerateRectangularRoom(level.NewPosition2D(0, 0), 4, 4, firstRoomDoor)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,7 +74,7 @@ func TestRenderFullLevel(t *testing.T) {
 
 	render := ASCIILevel(genLevel)
 	expectedRender :=
-			"▓▓▓▓    \n" +
+		"▓▓▓▓    \n" +
 			"▓░░▓▓▓▓ \n" +
 			"▓░░D░░▓ \n" +
 			"▓▓▓▓▓░▓ \n" +

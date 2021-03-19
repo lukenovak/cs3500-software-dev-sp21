@@ -14,7 +14,7 @@ func main() {
 	a := app.New()
 	w := a.NewWindow("snarl 0.0.1")
 	w.Resize(fyne.Size{Height: 800, Width: 800})
-	w.SetOnClosed(func() {os.Exit(0)})
+	w.SetOnClosed(func() { os.Exit(0) })
 	state.GameManager(generateGameStateLevel(), generatePlayers(), generateAdversaries(), w, 1)
 }
 
@@ -24,7 +24,7 @@ func generateGameStateLevel() level.Level {
 		panic(err)
 	}
 	// first room from 0,0 to 5, 4
-	err = newLevel.GenerateRectangularRoom(level.NewPosition2D(0,0),
+	err = newLevel.GenerateRectangularRoom(level.NewPosition2D(0, 0),
 		5,
 		6,
 		[]level.Position2D{level.NewPosition2D(4, 1), level.NewPosition2D(3, 5)})
@@ -33,7 +33,7 @@ func generateGameStateLevel() level.Level {
 	}
 
 	// second room from 9, 9 to 14, 16
-	err = newLevel.GenerateRectangularRoom(level.NewPosition2D(9,9),
+	err = newLevel.GenerateRectangularRoom(level.NewPosition2D(9, 9),
 		8,
 		6,
 		[]level.Position2D{level.NewPosition2D(13, 9)})
@@ -42,7 +42,7 @@ func generateGameStateLevel() level.Level {
 	}
 
 	// Third room from 20, 21 to 28, 29
-	err = newLevel.GenerateRectangularRoom(level.NewPosition2D(21,20),
+	err = newLevel.GenerateRectangularRoom(level.NewPosition2D(21, 20),
 		9,
 		9,
 		[]level.Position2D{level.NewPosition2D(25, 20)})
@@ -51,7 +51,7 @@ func generateGameStateLevel() level.Level {
 	}
 
 	// connecting hallways
-	hallwayWaypoints := []level.Position2D{{3, 7}, {13,7}}
+	hallwayWaypoints := []level.Position2D{{3, 7}, {13, 7}}
 	err = newLevel.GenerateHallway(level.NewPosition2D(3, 5), level.NewPosition2D(13, 9), hallwayWaypoints)
 	if err != nil {
 		panic(err)

@@ -180,8 +180,8 @@ func (level *Level) GenerateRectangularRoomWithLayout(topLeft Position2D, rows i
 
 // Checks to see that this room is valid (it does not overlap with another room)
 func (level Level) checkRoomValidity(topLeft Position2D, rows int, cols int) error {
-	for i := topLeft.Row; i < topLeft.Row + rows; i++ {
-		for j := topLeft.Col; j < topLeft.Col + cols; j++ {
+	for i := topLeft.Row; i < topLeft.Row+rows; i++ {
+		for j := topLeft.Col; j < topLeft.Col+cols; j++ {
 			if level.Tiles[i][j] != nil {
 				return fmt.Errorf("invalid room placement. check that your room does not overlap with another room")
 			}
@@ -231,7 +231,7 @@ func (level *Level) GenerateHallway(start Position2D, end Position2D, waypoints 
 // generates the "hallway" segments between hallway waypoints
 func (level Level) generateBetweenWaypoints(startPos *Position2D, endPos Position2D, shouldCapEnd bool, hallwayId int) {
 
-	generateCol := func (amountToIterate int, orientation int, direction int) {
+	generateCol := func(amountToIterate int, orientation int, direction int) {
 		for !startPos.Equals(endPos) {
 			startPos.Col += amountToIterate
 			level.generateHallwayStep(*startPos, orientation, hallwayId)
@@ -241,7 +241,7 @@ func (level Level) generateBetweenWaypoints(startPos *Position2D, endPos Positio
 		}
 	}
 
-	generateRow := func (amountToIterate int, orientation int, direction int) {
+	generateRow := func(amountToIterate int, orientation int, direction int) {
 		for !startPos.Equals(endPos) {
 			startPos.Row += amountToIterate
 			level.generateHallwayStep(*startPos, orientation, hallwayId)
@@ -281,7 +281,7 @@ func (level Level) validateHallway(start Position2D, end Position2D, waypoints [
 			}
 			currPos.Col += amountToIterate
 		}
-		if err = level.validateHallwayStep(NewPosition2D(currPos.Row, currPos.Col + amountToIterate), horizontal); err != nil {
+		if err = level.validateHallwayStep(NewPosition2D(currPos.Row, currPos.Col+amountToIterate), horizontal); err != nil {
 			return err
 		}
 		return nil
@@ -294,7 +294,7 @@ func (level Level) validateHallway(start Position2D, end Position2D, waypoints [
 			}
 			currPos.Row += amountToIterate
 		}
-		if err = level.validateHallwayStep(NewPosition2D(currPos.Row + amountToIterate, currPos.Col), vertical); err != nil {
+		if err = level.validateHallwayStep(NewPosition2D(currPos.Row+amountToIterate, currPos.Col), vertical); err != nil {
 			return err
 		}
 		return nil
@@ -303,7 +303,7 @@ func (level Level) validateHallway(start Position2D, end Position2D, waypoints [
 	// go through the waypoints and validate all the necessary tiles
 	for _, waypoint := range append(waypoints) {
 		if waypoint.Row == currPos.Row && waypoint.Col > currPos.Col { // moving right
-			err = validateHorizontal(waypoint, 1);
+			err = validateHorizontal(waypoint, 1)
 		} else if waypoint.Row == currPos.Row && waypoint.Col < currPos.Col { // moving left
 			err = validateHorizontal(waypoint, -1)
 		} else if waypoint.Row > currPos.Row { // moving right
@@ -322,7 +322,7 @@ func (level Level) validateHallway(start Position2D, end Position2D, waypoints [
 
 // Checks to see that this "step" in the hallway is valid
 func (level Level) validateHallwayStep(rowCenter Position2D, direction int) error {
-	validate := func (doorTile *Tile, fstAdjWallTile *Tile, sndAdjWallTile *Tile) error {
+	validate := func(doorTile *Tile, fstAdjWallTile *Tile, sndAdjWallTile *Tile) error {
 		if (doorTile != nil && doorTile.Type != Door) ||
 			(fstAdjWallTile != nil && fstAdjWallTile.Type != Wall) ||
 			(sndAdjWallTile != nil && sndAdjWallTile.Type != Wall) {
