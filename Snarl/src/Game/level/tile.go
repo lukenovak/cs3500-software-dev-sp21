@@ -30,4 +30,3 @@ func (t Tile) Equals(secondTile Tile) bool {
 		(t.Item == nil && secondTile.Item == nil ||
 			(t.Item.Type == secondTile.Item.Type))
 }
-

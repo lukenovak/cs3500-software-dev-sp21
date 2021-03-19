@@ -3,13 +3,12 @@ package render
 import "github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 
 const (
-	wallTile = "▓"
+	wallTile     = "▓"
 	walkableTile = "░"
-	doorTile = "D"
-	lockedTile = "¤"
-	unlockedTile ="U"
-	unknownTile = "?"
-	
+	doorTile     = "D"
+	lockedTile   = "¤"
+	unlockedTile = "U"
+	unknownTile  = "?"
 )
 
 func ASCIILevel(levelToRender level.Level) string {

@@ -33,16 +33,16 @@ func (gs GameState) CopyGameState() GameState {
 	copy(copiedAdversaries, gs.Adversaries)
 
 	return GameState{
-		LevelNum: gs.LevelNum,
-		Level: gs.Level,
-		Players: copiedPlayers,
+		LevelNum:    gs.LevelNum,
+		Level:       gs.Level,
+		Players:     copiedPlayers,
 		Adversaries: copiedAdversaries,
 	}
 }
 
 // Generates a new level
 func (gs GameState) GenerateLevel(size level.Position2D) error {
-	newLevel, err := level.NewEmptyLevel(size.X, size.Y)
+	newLevel, err := level.NewEmptyLevel(size.Row, size.Col)
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func (gs *GameState) UnlockExits() {
 }
 
 func (gs *GameState) MoveActorRelative(name string, relativeMove level.Position2D) {
-	moveActorifExists := func (actorList []actor.Actor) {
+	moveActorifExists := func(actorList []actor.Actor) {
 		for i := range actorList {
 			if actorList[i].Name == name {
 				oldPos := actorList[i].Position
@@ -95,7 +95,7 @@ func (gs *GameState) MoveActorRelative(name string, relativeMove level.Position2
 
 func (gs *GameState) MoveActorAbsolute(name string, newPosition level.Position2D) {
 
-	moveActorIfExists := func (actorList []actor.Actor) {
+	moveActorIfExists := func(actorList []actor.Actor) {
 		for i := range actorList {
 			if actorList[i].Name == name {
 				actorList[i] = actorList[i].MoveActor(newPosition)
@@ -133,11 +133,11 @@ func (gs *GameState) RemoveActor(name string) {
 		for i := range actorList {
 			if actorList[i].Name == name {
 				// reorders the array, but order doesn't matter
-				actorList[len(actorList) - 1], actorList[i] = actorList[i], actorList[len(actorList) - 1]
+				actorList[len(actorList)-1], actorList[i] = actorList[i], actorList[len(actorList)-1]
 				if len(actorList) == 1 {
 					return []actor.Actor{}
 				} else {
-					return actorList[:len(actorList) - 1]
+					return actorList[:len(actorList)-1]
 				}
 			}
 		}
@@ -151,16 +151,16 @@ func (gs *GameState) RemoveActor(name string) {
 // Generates a "partial game state" showing all tiles with in an n x n square as well as all actors in that square
 func (gs GameState) GeneratePartialState(position level.Position2D, viewDistance int) ([][]*level.Tile, []actor.Actor) {
 	// allocation
-	visibleTiles := make([][]*level.Tile, viewDistance * 2 + 1)
+	visibleTiles := make([][]*level.Tile, viewDistance*2+1)
 	for i := range visibleTiles {
-		visibleTiles[i] = make([]*level.Tile, viewDistance * 2 + 1)
+		visibleTiles[i] = make([]*level.Tile, viewDistance*2+1)
 	}
 
 	var visibleActors []actor.Actor
 
 	for partialX := 0; partialX < viewDistance; partialX++ {
 		for partialY := 0; partialY < viewDistance; partialY++ {
-			tilePos := level.NewPosition2D(position.X - viewDistance + partialX, position.Y - viewDistance + partialY)
+			tilePos := level.NewPosition2D(position.Row-viewDistance+partialX, position.Col-viewDistance+partialY)
 			// add the tile to the new state
 			visibleTiles[partialX][partialY] = gs.Level.GetTile(tilePos)
 			// if there's an adversary here, generate a new one with the relative location and move it there
@@ -204,8 +204,8 @@ func getTopLeftUnoccupiedWalkable(gameState GameState, startPosn level.Position2
 	closestDistance := gameState.Level.Size.GetManhattanDistance(startPosn)
 	closestTilePosn := gameState.Level.Size
 
-	for x := startPosn.X; x < gameState.Level.Size.X && x-startPosn.X < closestDistance; x++ {
-		for y := startPosn.Y; y < gameState.Level.Size.Y && y-startPosn.Y < closestDistance; y++ {
+	for x := startPosn.Row; x < gameState.Level.Size.Row && x-startPosn.Row < closestDistance; x++ {
+		for y := startPosn.Col; y < gameState.Level.Size.Col && y-startPosn.Col < closestDistance; y++ {
 			currPos := level.NewPosition2D(x, y)
 			if currPosTile := gameState.Level.GetTile(currPos); currPosTile != nil && currPosTile.Type == level.Walkable &&
 				!ActorsOccupyPosition(gameState.Players, currPos) &&
@@ -225,8 +225,8 @@ func getBottomRightUnoccupiedWalkable(gameState GameState, startPosn level.Posit
 	closestDistance := level.NewPosition2D(0, 0).GetManhattanDistance(startPosn)
 	closestTilePosn := level.NewPosition2D(0, 0)
 
-	for x := startPosn.X; x > 0 && x-startPosn.X < closestDistance; x-- {
-		for y := startPosn.Y; y > 0 && y-startPosn.Y < closestDistance; y-- {
+	for x := startPosn.Row; x > 0 && x-startPosn.Row < closestDistance; x-- {
+		for y := startPosn.Col; y > 0 && y-startPosn.Col < closestDistance; y-- {
 			currPos := level.NewPosition2D(x, y)
 			if currPosTile := gameState.Level.GetTile(currPos); currPosTile != nil && currPosTile.Type == level.Walkable &&
 				!ActorsOccupyPosition(gameState.Players, currPos) &&

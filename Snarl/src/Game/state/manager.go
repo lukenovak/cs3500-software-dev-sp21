@@ -12,10 +12,10 @@ const defaultPlayerViewDistance = 2
 
 // runs the main game loop
 func GameManager(firstLevel level.Level,
-				 playerClients []client.UserClient,
-				 adversaries []actor.Actor,
-				 gameWindow fyne.Window,
-				 numLevels int) {
+	playerClients []client.UserClient,
+	adversaries []actor.Actor,
+	gameWindow fyne.Window,
+	numLevels int) {
 	if len(playerClients) < 1 || len(playerClients) > 4 { // we cannot start the game without the right number of players
 		return
 	}
@@ -43,7 +43,7 @@ func GameManager(firstLevel level.Level,
 			// check that the new game state is valid
 			if IsValidMove(*state, clientName, response.Move) {
 				// move the player
-				state.MoveActorRelative(client.GetName(), level.NewPosition2D(response.Move.X, response.Move.Y))
+				state.MoveActorRelative(client.GetName(), level.NewPosition2D(response.Move.Row, response.Move.Col))
 
 				// handle interactions
 				newPos := state.GetActor(clientName).Position
@@ -92,4 +92,3 @@ func GameManager(firstLevel level.Level,
 		// for _, adversary := range adversaries { ... }
 	}
 }
-

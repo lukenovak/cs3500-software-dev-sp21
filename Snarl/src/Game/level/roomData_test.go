@@ -2,12 +2,12 @@ package level
 
 import "testing"
 
-func TestRoomData_ConnectNode (t *testing.T) {
+func TestRoomData_ConnectNode(t *testing.T) {
 	graphStart := generateExampleGraph()
 	newNode := HallData{
 		Id:          3,
-		Start:       Position2D{0,0},
-		End:         Position2D{0,0},
+		Start:       Position2D{0, 0},
+		End:         Position2D{0, 0},
 		Waypoints:   nil,
 		Connections: nil,
 	}
@@ -29,7 +29,6 @@ func TestRoomData_ConnectNode (t *testing.T) {
 		t.Fail()
 	}
 }
-
 
 func generateExampleGraph() RoomGraphNode {
 	// rooms carry dummy data

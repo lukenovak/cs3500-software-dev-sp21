@@ -103,13 +103,12 @@ func ParseLevelTileDataTestJson(r io.Reader) LevelTestLevelInput {
 
 // Converts a LevelTestPoint to a Position2D
 func (point *LevelTestPoint) ToPosition2D() level.Position2D {
-	return level.NewPosition2D(point[1], point[0])
+	return level.NewPosition2D(point[0], point[1])
 }
 
 func NewTestPointFromPosition2D(d level.Position2D) LevelTestPoint {
-	return [2]int{d.Y, d.X}
+	return [2]int{d.Row, d.Col}
 }
-
 
 func (testLevel TestLevelObject) ToGameLevel() level.Level {
 	var newLevel, err = level.NewEmptyLevel(4, 4)
@@ -119,7 +118,7 @@ func (testLevel TestLevelObject) ToGameLevel() level.Level {
 	// generate rooms
 	for _, room := range testLevel.Rooms {
 		newOrigin := room.Origin.ToPosition2D()
-		err = newLevel.GenerateRectangularRoomWithLayout(newOrigin, len(room.Layout[0]), len(room.Layout), room.Layout)
+		err = newLevel.GenerateRectangularRoomWithLayout(newOrigin, len(room.Layout), len(room.Layout[0]), room.Layout)
 		if err != nil {
 			panic(err)
 		}
@@ -167,7 +166,7 @@ func (testLevel TestLevelObject) ToGameLevel() level.Level {
 func (testLevel *TestLevelObject) UnlockExits() {
 	for idx, item := range testLevel.Objects {
 		if item.Type == "key" {
-			testLevel.Objects = append(testLevel.Objects[:idx], testLevel.Objects[idx + 1:]...)
+			testLevel.Objects = append(testLevel.Objects[:idx], testLevel.Objects[idx+1:]...)
 		}
 	}
 }

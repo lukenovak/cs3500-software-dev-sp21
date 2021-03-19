@@ -13,11 +13,11 @@ const parseErrorMsg = "unable to parse input. Check that your input JSON is form
 
 // state JSON input
 type GameStateObject struct {
-	Type string                       `json:"type"`
-	Level levelJson.TestLevelObject   `json:"level"`
-	Players []ActorPositionObject     `json:"players"`
-	Adversaries []ActorPositionObject `json:"adversaries"`
-	ExitLocked bool                   `json:"exit-locked"`
+	Type        string                    `json:"type"`
+	Level       levelJson.TestLevelObject `json:"level"`
+	Players     []ActorPositionObject     `json:"players"`
+	Adversaries []ActorPositionObject     `json:"adversaries"`
+	ExitLocked  bool                      `json:"exit-locked"`
 }
 
 // Converts a game state to a state object for JSON output
@@ -37,18 +37,18 @@ func gameStateObjectFromGameState(gs state.GameState, testLevel levelJson.TestLe
 	}
 
 	return GameStateObject{
-		Type: "state",
-		Level: testLevel,
-		Players: generatePlayerObjects(gs.Players),
+		Type:        "state",
+		Level:       testLevel,
+		Players:     generatePlayerObjects(gs.Players),
 		Adversaries: generatePlayerObjects(gs.Adversaries),
-		ExitLocked: exitLockStatus,
+		ExitLocked:  exitLockStatus,
 	}
 }
 
 // Actor-Position JSON input
 type ActorPositionObject struct {
-	Type string `json:"type"`
-	Name string `json:"name"`
+	Type     string                   `json:"type"`
+	Name     string                   `json:"name"`
 	Position levelJson.LevelTestPoint `json:"position"`
 }
 

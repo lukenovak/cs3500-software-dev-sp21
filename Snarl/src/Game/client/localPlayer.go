@@ -28,4 +28,3 @@ func (player LocalPlayer) GetInput() Response {
 func (player LocalPlayer) GetName() string {
 	return player.Name
 }
-
