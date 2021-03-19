@@ -16,8 +16,19 @@ more local functions to cut down on duplicate code and decrease the overall size
 
 ## Changes
 
-TODO: Complete this section after the changes have been made.
+We accomplished our main refactoring goal, the conversion of levels to row/column format.
+In addition to that goal, we also made some small improvements to rendering, as well as adding
+some abstraction to some of the level generation functions by using local functions. There
+is still more room for improvement with how our rendering works, and out game state might also
+need some cleaning, but we accomplished our main goal.
 
+#### Full list of changes:
+- Levels work on row column format
+  - Tests adjusted
+  - Test harness adapters eliminated
+  - Level rendering adjusted for r/c format
+- Text rendering code now abstracted with local function
+- Bug fix: all players at exit to end a level, not just one
 
 ## Future Work
 
@@ -30,3 +41,7 @@ as we get further into the development process.
 
 We are taking a *bit* of a down week this week in terms of work load however we have identified a number of
 areas that need work, and we will be improving these areas.
+
+Our level code is much easier to work with as of this week thanks both to the adjustment of the
+format (which makes our layout room generation function much more logical), and thanks to a number
+of abstractions introduced in the level generation and rendering portions of our code.
