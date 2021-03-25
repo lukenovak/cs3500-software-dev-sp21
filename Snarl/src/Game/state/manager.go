@@ -22,8 +22,11 @@ func GameManager(firstLevel level.Level,
 
 	var players []actor.Actor
 	for _, client := range playerClients {
+		// adding new actor to collection
 		newPlayer := actor.NewWalkableActor(client.GetName(), actor.PlayerType, 2)
 		players = append(players, newPlayer)
+
+		client.RegisterClient()
 	}
 
 	state := initGameState(firstLevel, players, adversaries)

@@ -6,11 +6,14 @@ import (
 )
 
 type UserClient interface {
+	// Used to initialize the client
+	RegisterClient() error
+
 	// Sends a new state to the player
-	SendPartialState([][]*level.Tile, []actor.Actor) error
+	SendPartialState(tiles [][]*level.Tile, actors []actor.Actor) error
 
 	// Sends a message to the player (used for invalid moves);
-	SendMessage(string) error
+	SendMessage(message string) error
 
 	// Waits for a player input then returns the player's action after input
 	GetInput() Response

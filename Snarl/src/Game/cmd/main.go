@@ -71,7 +71,7 @@ func generateGameStateLevel() level.Level {
 }
 
 func generatePlayers() []client.UserClient {
-	return []client.UserClient{client.LocalPlayer{Name: "Luke"}}
+	return []client.UserClient{client.LocalClient{Name: "Luke"}}
 }
 
 func generateAdversaries() []actor.Actor {
