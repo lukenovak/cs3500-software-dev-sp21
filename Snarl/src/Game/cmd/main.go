@@ -4,6 +4,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/internal/render"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 )
@@ -13,7 +14,12 @@ func main() {
 	fyne.SetCurrentApp(a)
 	players := generatePlayers()
 	players[0].RegisterClient()
-	go state.GameManager(generateGameStateLevel(), players, generateAdversaries(), 1)
+	observerWindow := a.NewWindow("snarl observer")
+
+	observer := state.NewGameObserver(func(gs state.GameState) {
+		render.GuiState(gs.Level.Tiles, gs.Players, gs.Adversaries, observerWindow)
+	})
+	go state.GameManager(generateGameStateLevel(), players, generateAdversaries(), []state.GameObserver{observer}, 1)
 	a.Run()
 }
 

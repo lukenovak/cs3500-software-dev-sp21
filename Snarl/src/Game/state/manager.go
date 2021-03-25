@@ -12,6 +12,7 @@ const defaultPlayerViewDistance = 2
 func GameManager(firstLevel level.Level,
 	playerClients []UserClient,
 	adversaries []actor.Actor,
+	observers []GameObserver,
 	numLevels int) {
 	if len(playerClients) < 1 || len(playerClients) > 4 { // we cannot start the game without the right number of players
 		return
@@ -31,7 +32,11 @@ func GameManager(firstLevel level.Level,
 		client.SendPartialState(state.GeneratePartialState(state.GetActor(client.GetName()).Position, defaultPlayerViewDistance))
 
 	}
-	// initialize players from UserClients
+	// initialize observers
+	for _, observer := range observers {
+		go observer.Begin()
+		observer.GameStateChannel <- *state
+	}
 
 	// main game loop
 	for !state.CheckVictory() {
@@ -74,6 +79,9 @@ func GameManager(firstLevel level.Level,
 			for _, updateClient := range playerClients {
 				clientPosition := state.GetActor(client.GetName()).Position
 				updateClient.SendPartialState(state.GeneratePartialState(clientPosition, defaultPlayerViewDistance))
+			}
+			for _, observer := range observers {
+				observer.GameStateChannel <- *state
 			}
 
 			// check if this is the end of the level
