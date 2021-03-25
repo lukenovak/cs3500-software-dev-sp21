@@ -1,6 +1,7 @@
 package state
 
 import (
+	"fmt"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 )
@@ -26,6 +27,10 @@ func GameManager(firstLevel level.Level,
 
 	state := initGameState(firstLevel, players, adversaries)
 
+	for _, client := range playerClients {
+		client.SendPartialState(state.GeneratePartialState(state.GetActor(client.GetName()).Position, defaultPlayerViewDistance))
+
+	}
 	// initialize players from UserClients
 
 	// main game loop
@@ -51,7 +56,7 @@ func GameManager(firstLevel level.Level,
 
 				playerTile := state.Level.GetTile(newPos)
 				// if there's a key there, remove the key and unlock the doors {
-				if playerTile != nil && playerTile.Item.Type == level.KeyID {
+				if playerTile != nil && playerTile.Item != nil && playerTile.Item.Type == level.KeyID {
 					state.Level.UnlockExits()
 					state.Level.ClearItem(newPos)
 				}
@@ -62,6 +67,7 @@ func GameManager(firstLevel level.Level,
 					state.RemoveActor(clientName)
 				}
 
+				fmt.Printf("%s moved to %d, %d\n", clientName, newPos.Row, newPos.Col)
 			}
 
 			// update all clients

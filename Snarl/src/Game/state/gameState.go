@@ -157,8 +157,8 @@ func (gs GameState) GeneratePartialState(position level.Position2D, viewDistance
 
 	var visibleActors []actor.Actor
 
-	for partialX := 0; partialX < viewDistance; partialX++ {
-		for partialY := 0; partialY < viewDistance; partialY++ {
+	for partialX := 0; partialX < viewDistance * 2 + 1; partialX++ {
+		for partialY := 0; partialY < viewDistance * 2 + 1; partialY++ {
 			tilePos := level.NewPosition2D(position.Row-viewDistance+partialX, position.Col-viewDistance+partialY)
 			// add the tile to the new state
 			visibleTiles[partialX][partialY] = gs.Level.GetTile(tilePos)
@@ -173,7 +173,7 @@ func (gs GameState) GeneratePartialState(position level.Position2D, viewDistance
 		}
 	}
 
-	return visibleTiles, nil
+	return visibleTiles, visibleActors
 }
 
 /* ---------------------------- Internal Use Functions ------------------------------------- */

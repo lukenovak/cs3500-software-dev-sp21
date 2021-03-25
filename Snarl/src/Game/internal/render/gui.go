@@ -24,7 +24,7 @@ func GuiState(stateLevelTiles [][]*level.Tile, statePlayers []actor.Actor, state
 		windowContainer.Add(renderedTile)
 	}
 	gameWindow.SetContent(windowContainer)
-	gameWindow.ShowAndRun()
+	gameWindow.Show()
 }
 
 func renderGuiLevel(levelToRender [][]*level.Tile) []*fyne.Container {
