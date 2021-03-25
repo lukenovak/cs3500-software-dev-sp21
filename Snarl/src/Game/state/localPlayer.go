@@ -1,9 +1,11 @@
-package client
+package state
 
 import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/app"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/internal/render"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
@@ -13,15 +15,19 @@ import (
 // struct for a local player
 type LocalClient struct {
 	Name string
+	GameWindow fyne.Window
 }
 
 func (player LocalClient) RegisterClient() error {
+	a := app.New()
+	player.GameWindow = a.NewWindow("snarl client")
+	player.GameWindow.ShowAndRun()
 	return nil
 }
 
 // TODO: Include this functionality in a future Milestone
 func (player LocalClient) SendPartialState(tiles [][]*level.Tile, actors []actor.Actor) error {
-	print(render.ASCIILevel(level.Level{Tiles: tiles}))
+	render.GuiState(tiles, actors, actors, player.GameWindow)
 	return nil
 }
 
@@ -35,15 +41,15 @@ func (player LocalClient) SendMessage(message string) error {
 func (player LocalClient) GetInput() Response {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("Enter move [row, col]: ")
-	move, _ := reader.ReadString('\n')
-	var moveData []interface{}
-	json.Unmarshal([]byte(move), moveData)
+	move, _ := reader.ReadBytes('\n')
+	var moveData [2]int
+	json.Unmarshal(move, moveData)
 	return Response{
 		PlayerId:   0,
 		PlayerName: player.Name,
 		Move: level.Position2D{
-			Row: moveData[0].(int),
-			Col: moveData[1].(int),
+			Row: moveData[0],
+			Col: moveData[1],
 		},
 		Actions: nil,
 	}

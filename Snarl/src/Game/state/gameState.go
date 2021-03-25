@@ -2,7 +2,6 @@ package state
 
 import (
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/client"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 )
 
@@ -10,7 +9,7 @@ type GameState struct {
 	LevelNum      int
 	Level         *level.Level
 	Players       []actor.Actor
-	PlayerClients []client.UserClient
+	PlayerClients []UserClient
 	Adversaries   []actor.Actor
 }
 

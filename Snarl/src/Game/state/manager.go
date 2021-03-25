@@ -1,10 +1,7 @@
 package state
 
 import (
-	"fyne.io/fyne/v2"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/client"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/internal/render"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 )
 
@@ -12,9 +9,8 @@ const defaultPlayerViewDistance = 2
 
 // runs the main game loop
 func GameManager(firstLevel level.Level,
-	playerClients []client.UserClient,
+	playerClients []UserClient,
 	adversaries []actor.Actor,
-	gameWindow fyne.Window,
 	numLevels int) {
 	if len(playerClients) < 1 || len(playerClients) > 4 { // we cannot start the game without the right number of players
 		return
@@ -26,11 +22,9 @@ func GameManager(firstLevel level.Level,
 		newPlayer := actor.NewWalkableActor(client.GetName(), actor.PlayerType, 2)
 		players = append(players, newPlayer)
 
-		client.RegisterClient()
 	}
 
 	state := initGameState(firstLevel, players, adversaries)
-	gameWindow.Resize(fyne.Size{Width: 800, Height: 800})
 
 	// initialize players from UserClients
 
@@ -75,11 +69,6 @@ func GameManager(firstLevel level.Level,
 				clientPosition := state.GetActor(client.GetName()).Position
 				updateClient.SendPartialState(state.GeneratePartialState(clientPosition, defaultPlayerViewDistance))
 			}
-
-			// render the new game state
-			// TODO: Remove this from the game loop in future milestones. This information can be handled at the playerClient level
-			render.GuiState(state.Level, state.Players, state.Adversaries, gameWindow)
-			gameWindow.ShowAndRun()
 
 			// check if this is the end of the level
 			if IsLevelEnd(*state) {

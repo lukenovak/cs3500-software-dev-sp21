@@ -1,21 +1,15 @@
 package main
 
 import (
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/app"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/client"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
-	"os"
 )
 
 func main() {
-	a := app.New()
-	w := a.NewWindow("snarl 0.0.1")
-	w.Resize(fyne.Size{Height: 800, Width: 800})
-	w.SetOnClosed(func() { os.Exit(0) })
-	state.GameManager(generateGameStateLevel(), generatePlayers(), generateAdversaries(), w, 1)
+	players := generatePlayers()
+	go state.GameManager(generateGameStateLevel(), players, generateAdversaries(), 1)
+	players[0].RegisterClient()
 }
 
 func generateGameStateLevel() level.Level {
@@ -70,8 +64,8 @@ func generateGameStateLevel() level.Level {
 	return newLevel
 }
 
-func generatePlayers() []client.UserClient {
-	return []client.UserClient{client.LocalClient{Name: "Luke"}}
+func generatePlayers() []state.UserClient {
+	return []state.UserClient{state.LocalClient{Name: "Luke"}}
 }
 
 func generateAdversaries() []actor.Actor {

@@ -1,4 +1,4 @@
-package client
+package state
 
 import (
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
