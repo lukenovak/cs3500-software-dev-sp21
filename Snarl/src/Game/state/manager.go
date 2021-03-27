@@ -123,3 +123,25 @@ func GameManager(firstLevel level.Level,
 		// for _, adversary := range adversaries { ... }
 	}
 }
+
+func tilesToArray(tiles [][]*level.Tile) [][]int {
+	output := make([][]int, 0)
+	for _, tileRow := range tiles {
+		outputRow := make([]int, 0)
+		for _, tile := range tileRow {
+			if tile == nil {
+				outputRow = append(outputRow, 0)
+			}
+			switch tile.Type {
+			case level.LockedExit:
+				outputRow = append(outputRow, 1)
+			case level.UnlockedExit:
+				outputRow = append(outputRow, 1)
+			default:
+				outputRow = append(outputRow, tile.Type)
+			}
+		}
+		output = append(output, outputRow)
+	}
+	return output
+}
