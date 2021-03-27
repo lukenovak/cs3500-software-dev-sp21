@@ -17,24 +17,21 @@ type LocalClient struct {
 	GameWindow fyne.Window
 }
 
-func (player *LocalClient) RegisterClient() error {
+func (player *LocalClient) RegisterClient() (actor.Actor, error) {
 	player.GameWindow = fyne.CurrentApp().NewWindow("snarl client")
-	return nil
+	return actor.NewWalkableActor(player.Name, actor.PlayerType, 2), nil
 }
 
-// TODO: Include this functionality in a future Milestone
 func (player *LocalClient) SendPartialState(tiles [][]*level.Tile, actors []actor.Actor) error {
 	render.GuiState(tiles, actors, actors, player.GameWindow)
 	return nil
 }
 
-// TODO: Include this functionality in a future Milestone
 func (player *LocalClient) SendMessage(message string) error {
 	println(message)
 	return nil
 }
 
-// TODO: Include this functionality in a future Milestone
 func (player *LocalClient) GetInput() Response {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("Enter move [row, col]: ")

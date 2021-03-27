@@ -189,12 +189,17 @@ func initGameState(firstLevel level.Level, players []actor.Actor, adversaries []
 	return gs
 }
 
-// places the players at the top left of the level
+// places the players at the top left of the level if their position is invalid. Otherwise, uses the current
+// position
 func placeActors(gameState *GameState, actors []actor.Actor,
 	placementFunc func(GameState, level.Position2D) level.Position2D,
 	placementStart level.Position2D) {
 	for _, actor := range actors {
-		gameState.SpawnActor(actor, placementFunc(*gameState, placementStart))
+		if actor.Position.Row < 0 || actor.Position.Col < 0 {
+			gameState.SpawnActor(actor, placementFunc(*gameState, placementStart))
+		} else {
+			gameState.SpawnActor(actor, actor.Position)
+		}
 	}
 }
 

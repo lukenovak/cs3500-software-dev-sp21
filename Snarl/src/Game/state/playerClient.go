@@ -7,7 +7,7 @@ import (
 
 type UserClient interface {
 	// Used to initialize the client
-	RegisterClient() error
+	RegisterClient() (actor.Actor, error)
 
 	// Sends a new state to the player
 	SendPartialState(tiles [][]*level.Tile, actors []actor.Actor) error

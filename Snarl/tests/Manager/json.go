@@ -26,7 +26,7 @@ func (move ActorMove) toResponse(playerName string) state.Response {
 	}
 }
 
-func ParseManagerInput(reader io.Reader) ([]string, level.Level, testJson.TestLevelObject, int, []level.Position2D, [][]ActorMove) {
+func ParseManagerInput(reader io.Reader) ([]string, level.Level, int, []level.Position2D, [][]ActorMove) {
 	d := json.NewDecoder(reader)
 	var inputContents []json.RawMessage
 	err := d.Decode(&inputContents)
@@ -63,6 +63,6 @@ func ParseManagerInput(reader io.Reader) ([]string, level.Level, testJson.TestLe
 		parsePos += 1
 	}
 
-	return nameList, gameLevel, testLevel, nat, posList, actorMoveListList
+	return nameList, gameLevel, nat, posList, actorMoveListList
 
 }

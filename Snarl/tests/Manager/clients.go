@@ -10,12 +10,15 @@ import (
 type TestPlayer struct {
 	Name string
 	MoveList []ActorMove
+	InitialPosition level.Position2D
 	VisibleLayout [][]int
 	VisibleActors []State.ActorPositionObject
 }
 
-func (t *TestPlayer) RegisterClient() error {
-	return nil // test clients have no setup
+func (t *TestPlayer) RegisterClient() (actor.Actor, error) {
+	playerActor := actor.NewWalkableActor(t.Name, actor.PlayerType, 2)
+	playerActor = playerActor.MoveActor(t.InitialPosition)
+	return playerActor, nil
 }
 
 func (t *TestPlayer) SendPartialState(tiles [][]*level.Tile, actors []actor.Actor) error {
