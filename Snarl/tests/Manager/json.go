@@ -3,6 +3,7 @@ package Manager
 import (
 	"encoding/json"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 	testJson "github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/tests/Level/json"
 	"io"
 )
@@ -10,6 +11,19 @@ import (
 type ActorMove struct {
 	Type string `json:"type"`
 	To *testJson.LevelTestPoint // needs to be a pointer to support nil points
+}
+
+func (move ActorMove) toResponse(playerName string) state.Response {
+	if move.To == nil {
+		var nilMove testJson.LevelTestPoint
+		nilMove = [2]int{0, 0}
+		move.To = &nilMove
+	}
+	return state.Response{
+		PlayerName: playerName,
+		Move:       move.To.ToPosition2D(),
+		Actions:    nil,
+	}
 }
 
 func ParseManagerInput(reader io.Reader) ([]string, level.Level, testJson.TestLevelObject, int, []level.Position2D, [][]ActorMove) {

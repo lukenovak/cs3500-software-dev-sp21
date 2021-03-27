@@ -23,7 +23,6 @@ type UserClient interface {
 }
 
 type Response struct {
-	PlayerId   int
 	PlayerName string
 	Move       level.Position2D
 	Actions    map[string]interface{}

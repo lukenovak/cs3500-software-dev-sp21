@@ -47,6 +47,7 @@ func GameManager(firstLevel level.Level,
 			response := client.GetInput()
 			clientName := client.GetName()
 
+
 			// check that the new game state is valid
 			if IsValidMove(*state, clientName, response.Move) {
 				// move the player
@@ -72,7 +73,9 @@ func GameManager(firstLevel level.Level,
 					state.RemoveActor(clientName)
 				}
 
-				fmt.Printf("%s moved to %d, %d\n", clientName, newPos.Row, newPos.Col)
+				client.SendMessage(fmt.Sprintf("%s moved to %d, %d\n", clientName, newPos.Row, newPos.Col))
+			} else {
+				client.SendMessage("invalid move")
 			}
 
 			// update all clients

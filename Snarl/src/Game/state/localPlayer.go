@@ -18,8 +18,7 @@ type LocalClient struct {
 }
 
 func (player *LocalClient) RegisterClient() error {
-	a := fyne.CurrentApp()
-	player.GameWindow = a.NewWindow("snarl client")
+	player.GameWindow = fyne.CurrentApp().NewWindow("snarl client")
 	return nil
 }
 
@@ -43,7 +42,6 @@ func (player *LocalClient) GetInput() Response {
 	var moveData [2]int
 	json.Unmarshal(move, &moveData)
 	return Response{
-		PlayerId:   0,
 		PlayerName: player.Name,
 		Move: level.Position2D{
 			Row: moveData[0],
