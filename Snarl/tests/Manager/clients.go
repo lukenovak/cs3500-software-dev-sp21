@@ -8,11 +8,11 @@ import (
 )
 
 type TestPlayer struct {
-	Name string
-	MoveList []ActorMove
+	Name            string
+	MoveList        []ActorMove
 	InitialPosition level.Position2D
-	VisibleLayout [][]int
-	VisibleActors []State.ActorPositionObject
+	VisibleLayout   [][]int
+	VisibleActors   []State.ActorPositionObject
 }
 
 func (t *TestPlayer) RegisterClient() (actor.Actor, error) {

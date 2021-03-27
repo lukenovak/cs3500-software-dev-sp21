@@ -9,8 +9,8 @@ import (
 )
 
 type ActorMove struct {
-	Type string `json:"type"`
-	To *testJson.LevelTestPoint // needs to be a pointer to support nil points
+	Type string                   `json:"type"`
+	To   *testJson.LevelTestPoint // needs to be a pointer to support nil points
 }
 
 func (move ActorMove) toResponse(playerName string) state.Response {

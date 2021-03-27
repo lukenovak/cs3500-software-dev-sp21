@@ -20,12 +20,12 @@ func Test(names []string,
 
 	var testUserClients []state.UserClient
 	for idx, name := range names {
-		testUserClients = append(testUserClients, &TestPlayer {
-			Name:          name,
-			MoveList:      moves[idx],
+		testUserClients = append(testUserClients, &TestPlayer{
+			Name:            name,
+			MoveList:        moves[idx],
 			InitialPosition: initialPosn[idx],
-			VisibleLayout: nil,
-			VisibleActors: nil,
+			VisibleLayout:   nil,
+			VisibleActors:   nil,
 		})
 	}
 
@@ -38,13 +38,10 @@ func Test(names []string,
 
 	testObservers := []state.GameObserver{state.NewGameObserver(testObserverCallback)}
 
-
-	go state.GameManager(gameLevel, testUserClients, testPlayers,nil, testObservers, 1)
+	go state.GameManager(gameLevel, testUserClients, testPlayers, nil, testObservers, 1)
 	for numMoves := 0; numMoves < maxMoves; numMoves++ {
 		// TODO: DO something
 	}
-
-
 
 	return nil
 }
