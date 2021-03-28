@@ -108,6 +108,9 @@ func GameManager(firstLevel level.Level,
 
 			// update all clients
 			for _, updateClient := range playerClients {
+				if state.GetActor(updateClient.GetName()) == nil {
+					continue
+				}
 				clientPosition := state.GetActor(updateClient.GetName()).Position
 				updateClient.SendPartialState(state.GeneratePartialState(clientPosition, defaultPlayerViewDistance))
 			}

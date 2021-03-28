@@ -184,9 +184,9 @@ func LevelToTestLevel(inputLevel level.Level) TestLevelObject {
 	for _, node := range inputLevel.RoomDataGraph {
 		switch node.Type() {
 		case "room":
-			testRooms = append(testRooms, roomToTestRoom(node.(level.RoomData), inputLevel))
+			testRooms = append(testRooms, roomToTestRoom(node.(*level.RoomData), inputLevel))
 		case "hallway":
-			testHallways = append(testHallways, hallToTestHall(node.(level.HallData)))
+			testHallways = append(testHallways, hallToTestHall(node.(*level.HallData)))
 		}
 	}
 
@@ -197,7 +197,7 @@ func LevelToTestLevel(inputLevel level.Level) TestLevelObject {
 	}
 }
 
-func roomToTestRoom(room level.RoomData, inputLevel level.Level) levelTestRoom {
+func roomToTestRoom(room *level.RoomData, inputLevel level.Level) levelTestRoom {
 	return levelTestRoom{
 		Type: "room",
 		Origin: LevelTestPoint{
@@ -212,7 +212,7 @@ func roomToTestRoom(room level.RoomData, inputLevel level.Level) levelTestRoom {
 	}
 }
 
-func hallToTestHall(hall level.HallData) levelTestHall {
+func hallToTestHall(hall *level.HallData) levelTestHall {
 	waypoints := make([]LevelTestPoint, 0)
 	for _, point := range hall.Waypoints {
 		waypoints = append(waypoints, LevelTestPoint{

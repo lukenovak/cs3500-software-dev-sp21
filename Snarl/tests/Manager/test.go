@@ -72,7 +72,7 @@ func Test(names []string,
 		break
 	}
 
-	var testLevel levelJson.TestLevelObject
+	testLevel := levelJson.LevelToTestLevel(*gameStateTrace[len(gameStateTrace) - 1].Level)
 	stateOutput := State.GameStateObjectFromGameState(gameStateTrace[len(gameStateTrace) - 1], testLevel)
 
 	return []interface{}{stateOutput, managerTrace}
