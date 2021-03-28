@@ -105,14 +105,14 @@ func generateInvalidPlayerMessage(name string) []interface{} {
 }
 
 func generatePlayerLeaveMessage(name string, gameState state.GameState, testLevel testJson.TestLevelObject, messageEnd string) []interface{} {
-	outputState := gameStateObjectFromGameState(gameState, testLevel)
+	outputState := GameStateObjectFromGameState(gameState, testLevel)
 	var msgArray []interface{}
 	msgArray = append(msgArray, "Success", "Player ", name, messageEnd, outputState)
 	return msgArray
 }
 
 func generateGoodMoveMessage(gameState state.GameState, testLevel testJson.TestLevelObject) []interface{} {
-	outputState := gameStateObjectFromGameState(gameState, testLevel)
+	outputState := GameStateObjectFromGameState(gameState, testLevel)
 	var msgArray []interface{}
 	msgArray = append(msgArray, "Success", outputState)
 	return msgArray

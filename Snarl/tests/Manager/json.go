@@ -10,7 +10,8 @@ import (
 
 type ActorMove struct {
 	Type string                   `json:"type"`
-	To   *testJson.LevelTestPoint // needs to be a pointer to support nil points
+	// VERY IMPORTANT: THIS IS AN ABSOLUTE POINT, NOT A RELATIVE POINT
+	To   *testJson.LevelTestPoint `json:"to"` // needs to be a pointer to support nil points
 }
 
 func (move ActorMove) toResponse(playerName string) state.Response {
@@ -34,33 +35,33 @@ func ParseManagerInput(reader io.Reader) ([]string, level.Level, int, []level.Po
 		panic("invalid input")
 	}
 
-	parsePos := 0
 	var nameList []string
 	var gameLevel level.Level
 	var testLevel testJson.TestLevelObject
 	var nat int
 	var posList []level.Position2D
 	var actorMoveListList [][]ActorMove
+	var actorMoveListListRaw []json.RawMessage
 
-	for err == nil && parsePos < 5 {
-		err = json.Unmarshal(inputContents[parsePos], &nameList)
-		parsePos += 1
+	err = json.Unmarshal(inputContents[0], &nameList)
 
-		err = json.Unmarshal(inputContents[parsePos], &testLevel)
-		gameLevel = testLevel.ToGameLevel()
-		parsePos += 1
+	err = json.Unmarshal(inputContents[1], &testLevel)
+	gameLevel = testLevel.ToGameLevel()
 
-		err = json.Unmarshal(inputContents[parsePos], &nat)
-		parsePos += 1
+	err = json.Unmarshal(inputContents[2], &nat)
 
-		var pointList []testJson.LevelTestPoint
-		err = json.Unmarshal(inputContents[parsePos], &pointList)
-		for _, point := range pointList {
-			posList = append(posList, point.ToPosition2D())
-		}
+	var pointList []testJson.LevelTestPoint
+	err = json.Unmarshal(inputContents[3], &pointList)
+	for _, point := range pointList {
+		posList = append(posList, point.ToPosition2D())
+	}
 
-		err = json.Unmarshal(inputContents[parsePos], &actorMoveListList)
-		parsePos += 1
+	err = json.Unmarshal(inputContents[4], &actorMoveListListRaw)
+
+	for _, rawMoveList := range actorMoveListListRaw {
+		var moveList []ActorMove
+		err = json.Unmarshal(rawMoveList, &moveList)
+		actorMoveListList = append(actorMoveListList, moveList)
 	}
 
 	return nameList, gameLevel, nat, posList, actorMoveListList

@@ -1,10 +1,18 @@
 package state
 
 import (
-	"fmt"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"time"
+)
+
+const (
+	SuccessMessage = "Success"
+	InvalidMessage = "Invalid"
+	ExitMessage = "Exit"
+	KeyMessage = "Key"
+	EjectMessage = "Eject"
+	TimeoutMessage = "Timeout"
 )
 
 const defaultPlayerViewDistance = 2
@@ -39,39 +47,38 @@ func GameManager(firstLevel level.Level,
 		for _, client := range playerClients {
 
 			timeOut := false
+			clientName := client.GetName()
 
-			getUserResponseWithTimeout := func() Response {
+			getUserResponseWithTimeout := func() (Response, level.Position2D) {
 				respChan := make(chan Response, 1)
-				client.SendMessage("invalid move. Try again")
 				go func() {
 					respChan <- client.GetInput()
 				}()
 				select {
 				case response := <-respChan:
-					return response
+					return response, response.Move.AddPosition(state.GetActor(clientName).Position)
 				case <-time.After(60 * time.Second):
 					timeOut = true
-					return Response{}
+					return Response{}, level.NewPosition2D(0, 0)
 				}
 			}
 
 			// check for input here
-			response := getUserResponseWithTimeout()
-			clientName := client.GetName()
+			response, attemptedMovePos := getUserResponseWithTimeout()
 
 			if timeOut {
-				client.SendMessage("skipping move for inactivity")
+				client.SendMessage(TimeoutMessage, attemptedMovePos)
 				continue
 			}
 
 			// check that the new game state is valid (if we get past this loop, we know it's valid)
 			for !IsValidMove(*state, clientName, response.Move) {
-				client.SendMessage("invalid move. Try again")
-				response = getUserResponseWithTimeout()
+				client.SendMessage(InvalidMessage, attemptedMovePos)
+				response, attemptedMovePos = getUserResponseWithTimeout()
 			}
 
 			if timeOut {
-				client.SendMessage("skipping move for inactivity")
+				client.SendMessage(TimeoutMessage, attemptedMovePos)
 				continue
 			}
 
@@ -80,25 +87,24 @@ func GameManager(firstLevel level.Level,
 
 			// handle interactions
 			newPos := state.GetActor(clientName).Position
+			playerTile := state.Level.GetTile(newPos)
 			// if there's an adversary here, kill the player
 			if ActorsOccupyPosition(adversaries, newPos) {
 				state.RemoveActor(clientName)
-			}
-
-			playerTile := state.Level.GetTile(newPos)
-			// if there's a key there, remove the key and unlock the doors {
-			if playerTile != nil && playerTile.Item != nil && playerTile.Item.Type == level.KeyID {
+				client.SendMessage(EjectMessage, newPos)
+			} else if playerTile != nil && playerTile.Item != nil && playerTile.Item.Type == level.KeyID {
+				// grab the key if we land on it
 				state.Level.UnlockExits()
 				state.Level.ClearItem(newPos)
-			}
-
-			// if the player's new pos is an unlocked door, remove the player from the gamestate
-			if playerTile != nil && playerTile.Type == level.UnlockedExit {
+				client.SendMessage(KeyMessage, newPos)
+			} else if playerTile != nil && playerTile.Type == level.UnlockedExit {
 				// TODO: Add this to a temporary array somewhere. Right now it isn't an issue because there's only 1 level
 				state.RemoveActor(clientName)
+				client.SendMessage(ExitMessage, newPos)
+			} else {
+				// normal movement, send a success
+				client.SendMessage(SuccessMessage, newPos)
 			}
-
-			client.SendMessage(fmt.Sprintf("%s moved to %d, %d\n", clientName, newPos.Row, newPos.Col))
 
 			// update all clients
 			for _, updateClient := range playerClients {
@@ -122,26 +128,4 @@ func GameManager(firstLevel level.Level,
 		// TODO: Move the adversaries
 		// for _, adversary := range adversaries { ... }
 	}
-}
-
-func tilesToArray(tiles [][]*level.Tile) [][]int {
-	output := make([][]int, 0)
-	for _, tileRow := range tiles {
-		outputRow := make([]int, 0)
-		for _, tile := range tileRow {
-			if tile == nil {
-				outputRow = append(outputRow, 0)
-			}
-			switch tile.Type {
-			case level.LockedExit:
-				outputRow = append(outputRow, 1)
-			case level.UnlockedExit:
-				outputRow = append(outputRow, 1)
-			default:
-				outputRow = append(outputRow, tile.Type)
-			}
-		}
-		output = append(output, outputRow)
-	}
-	return output
 }

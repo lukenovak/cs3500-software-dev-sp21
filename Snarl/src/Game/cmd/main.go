@@ -19,7 +19,13 @@ func main() {
 	observer := state.NewGameObserver(func(gs state.GameState) {
 		render.GuiState(gs.Level.Tiles, gs.Players, gs.Adversaries, observerWindow)
 	})
-	go state.GameManager(generateGameStateLevel(), players, generateAdversaries(), []state.GameObserver{observer}, 1)
+
+	var gamePlayers []actor.Actor
+	for _, player := range players {
+		newPlayer, _ := player.RegisterClient()
+		gamePlayers = append(gamePlayers, newPlayer)
+	}
+	go state.GameManager(generateGameStateLevel(), players, gamePlayers, generateAdversaries(), []state.GameObserver{observer}, 1)
 	a.Run()
 }
 

@@ -21,7 +21,7 @@ type GameStateObject struct {
 }
 
 // Converts a game state to a state object for JSON output
-func gameStateObjectFromGameState(gs state.GameState, testLevel levelJson.TestLevelObject) GameStateObject {
+func GameStateObjectFromGameState(gs state.GameState, testLevel levelJson.TestLevelObject) GameStateObject {
 	generatePlayerObjects := func(gameActors []actor.Actor) []ActorPositionObject {
 		var actorObjs []ActorPositionObject
 		for _, a := range gameActors {

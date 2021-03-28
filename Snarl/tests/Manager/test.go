@@ -4,6 +4,8 @@ import (
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
+	levelJson "github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/tests/Level/json"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/tests/State"
 )
 
 func Test(names []string,
@@ -18,14 +20,19 @@ func Test(names []string,
 		gameStateTrace = append(gameStateTrace, gs)
 	}
 
+	traceFeedChannel := make(chan interface{})
+	var clientStopSignals []chan bool
 	var testUserClients []state.UserClient
 	for idx, name := range names {
+		newStopSignal := make(chan bool, 1)
+		clientStopSignals = append(clientStopSignals, newStopSignal)
 		testUserClients = append(testUserClients, &TestPlayer{
-			Name:            name,
-			MoveList:        moves[idx],
-			InitialPosition: initialPosn[idx],
-			VisibleLayout:   nil,
-			VisibleActors:   nil,
+			Name:       name,
+			MoveList:   moves[idx],
+			Position:   initialPosn[idx],
+			MaxMoves:   maxMoves,
+			TraceFeed:  traceFeedChannel,
+			StopSignal: newStopSignal,
 		})
 	}
 
@@ -38,10 +45,25 @@ func Test(names []string,
 
 	testObservers := []state.GameObserver{state.NewGameObserver(testObserverCallback)}
 
+	var managerTrace []interface{}
+
 	go state.GameManager(gameLevel, testUserClients, testPlayers, nil, testObservers, 1)
-	for numMoves := 0; numMoves < maxMoves; numMoves++ {
-		// TODO: DO something
+
+	// wait for a signal to stop from the last player
+	for {
+		managerTrace = append(managerTrace, <-traceFeedChannel)
+		println("got here")
+		select {
+		case <-clientStopSignals[len(clientStopSignals)-1]:
+			// do nothing
+		default:
+			continue
+		}
+		break
 	}
 
-	return nil
+	var testLevel levelJson.TestLevelObject
+	stateOutput := State.GameStateObjectFromGameState(gameStateTrace[len(gameStateTrace) - 1], testLevel)
+
+	return []interface{}{stateOutput, managerTrace}
 }

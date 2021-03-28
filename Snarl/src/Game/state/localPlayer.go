@@ -19,15 +19,15 @@ type LocalClient struct {
 
 func (player *LocalClient) RegisterClient() (actor.Actor, error) {
 	player.GameWindow = fyne.CurrentApp().NewWindow("snarl client")
-	return actor.NewWalkableActor(player.Name, actor.PlayerType, 2), nil
+	return actor.NewWalkableActor(player.Name, actor.PlayerType, 2).MoveActor(level.NewPosition2D(-1, -1)), nil
 }
 
-func (player *LocalClient) SendPartialState(tiles [][]*level.Tile, actors []actor.Actor) error {
+func (player *LocalClient) SendPartialState(tiles [][]*level.Tile, actors []actor.Actor, pos level.Position2D) error {
 	render.GuiState(tiles, actors, actors, player.GameWindow)
 	return nil
 }
 
-func (player *LocalClient) SendMessage(message string) error {
+func (player *LocalClient) SendMessage(message string, pos level.Position2D) error {
 	println(message)
 	return nil
 }

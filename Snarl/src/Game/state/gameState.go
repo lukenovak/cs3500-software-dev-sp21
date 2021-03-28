@@ -148,7 +148,7 @@ func (gs *GameState) RemoveActor(name string) {
 }
 
 // Generates a "partial game state" showing all tiles with in an n x n square as well as all actors in that square
-func (gs GameState) GeneratePartialState(position level.Position2D, viewDistance int) ([][]*level.Tile, []actor.Actor) {
+func (gs GameState) GeneratePartialState(position level.Position2D, viewDistance int) ([][]*level.Tile, []actor.Actor, level.Position2D) {
 	// allocation
 	visibleTiles := make([][]*level.Tile, viewDistance*2+1)
 	for i := range visibleTiles {
@@ -173,7 +173,7 @@ func (gs GameState) GeneratePartialState(position level.Position2D, viewDistance
 		}
 	}
 
-	return visibleTiles, visibleActors
+	return visibleTiles, visibleActors, position
 }
 
 /* ---------------------------- Internal Use Functions ------------------------------------- */

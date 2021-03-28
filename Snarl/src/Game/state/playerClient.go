@@ -10,10 +10,10 @@ type UserClient interface {
 	RegisterClient() (actor.Actor, error)
 
 	// Sends a new state to the player
-	SendPartialState(tiles [][]*level.Tile, actors []actor.Actor) error
+	SendPartialState(tiles [][]*level.Tile, actors []actor.Actor, pos level.Position2D) error
 
-	// Sends a message to the player (used for invalid moves);
-	SendMessage(message string) error
+	// Sends a message to the player, used to acknowledge player moves
+	SendMessage(message string, pos level.Position2D) error
 
 	// Waits for a player input then returns the player's action after input
 	GetInput() Response
