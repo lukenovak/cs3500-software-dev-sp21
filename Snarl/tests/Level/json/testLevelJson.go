@@ -179,7 +179,6 @@ func (testLevel *TestLevelObject) UnlockExits() {
 func LevelToTestLevel(inputLevel level.Level) TestLevelObject {
 	testRooms := make([]levelTestRoom, 0)
 	testHallways := make([]levelTestHall, 0)
-	testObjects := make([]levelTestObject, 0)
 
 	for _, node := range inputLevel.RoomDataGraph {
 		switch node.Type() {
@@ -188,6 +187,23 @@ func LevelToTestLevel(inputLevel level.Level) TestLevelObject {
 		case "hallway":
 			testHallways = append(testHallways, hallToTestHall(node.(*level.HallData)))
 		}
+	}
+
+	testObjects := make([]levelTestObject, 0)
+	positions, items := inputLevel.GetItems()
+	for i, item := range items {
+		var itemType string
+		switch item.Type {
+		case level.KeyID:
+			itemType = "key"
+		}
+		testObjects = append(testObjects, levelTestObject{
+			Type: itemType,
+			Position: LevelTestPoint{
+				positions[i].Row,
+				positions[i].Col,
+			},
+		})
 	}
 
 	return TestLevelObject{

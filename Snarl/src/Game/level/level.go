@@ -126,6 +126,25 @@ func (level Level) GetTiles(origin Position2D, size Position2D) [][]*Tile {
 	return selection
 }
 
+func (level Level) GetItems() ([]Position2D, []Item) {
+	positions := make([]Position2D, 0)
+	items := make([]Item, 0)
+
+	for i, row := range level.Tiles {
+		for j, tile := range row {
+			if tile.Item != nil {
+				positions = append(positions, Position2D{
+					Row: i,
+					Col: j,
+				})
+				items = append(items, *tile.Item)
+			}
+		}
+	}
+
+	return positions, items
+}
+
 /* -------------------------------- Room + Hallway Generation -------------------------------- */
 
 // adds a Room's tiles to a Level, and expands the Level if necessary
