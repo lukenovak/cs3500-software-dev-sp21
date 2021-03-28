@@ -58,19 +58,21 @@ func (t *TestPlayer) SendPartialState(tiles [][]*level.Tile, actors []actor.Acto
 }
 
 func (t *TestPlayer) SendMessage(message string, pos level.Position2D) error {
+	if message != state.InvalidMessage {
+		t.moveCount += 1
+	}
 	var moveMessage MoveMessage
 	moveMessage = append(moveMessage, t.Name)
 	moveMessage = append(moveMessage, testJson.NewTestPointFromPosition2D(pos))
 	moveMessage = append(moveMessage, message)
 	t.TraceFeed <- moveMessage
-	if t.moveCount == len(t.MoveList) || t.moveCount == t.MaxMoves {
+	if t.MoveList == nil || t.moveCount == t.MaxMoves {
 		t.StopSignal <- true
 	}
 	return nil
 }
 
 func (t *TestPlayer) GetInput() state.Response {
-	t.moveCount += 1
 	if len(t.MoveList) > 0 {
 		input := t.MoveList[0]
 		if len(t.MoveList) == 1 {

@@ -1,6 +1,7 @@
 package Manager
 
 import (
+	"fmt"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
@@ -36,6 +37,15 @@ func Test(names []string,
 		})
 	}
 
+	// initialize adversaries
+	var testAdversaries []actor.Actor
+	if len(initialPosn) > len(names) {
+		for i := len(names); i < len(initialPosn); i++ {
+			adversaryName := fmt.Sprintf("ghost%d", i - len(names))
+			testAdversaries = append(testAdversaries, actor.NewWalkableActor(adversaryName, actor.GhostType, 2).MoveActor(initialPosn[i]))
+		}
+	}
+
 	var testPlayers []actor.Actor
 	// register clients
 	for _, client := range testUserClients {
@@ -47,7 +57,7 @@ func Test(names []string,
 
 	var managerTrace []interface{}
 
-	go state.GameManager(gameLevel, testUserClients, testPlayers, nil, testObservers, 1)
+	go state.GameManager(gameLevel, testUserClients, testPlayers, testAdversaries, testObservers, 1)
 
 	// wait for a signal to stop from the last player
 	for {
