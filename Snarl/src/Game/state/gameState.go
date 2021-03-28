@@ -62,10 +62,8 @@ func (gs *GameState) SpawnActor(actorToSpawn actor.Actor, initialPosition level.
 
 // Checks to see if the game has been won. If it has, returns true.
 func (gs GameState) CheckVictory() bool {
-	for _, player := range gs.Players {
-		if tile := gs.Level.GetTile(player.Position); tile != nil && tile.Type == level.UnlockedExit {
-			return true
-		}
+	if len(gs.Players) == 0{
+		return true
 	}
 	return false
 }
