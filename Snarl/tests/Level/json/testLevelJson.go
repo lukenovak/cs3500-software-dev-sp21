@@ -14,7 +14,7 @@ const invalidMsg = "invalid input JSON"
 type levelTestRoom struct {
 	Type   string          `json:"type"`
 	Origin LevelTestPoint  `json:"origin"`
-	Bounds json.RawMessage `json:"bounds"`
+	Bounds levelTestBounds `json:"bounds"`
 	Layout levelTestLayout `json:"layout"`
 }
 
@@ -27,6 +27,11 @@ type levelTestHall struct {
 }
 
 type LevelTestPoint [2]int
+
+type levelTestBounds struct {
+	Rows    int `json:"rows"`
+	Columns int `json:"columns"`
+}
 
 type TestLevelObject struct {
 	Rooms    []levelTestRoom   `json:"rooms"`
@@ -169,4 +174,83 @@ func (testLevel *TestLevelObject) UnlockExits() {
 			testLevel.Objects = append(testLevel.Objects[:idx], testLevel.Objects[idx+1:]...)
 		}
 	}
+}
+
+func LevelToTestLevel(inputLevel level.Level) TestLevelObject {
+	testRooms := make([]levelTestRoom, 0)
+	testHallways := make([]levelTestHall, 0)
+	testObjects := make([]levelTestObject, 0)
+
+	for _, node := range inputLevel.RoomDataGraph {
+		switch node.Type() {
+		case "room":
+			testRooms = append(testRooms, roomToTestRoom(node.(level.RoomData), inputLevel))
+		case "hallway":
+			testHallways = append(testHallways, hallToTestHall(node.(level.HallData)))
+		}
+	}
+
+	return TestLevelObject{
+		Rooms:    testRooms,
+		Hallways: testHallways,
+		Objects:  testObjects,
+	}
+}
+
+func roomToTestRoom(room level.RoomData, inputLevel level.Level) levelTestRoom {
+	return levelTestRoom{
+		Type: "room",
+		Origin: LevelTestPoint{
+			room.TopLeft.Row,
+			room.TopLeft.Col,
+		},
+		Bounds: levelTestBounds{
+			Rows:    room.Size.Row,
+			Columns: room.Size.Col,
+		},
+		Layout: tilesToArray(inputLevel.GetTiles(room.TopLeft, room.Size)),
+	}
+}
+
+func hallToTestHall(hall level.HallData) levelTestHall {
+	waypoints := make([]LevelTestPoint, 0)
+	for _, point := range hall.Waypoints {
+		waypoints = append(waypoints, LevelTestPoint{
+			point.Row,
+			point.Col,
+		})
+	}
+	return levelTestHall{
+		From: LevelTestPoint{
+			hall.Start.Row,
+			hall.Start.Col,
+		},
+		To: LevelTestPoint{
+			hall.End.Row,
+			hall.End.Col,
+		},
+		Waypoints: waypoints,
+	}
+}
+
+func tilesToArray(tiles [][]*level.Tile) [][]int {
+	output := make([][]int, 0)
+	for _, tileRow := range tiles {
+		outputRow := make([]int, 0)
+		for _, tile := range tileRow {
+			if tile == nil {
+				outputRow = append(outputRow, 0)
+			}
+			switch tile.Type {
+			case level.LockedExit:
+				outputRow = append(outputRow, 1)
+			case level.UnlockedExit:
+				outputRow = append(outputRow, 1)
+			default:
+				outputRow = append(outputRow, tile.Type)
+			}
+		}
+		output = append(output, outputRow)
+	}
+	return output
 }

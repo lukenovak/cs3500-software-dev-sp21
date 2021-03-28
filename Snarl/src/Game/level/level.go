@@ -114,6 +114,18 @@ func (level Level) getAdjacentWalkablePositions(pos Position2D) []Position2D {
 	return walkablePositions
 }
 
+func (level Level) GetTiles(origin Position2D, size Position2D) [][]*Tile {
+	selection := allocateLevelTiles(size.Row, size.Col)
+
+	for i := 0; i < size.Row; i++ {
+		for j := 0; j < size.Col; j++ {
+			selection[i][j] = level.Tiles[i+origin.Row][j+origin.Col]
+		}
+	}
+
+	return selection
+}
+
 /* -------------------------------- Room + Hallway Generation -------------------------------- */
 
 // adds a Room's tiles to a Level, and expands the Level if necessary
