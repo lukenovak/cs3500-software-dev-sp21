@@ -29,7 +29,7 @@ func IsValidMove(currState GameState, movingActorName string, relativeMove level
 		validMove = validMove &&
 			movingActor.CanOccupyTile(currState.Level.GetTile(newPosition)) &&
 			posnListContains(validTiles, newPosition) &&
-			!ActorsOccupyPosition(currState.Players, newPosition)
+			!(ActorsOccupyPosition(currState.Players, newPosition) && GetActorAtPosition(currState.Players, newPosition).Name != movingActorName)
 	}
 	return validMove
 }
@@ -38,6 +38,9 @@ func IsLevelEnd(state GameState) bool {
 	var isEnd = true
 	for _, player := range state.Players {
 		position_tile := state.Level.GetTile(player.Position)
+		if position_tile == nil {
+			return false
+		}
 		if position_tile.Type == level.UnlockedExit {
 			isEnd = true && isEnd
 		} else {

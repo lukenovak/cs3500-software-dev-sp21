@@ -1,82 +1,122 @@
 package state
 
 import (
-	"fyne.io/fyne/v2"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/client"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/internal/render"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
+	"time"
+)
+
+const (
+	SuccessMessage = "Success"
+	InvalidMessage = "Invalid"
+	ExitMessage = "Exit"
+	KeyMessage = "Key"
+	EjectMessage = "Eject"
+	TimeoutMessage = "Timeout"
 )
 
 const defaultPlayerViewDistance = 2
 
 // runs the main game loop
 func GameManager(firstLevel level.Level,
-	playerClients []client.UserClient,
+	playerClients []UserClient,
+	registeredPlayers []actor.Actor,
 	adversaries []actor.Actor,
-	gameWindow fyne.Window,
+	observers []GameObserver,
 	numLevels int) {
-	if len(playerClients) < 1 || len(playerClients) > 4 { // we cannot start the game without the right number of players
+
+	if len(playerClients) < 1 || len(playerClients) > 4 || len(registeredPlayers) != len(playerClients) { // we cannot start the game without the right number of players
 		return
 	}
 
-	var players []actor.Actor
+	state := initGameState(firstLevel, registeredPlayers, adversaries)
+
 	for _, client := range playerClients {
-		newPlayer := actor.NewWalkableActor(client.GetName(), actor.PlayerType, 2)
-		players = append(players, newPlayer)
+		client.SendPartialState(state.GeneratePartialState(state.GetActor(client.GetName()).Position, defaultPlayerViewDistance))
+
 	}
-
-	state := initGameState(firstLevel, players, adversaries)
-	gameWindow.Resize(fyne.Size{Width: 800, Height: 800})
-
-	// initialize players from UserClients
+	// initialize observers
+	for _, observer := range observers {
+		go observer.Begin()
+		observer.GameStateChannel <- *state
+	}
 
 	// main game loop
 	for !state.CheckVictory() {
 		// handle player input
 		for _, client := range playerClients {
 
-			// check for input here
-			response := client.GetInput()
+			timeOut := false
 			clientName := client.GetName()
 
-			// check that the new game state is valid
-			if IsValidMove(*state, clientName, response.Move) {
-				// move the player
-				state.MoveActorRelative(client.GetName(), level.NewPosition2D(response.Move.Row, response.Move.Col))
-
-				// handle interactions
-				newPos := state.GetActor(clientName).Position
-				// if there's an adversary here, kill the player
-				if ActorsOccupyPosition(adversaries, newPos) {
-					state.RemoveActor(clientName)
+			getUserResponseWithTimeout := func() (Response, level.Position2D) {
+				respChan := make(chan Response, 1)
+				go func() {
+					respChan <- client.GetInput()
+				}()
+				select {
+				case response := <-respChan:
+					return response, response.Move.AddPosition(state.GetActor(clientName).Position)
+				case <-time.After(60 * time.Second):
+					timeOut = true
+					return Response{}, level.NewPosition2D(0, 0)
 				}
+			}
 
-				playerTile := state.Level.GetTile(newPos)
-				// if there's a key there, remove the key and unlock the doors {
-				if playerTile != nil && playerTile.Item.Type == level.KeyID {
-					state.Level.UnlockExits()
-					state.Level.ClearItem(newPos)
-				}
+			// check for input here
+			response, attemptedMovePos := getUserResponseWithTimeout()
 
-				// if the player's new pos is an unlocked door, remove the player from the gamestate
-				if playerTile != nil && playerTile.Type == level.UnlockedExit {
-					// TODO: Add this to a temporary array somewhere. Right now it isn't an issue because there's only 1 level
-					state.RemoveActor(clientName)
-				}
+			if timeOut {
+				client.SendMessage(TimeoutMessage, attemptedMovePos)
+				continue
+			}
 
+			// check that the new game state is valid (if we get past this loop, we know it's valid)
+			for !IsValidMove(*state, clientName, response.Move) {
+				client.SendMessage(InvalidMessage, attemptedMovePos)
+				response, attemptedMovePos = getUserResponseWithTimeout()
+			}
+
+			if timeOut {
+				client.SendMessage(TimeoutMessage, attemptedMovePos)
+				continue
+			}
+
+			// move the player
+			state.MoveActorRelative(client.GetName(), level.NewPosition2D(response.Move.Row, response.Move.Col))
+
+			// handle interactions
+			newPos := state.GetActor(clientName).Position
+			playerTile := state.Level.GetTile(newPos)
+			// if there's an adversary here, kill the player
+			if ActorsOccupyPosition(adversaries, newPos) {
+				state.RemoveActor(clientName)
+				client.SendMessage(EjectMessage, newPos)
+			} else if playerTile != nil && playerTile.Item != nil && playerTile.Item.Type == level.KeyID {
+				// grab the key if we land on it
+				state.Level.UnlockExits()
+				state.Level.ClearItem(newPos)
+				client.SendMessage(KeyMessage, newPos)
+			} else if playerTile != nil && playerTile.Type == level.UnlockedExit {
+				// TODO: Add this to a temporary array somewhere. Right now it isn't an issue because there's only 1 level
+				state.RemoveActor(clientName)
+				client.SendMessage(ExitMessage, newPos)
+			} else {
+				// normal movement, send a success
+				client.SendMessage(SuccessMessage, newPos)
 			}
 
 			// update all clients
 			for _, updateClient := range playerClients {
-				clientPosition := state.GetActor(client.GetName()).Position
+				if state.GetActor(updateClient.GetName()) == nil {
+					continue
+				}
+				clientPosition := state.GetActor(updateClient.GetName()).Position
 				updateClient.SendPartialState(state.GeneratePartialState(clientPosition, defaultPlayerViewDistance))
 			}
-
-			// render the new game state
-			// TODO: Remove this from the game loop in future milestones. This information can be handled at the playerClient level
-			render.GuiState(state.Level, state.Players, state.Adversaries, gameWindow)
-			gameWindow.ShowAndRun()
+			for _, observer := range observers {
+				observer.GameStateChannel <- *state
+			}
 
 			// check if this is the end of the level
 			if IsLevelEnd(*state) {

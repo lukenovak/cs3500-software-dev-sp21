@@ -99,19 +99,50 @@ func (level Level) GetWalkableTilePositions(pos Position2D, numSteps int) []Posi
 func (level Level) getAdjacentWalkablePositions(pos Position2D) []Position2D {
 	var walkablePositions []Position2D
 
-	if leftTile := level.GetTile(NewPosition2D(pos.Row-1, pos.Col)); leftTile != nil && (leftTile.Type == Walkable || leftTile.Type == Door) {
+	if leftTile := level.GetTile(NewPosition2D(pos.Row-1, pos.Col)); leftTile != nil && (leftTile.Type == Walkable || leftTile.Type == Door || leftTile.Type == LockedExit || leftTile.Type == UnlockedExit) {
 		walkablePositions = append(walkablePositions, NewPosition2D(pos.Row-1, pos.Col))
 	}
-	if rightTile := level.GetTile(NewPosition2D(pos.Row+1, pos.Col)); rightTile != nil && (rightTile.Type == Walkable || rightTile.Type == Door) {
+	if rightTile := level.GetTile(NewPosition2D(pos.Row+1, pos.Col)); rightTile != nil && (rightTile.Type == Walkable || rightTile.Type == Door || rightTile.Type == LockedExit || rightTile.Type == UnlockedExit) {
 		walkablePositions = append(walkablePositions, NewPosition2D(pos.Row+1, pos.Col))
 	}
-	if upTile := level.GetTile(NewPosition2D(pos.Row, pos.Col+1)); upTile != nil && (upTile.Type == Walkable || upTile.Type == Door) {
+	if upTile := level.GetTile(NewPosition2D(pos.Row, pos.Col+1)); upTile != nil && (upTile.Type == Walkable || upTile.Type == Door || upTile.Type == LockedExit || upTile.Type == UnlockedExit) {
 		walkablePositions = append(walkablePositions, NewPosition2D(pos.Row, pos.Col+1))
 	}
-	if downTile := level.GetTile(NewPosition2D(pos.Row, pos.Col-1)); downTile != nil && (downTile.Type == Walkable || downTile.Type == Door) {
+	if downTile := level.GetTile(NewPosition2D(pos.Row, pos.Col-1)); downTile != nil && (downTile.Type == Walkable || downTile.Type == Door || downTile.Type == LockedExit || downTile.Type == UnlockedExit) {
 		walkablePositions = append(walkablePositions, NewPosition2D(pos.Row, pos.Col-1))
 	}
 	return walkablePositions
+}
+
+func (level Level) GetTiles(origin Position2D, size Position2D) [][]*Tile {
+	selection := allocateLevelTiles(size.Row, size.Col)
+
+	for i := 0; i < size.Row; i++ {
+		for j := 0; j < size.Col; j++ {
+			selection[i][j] = level.Tiles[i+origin.Row][j+origin.Col]
+		}
+	}
+
+	return selection
+}
+
+func (level Level) GetItems() ([]Position2D, []Item) {
+	positions := make([]Position2D, 0)
+	items := make([]Item, 0)
+
+	for i, row := range level.Tiles {
+		for j, tile := range row {
+			if tile.Item != nil {
+				positions = append(positions, Position2D{
+					Row: i,
+					Col: j,
+				})
+				items = append(items, *tile.Item)
+			}
+		}
+	}
+
+	return positions, items
 }
 
 /* -------------------------------- Room + Hallway Generation -------------------------------- */

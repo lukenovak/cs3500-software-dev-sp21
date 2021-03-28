@@ -2,7 +2,6 @@ package state
 
 import (
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/client"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 )
 
@@ -10,7 +9,7 @@ type GameState struct {
 	LevelNum      int
 	Level         *level.Level
 	Players       []actor.Actor
-	PlayerClients []client.UserClient
+	PlayerClients []UserClient
 	Adversaries   []actor.Actor
 }
 
@@ -63,10 +62,8 @@ func (gs *GameState) SpawnActor(actorToSpawn actor.Actor, initialPosition level.
 
 // Checks to see if the game has been won. If it has, returns true.
 func (gs GameState) CheckVictory() bool {
-	for _, player := range gs.Players {
-		if tile := gs.Level.GetTile(player.Position); tile != nil && tile.Type == level.UnlockedExit {
-			return true
-		}
+	if len(gs.Players) == 0{
+		return true
 	}
 	return false
 }
@@ -149,7 +146,7 @@ func (gs *GameState) RemoveActor(name string) {
 }
 
 // Generates a "partial game state" showing all tiles with in an n x n square as well as all actors in that square
-func (gs GameState) GeneratePartialState(position level.Position2D, viewDistance int) ([][]*level.Tile, []actor.Actor) {
+func (gs GameState) GeneratePartialState(position level.Position2D, viewDistance int) ([][]*level.Tile, []actor.Actor, level.Position2D) {
 	// allocation
 	visibleTiles := make([][]*level.Tile, viewDistance*2+1)
 	for i := range visibleTiles {
@@ -158,8 +155,8 @@ func (gs GameState) GeneratePartialState(position level.Position2D, viewDistance
 
 	var visibleActors []actor.Actor
 
-	for partialX := 0; partialX < viewDistance; partialX++ {
-		for partialY := 0; partialY < viewDistance; partialY++ {
+	for partialX := 0; partialX < viewDistance * 2 + 1; partialX++ {
+		for partialY := 0; partialY < viewDistance * 2 + 1; partialY++ {
 			tilePos := level.NewPosition2D(position.Row-viewDistance+partialX, position.Col-viewDistance+partialY)
 			// add the tile to the new state
 			visibleTiles[partialX][partialY] = gs.Level.GetTile(tilePos)
@@ -174,7 +171,7 @@ func (gs GameState) GeneratePartialState(position level.Position2D, viewDistance
 		}
 	}
 
-	return visibleTiles, nil
+	return visibleTiles, visibleActors, position
 }
 
 /* ---------------------------- Internal Use Functions ------------------------------------- */
@@ -190,12 +187,17 @@ func initGameState(firstLevel level.Level, players []actor.Actor, adversaries []
 	return gs
 }
 
-// places the players at the top left of the level
+// places the players at the top left of the level if their position is invalid. Otherwise, uses the current
+// position
 func placeActors(gameState *GameState, actors []actor.Actor,
 	placementFunc func(GameState, level.Position2D) level.Position2D,
 	placementStart level.Position2D) {
 	for _, actor := range actors {
-		gameState.SpawnActor(actor, placementFunc(*gameState, placementStart))
+		if actor.Position.Row < 0 || actor.Position.Col < 0 {
+			gameState.SpawnActor(actor, placementFunc(*gameState, placementStart))
+		} else {
+			gameState.SpawnActor(actor, actor.Position)
+		}
 	}
 }
 

@@ -4,18 +4,29 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/client"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/internal/render"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
-	"os"
 )
 
 func main() {
 	a := app.New()
-	w := a.NewWindow("snarl 0.0.1")
-	w.Resize(fyne.Size{Height: 800, Width: 800})
-	w.SetOnClosed(func() { os.Exit(0) })
-	state.GameManager(generateGameStateLevel(), generatePlayers(), generateAdversaries(), w, 1)
+	fyne.SetCurrentApp(a)
+	players := generatePlayers()
+	players[0].RegisterClient()
+	observerWindow := a.NewWindow("snarl observer")
+
+	observer := state.NewGameObserver(func(gs state.GameState) {
+		render.GuiState(gs.Level.Tiles, gs.Players, gs.Adversaries, observerWindow)
+	})
+
+	var gamePlayers []actor.Actor
+	for _, player := range players {
+		newPlayer, _ := player.RegisterClient()
+		gamePlayers = append(gamePlayers, newPlayer)
+	}
+	go state.GameManager(generateGameStateLevel(), players, gamePlayers, generateAdversaries(), []state.GameObserver{observer}, 1)
+	a.Run()
 }
 
 func generateGameStateLevel() level.Level {
@@ -70,8 +81,8 @@ func generateGameStateLevel() level.Level {
 	return newLevel
 }
 
-func generatePlayers() []client.UserClient {
-	return []client.UserClient{client.LocalPlayer{Name: "Luke"}}
+func generatePlayers() []state.UserClient {
+	return []state.UserClient{&state.LocalClient{Name: "Luke"}}
 }
 
 func generateAdversaries() []actor.Actor {

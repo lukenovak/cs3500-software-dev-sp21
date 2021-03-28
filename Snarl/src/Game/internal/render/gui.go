@@ -14,23 +14,25 @@ const (
 	fontSize = 16
 )
 
-func GuiState(stateLevel *level.Level, statePlayers []actor.Actor, stateAdversaries []actor.Actor, gameWindow fyne.Window) {
-	levelTiles := renderGuiLevel(*stateLevel)
-	renderGuiActors(levelTiles, statePlayers, stateLevel.Size, renderPlayer)
-	renderGuiActors(levelTiles, stateAdversaries, stateLevel.Size, renderAdversary)
-	windowContainer := container.New(layout.NewGridLayout(stateLevel.Size.Row))
+func GuiState(stateLevelTiles [][]*level.Tile, statePlayers []actor.Actor, stateAdversaries []actor.Actor, gameWindow fyne.Window) {
+	levelSize := level.NewPosition2D(len(stateLevelTiles), len(stateLevelTiles[0]))
+	levelTiles := renderGuiLevel(stateLevelTiles)
+	renderGuiActors(levelTiles, statePlayers, levelSize, renderPlayer)
+	renderGuiActors(levelTiles, stateAdversaries, levelSize, renderAdversary)
+	windowContainer := container.New(layout.NewGridLayout(levelSize.Row))
 	for _, renderedTile := range levelTiles {
 		windowContainer.Add(renderedTile)
 	}
 	gameWindow.SetContent(windowContainer)
-	gameWindow.ShowAndRun()
+	gameWindow.Show()
 }
 
-func renderGuiLevel(levelToRender level.Level) []*fyne.Container {
-	tileContainers := make([]*fyne.Container, levelToRender.Size.Row*levelToRender.Size.Col)
-	for row := range levelToRender.Tiles {
-		for col := range levelToRender.Tiles {
-			tileContainers[calc1DPosition(level.NewPosition2D(row, col), levelToRender.Size)] = renderGuiTile(levelToRender.Tiles[row][col])
+func renderGuiLevel(levelToRender [][]*level.Tile) []*fyne.Container {
+	levelSize := level.NewPosition2D(len(levelToRender), len(levelToRender[0]))
+	tileContainers := make([]*fyne.Container, len(levelToRender[0])*len(levelToRender))
+	for row := range levelToRender {
+		for col := range levelToRender {
+			tileContainers[calc1DPosition(level.NewPosition2D(row, col), levelSize)] = renderGuiTile(levelToRender[row][col])
 		}
 	}
 	return tileContainers
