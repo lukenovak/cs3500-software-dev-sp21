@@ -79,17 +79,22 @@ func (level Level) GetWalkableTiles(pos Position2D, numSteps int) []*Tile {
 
 // gets traversable positions that are numSteps number of steps away from the current position
 func (level Level) GetWalkableTilePositions(pos Position2D, numSteps int) []Position2D {
-	var walkablePosns []Position2D
+	walkablePosns := make(map[Position2D]bool)
+	var walkablePosnArray []Position2D
 	if numSteps > 0 {
 		adjacentWalkablePositions := level.getAdjacentWalkablePositions(pos)
 		for _, adjPosn := range adjacentWalkablePositions {
 			nextStep := level.GetWalkableTilePositions(adjPosn, numSteps-1)
 			for _, posn := range nextStep {
-				walkablePosns = append(walkablePosns, posn)
+				walkablePosns[posn] = true
 			}
-			walkablePosns = append(walkablePosns, adjPosn)
+			walkablePosns[adjPosn] = true
 		}
-		return walkablePosns
+		// convert map to array
+		for pos := range walkablePosns {
+			walkablePosnArray = append(walkablePosnArray, pos)
+		}
+		return walkablePosnArray
 	} else {
 		return []Position2D{pos}
 	}
