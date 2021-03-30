@@ -97,7 +97,7 @@ func TestGameState_MoveActor(t *testing.T) {
 	testGameState.SpawnActor(actor.NewWalkableActor("Luke", actor.PlayerType, 2), level.NewPosition2D(1, 1))
 	testGameState.MoveActorRelative("Luke", level.NewPosition2D(0, 2))
 
-	if testGameState.GetActor("Luke").Position != level.NewPosition2D(1, 2) {
+	if testGameState.GetActor("Luke").Position != level.NewPosition2D(1, 3) {
 		t.Fail()
 	}
 }
@@ -109,6 +109,7 @@ func generateTestGameState() *GameState {
 	return &GameState{
 		LevelNum:    1,
 		Level:       &testLevel,
+		PlayerClients: nil,
 		Players:     nil,
 		Adversaries: nil,
 	}

@@ -11,6 +11,8 @@ type GameState struct {
 	Players       []actor.Actor
 	PlayerClients []UserClient
 	Adversaries   []actor.Actor
+	EjectedPlayers []string
+	ExitedPlayers []string
 }
 
 // Creates a new game state with the players and adversaries moved to new positions
@@ -50,7 +52,6 @@ func (gs GameState) GenerateLevel(size level.Position2D) error {
 }
 
 // Adds an actor to the game state at the given position
-// Adds an actor to the game state at the given position
 func (gs *GameState) SpawnActor(actorToSpawn actor.Actor, initialPosition level.Position2D) {
 	positionedActor := actorToSpawn.MoveActor(initialPosition)
 	if actorToSpawn.Type == actor.PlayerType {
@@ -62,7 +63,7 @@ func (gs *GameState) SpawnActor(actorToSpawn actor.Actor, initialPosition level.
 
 // Checks to see if the game has been won. If it has, returns true.
 func (gs GameState) CheckVictory() bool {
-	if len(gs.Players) == 0{
+	if len(gs.Players) == 0 && len(gs.ExitedPlayers) > 0{
 		return true
 	}
 	return false
@@ -75,6 +76,8 @@ func (gs *GameState) UnlockExits() {
 	}
 }
 
+// moves the actor to the space given a cooordinate represented as the new position relative to the actor's current
+// position
 func (gs *GameState) MoveActorRelative(name string, relativeMove level.Position2D) {
 	moveActorifExists := func(actorList []actor.Actor) {
 		for i := range actorList {
@@ -90,6 +93,7 @@ func (gs *GameState) MoveActorRelative(name string, relativeMove level.Position2
 	moveActorifExists(gs.Adversaries)
 }
 
+// moves an actor to the given Position2d
 func (gs *GameState) MoveActorAbsolute(name string, newPosition level.Position2D) {
 
 	moveActorIfExists := func(actorList []actor.Actor) {
@@ -108,7 +112,7 @@ func (gs *GameState) MoveActorAbsolute(name string, newPosition level.Position2D
 func (gs GameState) GetActor(name string) *actor.Actor {
 
 	findActor := func(actorList []actor.Actor) *actor.Actor {
-		for _, player := range gs.Players {
+		for _, player := range actorList {
 			if player.Name == name {
 				return &player
 			}
