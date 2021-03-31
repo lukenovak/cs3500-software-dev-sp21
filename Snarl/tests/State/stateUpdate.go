@@ -73,7 +73,7 @@ func TestUpdateState(initialState GameStateObject, name string, newPos testJson.
 	// call our rule checking sub-functions
 
 	// successful exit
-	if gameLevel.GetTile(updatedActor.Position).Type == level.UnlockedExit {
+	if gameLevel.GetTile(updatedActor.Position).Item.Type == level.UnlockedExit {
 		initialGameState.RemoveActor(name)
 		return generatePlayerLeaveMessage(name, initialGameState, initialState.Level, " exited.")
 	} else if state.GetActorAtPosition(adversaries, newPos2D) != nil { // successful ejection

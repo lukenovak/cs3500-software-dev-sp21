@@ -440,7 +440,8 @@ func (level *Level) PlaceExit(exitPos Position2D) error {
 // Unlocks all exits in a level
 func (level *Level) UnlockExits() {
 	for _, exit := range level.Exits {
-		exit.Type = UnlockedExit
+		exitItem := Item{Type: UnlockedExit}
+		exit.Item = &exitItem
 	}
 }
 

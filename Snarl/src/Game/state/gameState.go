@@ -6,13 +6,13 @@ import (
 )
 
 type GameState struct {
-	LevelNum      int
-	Level         *level.Level
-	Players       []actor.Actor
-	PlayerClients []UserClient
-	Adversaries   []actor.Actor
+	LevelNum       int
+	Level          *level.Level
+	Players        []actor.Actor
+	PlayerClients  []UserClient
+	Adversaries    []actor.Actor
 	EjectedPlayers []string
-	ExitedPlayers []string
+	ExitedPlayers  []string
 }
 
 // Creates a new game state with the players and adversaries moved to new positions
@@ -63,7 +63,7 @@ func (gs *GameState) SpawnActor(actorToSpawn actor.Actor, initialPosition level.
 
 // Checks to see if the game has been won. If it has, returns true.
 func (gs GameState) CheckVictory() bool {
-	if len(gs.Players) == 0 && len(gs.ExitedPlayers) > 0{
+	if len(gs.Players) == 0 && len(gs.ExitedPlayers) > 0 {
 		return true
 	}
 	return false
@@ -72,7 +72,8 @@ func (gs GameState) CheckVictory() bool {
 // Changes all exits from locked exits to unlocked exits
 func (gs *GameState) UnlockExits() {
 	for _, exit := range gs.Level.Exits {
-		exit.Type = level.UnlockedExit
+		exitItem := level.Item{Type: level.UnlockedExit}
+		exit.Item = &exitItem
 	}
 }
 
@@ -159,8 +160,8 @@ func (gs GameState) GeneratePartialState(position level.Position2D, viewDistance
 
 	var visibleActors []actor.Actor
 
-	for partialX := 0; partialX < viewDistance * 2 + 1; partialX++ {
-		for partialY := 0; partialY < viewDistance * 2 + 1; partialY++ {
+	for partialX := 0; partialX < viewDistance*2+1; partialX++ {
+		for partialY := 0; partialY < viewDistance*2+1; partialY++ {
 			tilePos := level.NewPosition2D(position.Row-viewDistance+partialX, position.Col-viewDistance+partialY)
 			// add the tile to the new state
 			visibleTiles[partialX][partialY] = gs.Level.GetTile(tilePos)

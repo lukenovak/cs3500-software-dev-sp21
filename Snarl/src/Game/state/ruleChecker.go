@@ -41,7 +41,7 @@ func IsLevelEnd(state GameState) bool {
 		if position_tile == nil {
 			return false
 		}
-		if position_tile.Type == level.UnlockedExit {
+		if position_tile.Item.Type == level.UnlockedExit {
 			isEnd = true && isEnd
 		} else {
 			isEnd = false

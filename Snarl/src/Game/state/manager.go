@@ -9,9 +9,9 @@ import (
 const (
 	SuccessMessage = "Success"
 	InvalidMessage = "Invalid"
-	ExitMessage = "Exit"
-	KeyMessage = "Key"
-	EjectMessage = "Eject"
+	ExitMessage    = "Exit"
+	KeyMessage     = "Key"
+	EjectMessage   = "Eject"
 	TimeoutMessage = "Timeout"
 )
 
@@ -97,7 +97,7 @@ func GameManager(firstLevel level.Level, // The level struct for the first level
 				state.Level.UnlockExits()
 				state.Level.ClearItem(newPos)
 				client.SendMessage(KeyMessage, newPos)
-			} else if playerTile != nil && playerTile.Type == level.UnlockedExit {
+			} else if playerTile != nil && playerTile.Item.Type == level.UnlockedExit {
 				// TODO: Add this to a temporary array somewhere. Right now it isn't an issue because there's only 1 level
 				state.RemoveActor(clientName)
 				client.SendMessage(ExitMessage, newPos)

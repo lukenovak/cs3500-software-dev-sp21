@@ -87,7 +87,7 @@ func TestGameState_UnlockExits(t *testing.T) {
 	// test a level with locked exits
 	testGameState := generateTestGameState()
 	testGameState.UnlockExits()
-	if testGameState.Level.GetTile(level.NewPosition2D(12, 14)).Type != level.UnlockedExit {
+	if testGameState.Level.GetTile(level.NewPosition2D(12, 14)).Item.Type != level.UnlockedExit {
 		t.Fail()
 	}
 }
@@ -107,11 +107,11 @@ func TestGameState_MoveActor(t *testing.T) {
 func generateTestGameState() *GameState {
 	testLevel := generateTestLevel()
 	return &GameState{
-		LevelNum:    1,
-		Level:       &testLevel,
+		LevelNum:      1,
+		Level:         &testLevel,
 		PlayerClients: nil,
-		Players:     nil,
-		Adversaries: nil,
+		Players:       nil,
+		Adversaries:   nil,
 	}
 }
 
