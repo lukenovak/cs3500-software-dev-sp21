@@ -1,15 +1,27 @@
 package level
 
+// Tile type constants
 const (
-	Wall     = 0
-	Walkable = 1
-	Door     = 2
+	Wall     = iota
+	Walkable = iota
+	Door     = iota
+)
+
+// Item type constants
+const (
+	NoItem       = iota
+	KeyID        = iota
+	LockedExit   = iota
+	UnlockedExit = iota
 )
 
 type Tile struct {
 	Type   int
 	RoomId int
 	Item   *Item
+}
+type Item struct {
+	Type int
 }
 
 // generates a tile with no object at the given position
@@ -18,6 +30,12 @@ func GenerateTile(tileType int, roomId int) *Tile {
 		Type:   tileType,
 		RoomId: roomId,
 		Item:   nil,
+	}
+}
+
+func NewKey() Item {
+	return Item{
+		Type: KeyID,
 	}
 }
 
