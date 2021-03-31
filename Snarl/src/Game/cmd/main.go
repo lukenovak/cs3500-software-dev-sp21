@@ -82,9 +82,9 @@ func generateGameStateLevel() level.Level {
 }
 
 func generatePlayers() []state.UserClient {
-	return []state.UserClient{&state.LocalClient{Name: "Luke"}}
+	return []state.UserClient{&state.LocalKeyClient{Name: "Luke"}}
 }
 
 func generateAdversaries() []actor.Actor {
-	return []actor.Actor{{Type: 1}, {Type: 2}, {Type: 1}, {Type: 2}}
+	return []actor.Actor{actor.NewAdversaryActor(actor.ZombieType, "z1", 1), actor.NewAdversaryActor(actor.GhostType, "g1", 1)}
 }
