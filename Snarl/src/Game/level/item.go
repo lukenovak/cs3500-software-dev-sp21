@@ -2,8 +2,10 @@ package level
 
 // Item ID Constants (exposed to be usasble)
 const (
-	NoItem = 0
-	KeyID  = 1
+	NoItem       = iota
+	KeyID        = iota
+	LockedExit   = iota
+	UnlockedExit = iota
 )
 
 type Item struct {

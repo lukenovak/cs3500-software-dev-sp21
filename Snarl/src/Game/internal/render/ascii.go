@@ -33,12 +33,14 @@ func renderTile(tile *level.Tile) string {
 		return walkableTile
 	case level.Door:
 		return doorTile
-	case level.LockedExit:
-		return lockedTile
-	case level.UnlockedExit:
-		return unlockedTile
 	default:
-		return unknownTile
-
+		switch tile.Item.Type {
+		case level.LockedExit:
+			return lockedTile
+		case level.UnlockedExit:
+			return unlockedTile
+		default:
+			return unknownTile
+		}
 	}
 }

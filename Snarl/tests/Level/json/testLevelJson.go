@@ -256,13 +256,7 @@ func tilesToArray(tiles [][]*level.Tile) [][]int {
 		for _, tile := range tileRow {
 			if tile == nil {
 				outputRow = append(outputRow, 0)
-			}
-			switch tile.Type {
-			case level.LockedExit:
-				outputRow = append(outputRow, 1)
-			case level.UnlockedExit:
-				outputRow = append(outputRow, 1)
-			default:
+			} else {
 				outputRow = append(outputRow, tile.Type)
 			}
 		}

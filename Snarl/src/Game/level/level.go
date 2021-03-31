@@ -104,16 +104,16 @@ func (level Level) GetWalkableTilePositions(pos Position2D, numSteps int) []Posi
 func (level Level) getAdjacentWalkablePositions(pos Position2D) []Position2D {
 	var walkablePositions []Position2D
 
-	if leftTile := level.GetTile(NewPosition2D(pos.Row-1, pos.Col)); leftTile != nil && (leftTile.Type == Walkable || leftTile.Type == Door || leftTile.Type == LockedExit || leftTile.Type == UnlockedExit) {
+	if leftTile := level.GetTile(NewPosition2D(pos.Row-1, pos.Col)); leftTile != nil && (leftTile.Type == Walkable || leftTile.Type == Door || leftTile.Item.Type == LockedExit || leftTile.Item.Type == UnlockedExit) {
 		walkablePositions = append(walkablePositions, NewPosition2D(pos.Row-1, pos.Col))
 	}
-	if rightTile := level.GetTile(NewPosition2D(pos.Row+1, pos.Col)); rightTile != nil && (rightTile.Type == Walkable || rightTile.Type == Door || rightTile.Type == LockedExit || rightTile.Type == UnlockedExit) {
+	if rightTile := level.GetTile(NewPosition2D(pos.Row+1, pos.Col)); rightTile != nil && (rightTile.Type == Walkable || rightTile.Type == Door || rightTile.Item.Type == LockedExit || rightTile.Item.Type == UnlockedExit) {
 		walkablePositions = append(walkablePositions, NewPosition2D(pos.Row+1, pos.Col))
 	}
-	if upTile := level.GetTile(NewPosition2D(pos.Row, pos.Col+1)); upTile != nil && (upTile.Type == Walkable || upTile.Type == Door || upTile.Type == LockedExit || upTile.Type == UnlockedExit) {
+	if upTile := level.GetTile(NewPosition2D(pos.Row, pos.Col+1)); upTile != nil && (upTile.Type == Walkable || upTile.Type == Door || upTile.Item.Type == LockedExit || upTile.Item.Type == UnlockedExit) {
 		walkablePositions = append(walkablePositions, NewPosition2D(pos.Row, pos.Col+1))
 	}
-	if downTile := level.GetTile(NewPosition2D(pos.Row, pos.Col-1)); downTile != nil && (downTile.Type == Walkable || downTile.Type == Door || downTile.Type == LockedExit || downTile.Type == UnlockedExit) {
+	if downTile := level.GetTile(NewPosition2D(pos.Row, pos.Col-1)); downTile != nil && (downTile.Type == Walkable || downTile.Type == Door || downTile.Item.Type == LockedExit || downTile.Item.Type == UnlockedExit) {
 		walkablePositions = append(walkablePositions, NewPosition2D(pos.Row, pos.Col-1))
 	}
 	return walkablePositions
@@ -428,7 +428,8 @@ func (level Level) capHallwayEnd(startPos Position2D, direction int, hallwayId i
 // places an exit on a valid, walkable tile. Else, throws an error
 func (level *Level) PlaceExit(exitPos Position2D) error {
 	if exitTile := level.GetTile(exitPos); exitTile != nil && exitTile.Type == Walkable {
-		level.Tiles[exitPos.Row][exitPos.Col].Type = LockedExit
+		exitItem := Item{Type: LockedExit}
+		level.Tiles[exitPos.Row][exitPos.Col].Item = &exitItem
 		level.Exits = append(level.Exits, exitTile)
 	} else {
 		return fmt.Errorf("invalid exit location")

@@ -65,12 +65,15 @@ func renderGuiTile(tileToRender *level.Tile) *fyne.Container {
 			rectColor = color.RGBA{R: 20, G: 180, B: 20}
 		case level.Door:
 			containerContent = newTileText(doorTile)
-		case level.LockedExit:
-			containerContent = newTileText("L")
-		case level.UnlockedExit:
-			containerContent = newTileText(unlockedTile)
 		default:
-			containerContent = newTileText(unknownTile)
+			switch tileToRender.Item.Type {
+			case level.LockedExit:
+				containerContent = newTileText("L")
+			case level.UnlockedExit:
+				containerContent = newTileText(unlockedTile)
+			default:
+				containerContent = newTileText(unknownTile)
+			}
 		}
 	}
 

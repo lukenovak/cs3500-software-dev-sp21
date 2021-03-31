@@ -55,7 +55,7 @@ func NewAdversaryActor(adversaryType int, name string, moveDistance int) Actor {
 
 // generic behavor lambda
 func canOccupyWalkable(currTile *level.Tile) bool {
-	return currTile != nil && (currTile.Type == level.Walkable || currTile.Type == level.Door || currTile.Type == level.LockedExit || currTile.Type == level.UnlockedExit)
+	return currTile != nil && (currTile.Type == level.Walkable || currTile.Type == level.Door || currTile.Item.Type == level.LockedExit || currTile.Item.Type == level.UnlockedExit)
 }
 
 func adversaryOccupy(currTile *level.Tile) bool {

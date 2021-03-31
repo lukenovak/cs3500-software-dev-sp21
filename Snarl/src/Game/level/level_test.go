@@ -90,7 +90,7 @@ func TestPlaceExit(t *testing.T) {
 
 	// test a valid exit
 	err := level.PlaceExit(NewPosition2D(1, 1))
-	if err != nil || level.GetTile(NewPosition2D(1, 1)).Type != LockedExit {
+	if err != nil || level.GetTile(NewPosition2D(1, 1)).Item.Type != LockedExit {
 		t.Fail()
 	}
 

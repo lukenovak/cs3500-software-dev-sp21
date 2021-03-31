@@ -1,11 +1,9 @@
 package level
 
 const (
-	Wall         = 0
-	Walkable     = 1
-	Door         = 2
-	LockedExit   = 3
-	UnlockedExit = 4
+	Wall     = 0
+	Walkable = 1
+	Door     = 2
 )
 
 type Tile struct {
