@@ -25,7 +25,7 @@ func main() {
 		newPlayer, _ := player.RegisterClient()
 		gamePlayers = append(gamePlayers, newPlayer)
 	}
-	go state.GameManager(generateGameStateLevel(), players, gamePlayers, generateAdversaries(), []state.GameObserver{observer}, 1)
+	go state.GameManager([]level.Level{generateGameStateLevel()}, players, gamePlayers, generateAdversaries(), []state.GameObserver{observer}, 1)
 	a.Run()
 }
 
@@ -86,5 +86,5 @@ func generatePlayers() []state.UserClient {
 }
 
 func generateAdversaries() []actor.Actor {
-	return []actor.Actor{actor.NewAdversaryActor(actor.ZombieType, "z1", 1), actor.NewAdversaryActor(actor.GhostType, "g1", 1)}
+	return []actor.Actor{actor.NewAdversaryActor(actor.ZombieType, "z1", 1)/*, actor.NewAdversaryActor(actor.GhostType, "g1", 1)*/}
 }
