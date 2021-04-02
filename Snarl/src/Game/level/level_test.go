@@ -85,39 +85,18 @@ func TestNewEmptyLevel(t *testing.T) {
 	}
 }
 
-func TestPlaceExit(t *testing.T) {
-	level := setupSmallTestLevel(t)
-
-	// test a valid exit
-	err := level.PlaceExit(NewPosition2D(1, 1))
-	if err != nil || level.GetTile(NewPosition2D(1, 1)).Item.Type != LockedExit {
-		t.Fail()
-	}
-
-	// test an invalid exit
-	err = level.PlaceExit(NewPosition2D(0, 0))
-	if err == nil {
-		t.Fail()
-	}
-
-	// test a negative exit
-	err = level.PlaceExit(NewPosition2D(-1, -1))
-	if err == nil {
-		t.Fail()
-	}
-}
-
 func TestPlaceItem(t *testing.T) {
 	level := setupSmallTestLevel(t)
 
 	// valid item position
-	err := level.PlaceItem(NewPosition2D(1, 1), Item{Type: KeyID})
+	key := Item{Type: KeyID}
+	err := level.PlaceItem(NewPosition2D(1, 1), &key)
 	if err != nil || level.GetTile(NewPosition2D(1, 1)).Item.Type != KeyID {
 		t.Fail()
 	}
 
 	// invalid item position
-	err = level.PlaceItem(NewPosition2D(0, 0), Item{Type: KeyID})
+	err = level.PlaceItem(NewPosition2D(0, 0), &key)
 	if err == nil {
 		t.Fail()
 	}
@@ -126,7 +105,8 @@ func TestPlaceItem(t *testing.T) {
 func TestClearItem(t *testing.T) {
 	// setup
 	level := setupSmallTestLevel(t)
-	err := level.PlaceItem(NewPosition2D(1, 1), Item{Type: KeyID})
+	key := Item{Type: KeyID}
+	err := level.PlaceItem(NewPosition2D(1, 1), &key)
 	if err != nil {
 		t.Fatal(err)
 	}

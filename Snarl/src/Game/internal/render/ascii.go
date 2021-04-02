@@ -6,6 +6,7 @@ const (
 	wallTile     = "▓"
 	walkableTile = "░"
 	doorTile     = "D"
+	keyTile      = "K"
 	lockedTile   = "¤"
 	unlockedTile = "U"
 	unknownTile  = "?"

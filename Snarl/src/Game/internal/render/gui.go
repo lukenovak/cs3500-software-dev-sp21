@@ -66,13 +66,17 @@ func renderGuiTile(tileToRender *level.Tile) *fyne.Container {
 		case level.Door:
 			containerContent = newTileText(doorTile)
 		default:
-			switch tileToRender.Item.Type {
-			case level.LockedExit:
-				containerContent = newTileText("L")
-			case level.UnlockedExit:
-				containerContent = newTileText(unlockedTile)
-			default:
-				containerContent = newTileText(unknownTile)
+			if tileToRender.Item != nil {
+				switch tileToRender.Item.Type {
+				case level.KeyID:
+					containerContent = newTileText(keyTile)
+				case level.LockedExit:
+					containerContent = newTileText("L")
+				case level.UnlockedExit:
+					containerContent = newTileText(unlockedTile)
+				default:
+					containerContent = newTileText(unknownTile)
+				}
 			}
 		}
 	}
@@ -83,13 +87,6 @@ func renderGuiTile(tileToRender *level.Tile) *fyne.Container {
 
 	tileContainer := container.New(layout.NewMaxLayout())
 	tileContainer.Add(containerContent)
-
-	if tileToRender != nil && tileToRender.Item != nil {
-		switch tileToRender.Item.Type {
-		case level.KeyID:
-			tileContainer.Add(canvas2.NewText("K", color.Black))
-		}
-	}
 
 	tileContainer.Resize(fyne.NewSize(100, 100))
 	return tileContainer
