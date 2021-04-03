@@ -64,7 +64,7 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 		observer.GameStateChannel <- *state
 	}
 
-	// init adversaries TODO: take in data
+	// init adversaries
 	var adversaryClients []AdversaryClient
 	for _, adversary := range state.Adversaries {
 		if adversary.Type == actor.ZombieType {
