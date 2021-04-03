@@ -2,17 +2,17 @@ package level
 
 // Tile type constants
 const (
-	Wall     = iota
-	Walkable = iota
-	Door     = iota
+	Wall = iota
+	Walkable
+	Door
 )
 
 // Item type constants
 const (
-	NoItem       = iota
-	KeyID        = iota
-	LockedExit   = iota
-	UnlockedExit = iota
+	NoItem = iota
+	KeyID
+	LockedExit
+	UnlockedExit
 )
 
 type Tile struct {
