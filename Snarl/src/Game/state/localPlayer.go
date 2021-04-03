@@ -79,6 +79,7 @@ func (player *LocalKeyClient) SendMessage(message string, pos level.Position2D) 
 }
 
 func (player *LocalKeyClient) GetInput() Response {
+	player.GameWindow.RequestFocus()
 	move := level.NewPosition2D(0, 0)
 	for {
 		fmt.Printf("current move is %d, %d\n", move.Row, move.Col)

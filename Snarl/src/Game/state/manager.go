@@ -91,6 +91,10 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 		}
 	}
 
+	// give windows time to initialize
+	println("initializing...")
+	time.Sleep(2 * time.Second)
+
 	// main game loop
 	for !state.CheckVictory() {
 		var playerPosns []level.Position2D
