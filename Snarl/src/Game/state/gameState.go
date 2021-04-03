@@ -131,18 +131,13 @@ func (gs GameState) GetActor(name string) *actor.Actor {
 func (gs *GameState) RemoveActor(name string) {
 
 	removeActor := func(actorList []actor.Actor) []actor.Actor {
+		var newList []actor.Actor
 		for i := range actorList {
-			if actorList[i].Name == name {
-				// reorders the array, but order doesn't matter
-				actorList[len(actorList)-1], actorList[i] = actorList[i], actorList[len(actorList)-1]
-				if len(actorList) == 1 {
-					return []actor.Actor{}
-				} else {
-					return actorList[:len(actorList)-1]
-				}
+			if actorList[i].Name != name {
+				newList = append(newList, actorList[i])
 			}
 		}
-		return actorList
+		return newList
 	}
 
 	gs.Players = removeActor(gs.Players)

@@ -84,7 +84,7 @@ func main() {
 	var finalPrintValues []string
 	// local func run game and get return value
 	runGame := func() {
-		finalPrintValues = state.GameManager(levels, players, gamePlayers, generateAdversaries(), observers, 1)
+		finalPrintValues = state.GameManager(levels, players, gamePlayers, generateAdversaries(), observers, 1, a)
 	}
 
 	// launch the main game loop
