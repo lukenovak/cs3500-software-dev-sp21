@@ -288,7 +288,7 @@ func (level Level) generateBetweenWaypoints(startPos *Position2D, endPos Positio
 		generateCol(-1, horizontal, left)
 	} else if endPos.Row > startPos.Row {
 		generateRow(1, vertical, down)
-	} else if endPos.Col < startPos.Col {
+	} else {
 		generateRow(-1, vertical, up)
 	}
 }

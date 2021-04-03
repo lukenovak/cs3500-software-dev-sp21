@@ -1,34 +1,106 @@
 package main
 
 import (
+	"bufio"
+	"flag"
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/internal"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/internal/render"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
+	"os"
 )
 
+const (
+	// argument flag names
+	levelFlagName = "levels"
+	playerFlagName = "players"
+	startLevelFlagName = "start"
+	showObserverFlagName = "observe"
+
+	// argument defaults
+	defaultNumPlayers = 1
+	defaultFilename = "snarl.levels"
+	defaultStartLevel = 1
+	defaultShowObserver = false
+)
+
+// main executable function
 func main() {
+	// initialize flags
+	levelFlag := flag.String(levelFlagName, defaultFilename, "Points the game to the desired level file")
+	playerFlag := flag.Int(playerFlagName, defaultNumPlayers, "The number of players in this game")
+	startLevelFlag := flag.Int(startLevelFlagName, defaultStartLevel, "The level number to start at")
+	showObserverFlag := flag.Bool(showObserverFlagName, false, "Opens an observer window if present")
+
+	flag.Parse()
+
+	// error checking
+	if *playerFlag < 1 || *playerFlag > 4 {
+		fmt.Println("invalid number of players")
+		os.Exit(1)
+	}
+	levels, err := internal.ParseLevelFile(*levelFlag)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	if *startLevelFlag > len(levels) || *startLevelFlag < 1 {
+		fmt.Println("invalid start level")
+		os.Exit(1)
+	}
+
+	// setup the gui application
 	a := app.New()
 	fyne.SetCurrentApp(a)
-	players := generatePlayers()
-	players[0].RegisterClient()
-	observerWindow := a.NewWindow("snarl observer")
 
-	observer := state.NewGameObserver(func(gs state.GameState) {
-		render.GuiState(gs.Level.Tiles, gs.Players, gs.Adversaries, observerWindow)
-	})
+	// generate player clients based on user input
+	var players []state.UserClient
+	for i := 1; i <= *playerFlag; i++ {
+		newPlayer := getLocalPlayer(i)
+		players = append(players, newPlayer)
+	}
 
+	// set up the local observer if requested
+	var observers []state.GameObserver
+	if *showObserverFlag {
+		observerWindow := a.NewWindow("snarl observer")
+		observer := state.NewGameObserver(func(gs state.GameState) {
+			render.GuiState(gs.Level.Tiles, gs.Players, gs.Adversaries, observerWindow)
+		})
+		observers = append(observers, observer)
+	}
+
+	// register players and prepare game player representations
 	var gamePlayers []actor.Actor
 	for _, player := range players {
 		newPlayer, _ := player.RegisterClient()
 		gamePlayers = append(gamePlayers, newPlayer)
 	}
-	go state.GameManager(generateGameStateLevel(), players, gamePlayers, generateAdversaries(), []state.GameObserver{observer}, 1)
+
+	var finalPrintValues []string
+	// local func run game and get return value
+	runGame := func() {
+		finalPrintValues = state.GameManager(levels, players, gamePlayers, generateAdversaries(), observers, 1)
+	}
+
+	// launch the main game loop
+	go runGame()
+
+	// display the window (this is blocking!)
 	a.Run()
+
+	// print the leaderboard (if we get here, the game is over
+	for _, leaderboard := range finalPrintValues {
+		fmt.Println(leaderboard)
+	}
+	os.Exit(0)
 }
 
+// DEPRECATED: generates an example level
 func generateGameStateLevel() level.Level {
 	newLevel, err := level.NewEmptyLevel(32, 32)
 	if err != nil {
@@ -83,10 +155,21 @@ func generateGameStateLevel() level.Level {
 	return newLevel
 }
 
+func getLocalPlayer(playerNumber int) *state.LocalKeyClient {
+	fmt.Printf("Enter player %d's name: ", playerNumber)
+	name, _ := bufio.NewReader(os.Stdin).ReadString('\n')
+	return &state.LocalKeyClient{
+		Name:       name,
+		GameWindow: nil,
+	}
+
+}
+
+// DEPRECATED: Generates an array of test player
 func generatePlayers() []state.UserClient {
 	return []state.UserClient{&state.LocalKeyClient{Name: "Luke"}}
 }
 
 func generateAdversaries() []actor.Actor {
-	return []actor.Actor{actor.NewAdversaryActor(actor.ZombieType, "z1", 1), actor.NewAdversaryActor(actor.GhostType, "g1", 1)}
+	return []actor.Actor{actor.NewAdversaryActor(actor.ZombieType, "z1", 1)/*, actor.NewAdversaryActor(actor.GhostType, "g1", 1)*/}
 }
