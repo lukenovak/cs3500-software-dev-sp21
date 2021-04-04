@@ -189,9 +189,11 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 					state.LevelNum = levelNumber
 					state.Level = &gameLevels[levelNumber - 1]
 					combinedList := append(exitedPlayers, ejectedPlayers...)
+					var nextLevelPlayers []actor.Actor
 					for _, player := range combinedList {
-						state.Players = append(state.Players, player.MoveActor(level.NewPosition2D(-1, -1)))
+						nextLevelPlayers = append(nextLevelPlayers, player.MoveActor(level.NewPosition2D(-1, -1)))
 					}
+					placeActors(state, nextLevelPlayers, getTopLeftUnoccupiedWalkable, level.NewPosition2D(0, 0))
 					for _, playerClient := range playerClients {
 						playerClient.SendPartialState(state.GeneratePartialState(state.GetActor(playerClient.GetName()).Position, defaultPlayerViewDistance))
 					}

@@ -82,11 +82,18 @@ func renderGuiTile(tileToRender *level.Tile) *fyne.Container {
 	if tileToRender != nil && tileToRender.Item != nil {
 		switch tileToRender.Item.Type {
 		case level.KeyID:
-			tileContainer.Add(canvas2.NewText(keyTile, color.Black))
+			text := canvas2.NewText(keyTile, color.Black)
+			text.TextSize = 24
+			tileContainer.Add(text)
 		case level.LockedExit:
-			tileContainer.Add(canvas2.NewText("L", color.Black))
+			text := canvas2.NewText("L", color.Black)
+			text.TextSize = 24
+			tileContainer.Add(text)
+
 		case level.UnlockedExit:
-			tileContainer.Add(canvas2.NewText(unlockedTile, color.Black))
+			text := canvas2.NewText(unlockedTile, color.Black)
+			text.TextSize = 24
+			tileContainer.Add(text)
 		}
 	}
 
