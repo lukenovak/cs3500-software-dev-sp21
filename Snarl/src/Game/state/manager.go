@@ -247,8 +247,9 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 		}
 	})
 
+	fmt.Print("Player Leaderboard:\n")
 	for _, player := range playerRanks {
-		fmt.Printf("%v, %v, %v", player, exitCounts[player], keyCounts[player])
+		fmt.Printf("%v, %v, %v\n", player, exitCounts[player], keyCounts[player])
 	}
 
 	// close all game windows at the end of the game
