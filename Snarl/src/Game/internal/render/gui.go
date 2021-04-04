@@ -14,11 +14,12 @@ const (
 	fontSize = 16
 )
 
+// renders a given state in the given Fyne window
 func GuiState(stateLevelTiles [][]*level.Tile, statePlayers []actor.Actor, stateAdversaries []actor.Actor, gameWindow fyne.Window) {
 	levelSize := level.NewPosition2D(len(stateLevelTiles), len(stateLevelTiles[0]))
 	levelTiles := renderGuiLevel(stateLevelTiles)
-	renderGuiActors(levelTiles, statePlayers, levelSize, renderPlayer)
-	renderGuiActors(levelTiles, stateAdversaries, levelSize, renderAdversary)
+	renderGuiActors(levelTiles, statePlayers, levelSize)
+	renderGuiActors(levelTiles, stateAdversaries, levelSize)
 	windowContainer := container.New(layout.NewGridLayout(levelSize.Row))
 	for _, renderedTile := range levelTiles {
 		windowContainer.Add(renderedTile)
@@ -27,6 +28,7 @@ func GuiState(stateLevelTiles [][]*level.Tile, statePlayers []actor.Actor, state
 	gameWindow.Show()
 }
 
+// helper for GuiState, renders a tile layout
 func renderGuiLevel(levelToRender [][]*level.Tile) []*fyne.Container {
 	levelSize := level.NewPosition2D(len(levelToRender), len(levelToRender[0]))
 	tileContainers := make([]*fyne.Container, len(levelToRender[0])*len(levelToRender))
@@ -95,25 +97,14 @@ func renderGuiTile(tileToRender *level.Tile) *fyne.Container {
 // renders players on the GUI with an already existing grid array of containers
 func renderGuiActors(tileContainers []*fyne.Container,
 	actors []actor.Actor,
-	levelSize level.Position2D,
-	renderFunc func(*fyne.Container)) {
+	levelSize level.Position2D) {
 	for _, actorToRender := range actors {
 		tilePos := calc1DPosition(actorToRender.Position, levelSize)
-		renderFunc(tileContainers[tilePos])
+		tileContainers[tilePos].Add(actorToRender.RenderedObj)
 	}
 }
 
 // utility function to find the 1d array index of a position in a level
 func calc1DPosition(pos level.Position2D, levelSize level.Position2D) int {
 	return pos.Row*levelSize.Col + pos.Col
-}
-
-/* ----------------------- Actor Render functions ----------------------------- */
-
-func renderPlayer(baseContainer *fyne.Container) {
-	baseContainer.Add(canvas2.NewCircle(color.RGBA{R: 150, G: 150, B: 150, A: 255}))
-}
-
-func renderAdversary(baseContainer *fyne.Container) {
-	baseContainer.Add(canvas2.NewCircle(color.RGBA{R: 200, G: 100, B: 100, A: 255}))
 }

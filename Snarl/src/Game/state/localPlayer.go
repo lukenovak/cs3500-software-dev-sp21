@@ -20,7 +20,7 @@ type LocalClient struct {
 
 func (player *LocalClient) RegisterClient() (actor.Actor, error) {
 	player.GameWindow = fyne.CurrentApp().NewWindow("snarl client")
-	return actor.NewWalkableActor(player.Name, actor.PlayerType, 2).MoveActor(level.NewPosition2D(-1, -1)), nil
+	return actor.NewPlayerActor(player.Name, actor.PlayerType, 2).MoveActor(level.NewPosition2D(-1, -1)), nil
 }
 
 func (player *LocalClient) SendPartialState(tiles [][]*level.Tile, actors []actor.Actor, pos level.Position2D) error {
@@ -65,7 +65,7 @@ func (player *LocalKeyClient) RegisterClient() (actor.Actor, error) {
 	if err := keyboard.Open(); err != nil {
 		return actor.Actor{}, err
 	}
-	return actor.NewWalkableActor(player.Name, actor.PlayerType, 2).MoveActor(level.NewPosition2D(-1, -1)), nil
+	return actor.NewPlayerActor(player.Name, actor.PlayerType, 2).MoveActor(level.NewPosition2D(-1, -1)), nil
 }
 
 func (player *LocalKeyClient) SendPartialState(tiles [][]*level.Tile, actors []actor.Actor, pos level.Position2D) error {

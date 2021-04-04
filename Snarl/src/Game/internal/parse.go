@@ -111,14 +111,21 @@ type levelTestObject struct {
 /* ---------- Parsing JSON ---------- */
 
 // Parses a single level
-func ParseLevelFile(filename string) ([]level.Level, error) {
+func ParseLevelFile(filename string, startLevel int) ([]level.Level, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
 
 	d := json.NewDecoder(file)
+
+	var parsedLevels []level.Level
+	numLevels := 0
+	d.Decode(&numLevels)
 	var decodedLevel inputLevel
-	d.Decode(&decodedLevel)
-	return []level.Level{decodedLevel.toGameLevel()}, nil
+	for i := 0; i < numLevels; i++ {
+		d.Decode(&decodedLevel)
+		parsedLevels = append(parsedLevels, decodedLevel.toGameLevel())
+	}
+	return parsedLevels, nil
 }

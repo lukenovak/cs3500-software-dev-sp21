@@ -43,7 +43,7 @@ func main() {
 		fmt.Println("invalid number of players")
 		os.Exit(1)
 	}
-	levels, err := internal.ParseLevelFile(*levelFlag)
+	levels, err := internal.ParseLevelFile(*levelFlag, *startLevelFlag)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -84,7 +84,7 @@ func main() {
 	var finalPrintValues []string
 	// local func run game and get return value
 	runGame := func() {
-		finalPrintValues = state.GameManager(levels, players, gamePlayers, generateAdversaries(), observers, 1)
+		finalPrintValues = state.GameManager(levels, players, gamePlayers, generateAdversaries(), observers, 1, a)
 	}
 
 	// launch the main game loop
