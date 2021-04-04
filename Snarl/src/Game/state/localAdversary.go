@@ -40,27 +40,46 @@ func (g *GhostClient) CalculateMove(playerPosns []level.Position2D, adversaryPos
 		}
 	}
 
-	// find adjacent wall tiles to teleport
-	var wallMoves []level.Position2D
+	// find if a teleport is possible
+	hasAdjacentWall := false
 	if leftTile := g.LevelData.GetTile(level.NewPosition2D(g.CurrentPosn.Row-1, g.CurrentPosn.Col)); leftTile != nil && leftTile.Type == level.Wall {
-		wallMoves = append(wallMoves, level.NewPosition2D(g.CurrentPosn.Row-1, g.CurrentPosn.Col))
+		hasAdjacentWall = true
 	}
 	if rightTile := g.LevelData.GetTile(level.NewPosition2D(g.CurrentPosn.Row+1, g.CurrentPosn.Col)); rightTile != nil && rightTile.Type == level.Wall {
-		wallMoves = append(wallMoves, level.NewPosition2D(g.CurrentPosn.Row+1, g.CurrentPosn.Col))
+		hasAdjacentWall = true
 	}
 	if upTile := g.LevelData.GetTile(level.NewPosition2D(g.CurrentPosn.Row, g.CurrentPosn.Col+1)); upTile != nil && upTile.Type == level.Wall {
-		wallMoves = append(wallMoves, level.NewPosition2D(g.CurrentPosn.Row, g.CurrentPosn.Col+1))
+		hasAdjacentWall = true
 	}
 	if downTile := g.LevelData.GetTile(level.NewPosition2D(g.CurrentPosn.Row, g.CurrentPosn.Col-1)); downTile != nil && downTile.Type == level.Wall {
-		wallMoves = append(wallMoves, level.NewPosition2D(g.CurrentPosn.Row, g.CurrentPosn.Col-1))
+		hasAdjacentWall = true
 	}
 
-	// pick a random wall to move into if possible
-	if len(wallMoves) > 0 {
-		move = wallMoves[rand.Intn(len(wallMoves))]
-		return Response{
-			PlayerName: g.Name,
-			Move:       move,
+	// pick a random wall tile to teleport to
+	if hasAdjacentWall {
+		var randomWallPos level.Position2D
+		wallTileCount := 0
+		for i, row := range g.LevelData.Tiles {
+			for j, tile := range row {
+				if tile.Type == level.Wall {
+					if wallTileCount == 0 {
+						randomWallPos = level.NewPosition2D(i, j)
+						wallTileCount++
+					} else {
+						wallTileCount++
+						if rand.Intn(wallTileCount) == 0 {
+							randomWallPos = level.NewPosition2D(i, j)
+						}
+					}
+				}
+			}
+		}
+
+		if wallTileCount != 0 {
+			return Response{
+				PlayerName: g.Name,
+				Move:       randomWallPos,
+			}
 		}
 	}
 
