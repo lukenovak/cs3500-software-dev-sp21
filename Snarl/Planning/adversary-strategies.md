@@ -1,7 +1,20 @@
 # Adversary Strategies
 
+Our adversaries can be split into two main categories: Ghosts and Zombies
+
 ## Zombie
 
+Zombies act "stupidly", which is to say that they move in random directions
+unless a player is in the same room as them.
+
+The logic works roughly as follows.
+
+If a player is in the same room as a zombie: get all valid moves, and check them
+to determine which one creates the minimum manhattan distance to any player. Make
+that move.
+
+If a player is not in the same room as a zombie: make a random valid move in any
+direction.
 
 ## Ghost
 
