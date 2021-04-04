@@ -1,6 +1,7 @@
 package state
 
 import (
+	"fmt"
 	"fyne.io/fyne/v2"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
@@ -152,27 +153,30 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 			// handle interactions
 			newPos := state.GetActor(clientName).Position
 			playerTile := state.Level.GetTile(newPos)
+			message := func(msg string) string {
+				return fmt.Sprintf("Player %s %s", clientName, msg)
+			}
 			// if there's an adversary here, kill the player
 			if ActorsOccupyPosition(adversaries, newPos) {
 				exitedPlayers = append(ejectedPlayers, *playerActor)
 				state.RemoveActor(clientName)
-				client.SendMessage(EjectMessage, newPos)
+				client.SendMessage(message(EjectMessage), newPos)
 			} else if playerTile != nil && playerTile.Item != nil && playerTile.Item.Type == level.KeyID {
 				// grab the key if we land on it
 				state.Level.UnlockExits()
 				state.Level.ClearItem(newPos)
-				client.SendMessage(KeyMessage, newPos)
+				client.SendMessage(message(KeyMessage), newPos)
 				// update the scoreboard
 				keyCounts[playerActor.Name] += 1
 			} else if playerTile != nil && playerTile.Item != nil && playerTile.Item.Type == level.UnlockedExit {
 				exitedPlayers = append(exitedPlayers, playerActor.MoveActor(level.NewPosition2D(-1, -1)))
 				state.RemoveActor(clientName)
-				client.SendMessage(ExitMessage, newPos)
+				client.SendMessage(message(ExitMessage), newPos)
 				// update the scoreboard
 				exitCounts[playerActor.Name] += 1
 			} else {
 				// normal movement, send a success
-				client.SendMessage(SuccessMessage, newPos)
+				client.SendMessage(message(SuccessMessage), newPos)
 			}
 
 			// update all clients

@@ -35,7 +35,7 @@ func (player *LocalClient) SendMessage(message string, pos level.Position2D) err
 
 func (player *LocalClient) GetInput() Response {
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("Enter move [row, col]: ")
+	fmt.Printf("Enter move [row, col] for player %s: ", player.Name)
 	move, _ := reader.ReadBytes('\n')
 	var moveData [2]int
 	json.Unmarshal(move, &moveData)
@@ -82,7 +82,7 @@ func (player *LocalKeyClient) GetInput() Response {
 	player.GameWindow.RequestFocus()
 	move := level.NewPosition2D(0, 0)
 	for {
-		fmt.Printf("current move is %d, %d\n", move.Row, move.Col)
+		fmt.Printf("current move for player %s is %d, %d\n", player.Name, move.Row, move.Col)
 		_, key, _ := keyboard.GetKey()
 		if key == keyboard.KeyEnter {
 			break
