@@ -10,9 +10,9 @@ import (
 const (
 	SuccessMessage = "Success"
 	InvalidMessage = "Invalid"
-	ExitMessage = "Exit"
-	KeyMessage = "Key"
-	EjectMessage = "Eject"
+	ExitMessage    = "Exit"
+	KeyMessage     = "Key"
+	EjectMessage   = "Eject"
 	TimeoutMessage = "Timeout"
 	timeoutLimit = 60 * time.Second
 )

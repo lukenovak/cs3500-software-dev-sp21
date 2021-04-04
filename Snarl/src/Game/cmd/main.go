@@ -146,9 +146,11 @@ func generateGameStateLevel() level.Level {
 		panic(err)
 	}
 
-	newLevel.PlaceExit(level.NewPosition2D(14, 12))
+	exit := level.Item{Type: level.LockedExit}
+	newLevel.PlaceItem(level.NewPosition2D(14, 12), &exit)
 
-	newLevel.PlaceItem(level.NewPosition2D(25, 25), level.Item{Type: level.KeyID})
+	key := level.Item{Type: level.KeyID}
+	newLevel.PlaceItem(level.NewPosition2D(25, 25), &key)
 
 	return newLevel
 }

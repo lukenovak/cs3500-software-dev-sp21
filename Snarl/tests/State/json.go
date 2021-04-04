@@ -32,7 +32,7 @@ func GameStateObjectFromGameState(gs state.GameState, testLevel levelJson.TestLe
 
 	// Check the level to determine if the exits are locked
 	exitLockStatus := true
-	if gs.Level.Exits[0] != nil && gs.Level.Exits[0].Type == level.UnlockedExit {
+	if gs.Level.Exits[0] != nil && gs.Level.Exits[0].Item.Type == level.UnlockedExit {
 		exitLockStatus = false
 	}
 

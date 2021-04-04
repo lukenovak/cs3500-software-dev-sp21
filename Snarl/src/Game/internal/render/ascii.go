@@ -6,6 +6,7 @@ const (
 	wallTile     = "▓"
 	walkableTile = "░"
 	doorTile     = "D"
+	keyTile      = "K"
 	lockedTile   = "¤"
 	unlockedTile = "U"
 	unknownTile  = "?"
@@ -33,12 +34,14 @@ func renderTile(tile *level.Tile) string {
 		return walkableTile
 	case level.Door:
 		return doorTile
-	case level.LockedExit:
-		return lockedTile
-	case level.UnlockedExit:
-		return unlockedTile
 	default:
-		return unknownTile
-
+		switch tile.Item.Type {
+		case level.LockedExit:
+			return lockedTile
+		case level.UnlockedExit:
+			return unlockedTile
+		default:
+			return unknownTile
+		}
 	}
 }
