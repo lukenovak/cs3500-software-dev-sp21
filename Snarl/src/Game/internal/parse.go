@@ -82,10 +82,10 @@ func (input inputLevel) toGameLevel() level.Level {
 	for _, object := range input.Objects {
 		switch object.Type {
 		case "key":
-			err = newLevel.PlaceItem(object.Position.toPosition2D(), level.NewKey())
+			err = newLevel.PlaceItem(object.Position.toPosition2D(), &level.Item{Type: level.KeyID})
 			hasKey = true
 		case "exit":
-			err = newLevel.PlaceExit(object.Position.toPosition2D())
+			err = newLevel.PlaceItem(object.Position.toPosition2D(), &level.Item{Type: level.UnlockedExit})
 		default:
 			err = fmt.Errorf("unknown item type")
 		}
