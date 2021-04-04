@@ -428,7 +428,7 @@ func (level Level) capHallwayEnd(startPos Position2D, direction int, hallwayId i
 // places an exit on a valid, walkable tile. Else, throws an error
 func (level *Level) PlaceExit(exitPos Position2D) error {
 	if exitTile := level.GetTile(exitPos); exitTile != nil && exitTile.Type == Walkable {
-		level.Tiles[exitPos.Row][exitPos.Col].Type = LockedExit
+		level.Tiles[exitPos.Row][exitPos.Col].Item = &Item{Type: LockedExit}
 		level.Exits = append(level.Exits, exitTile)
 	} else {
 		return fmt.Errorf("invalid exit location")
@@ -439,7 +439,7 @@ func (level *Level) PlaceExit(exitPos Position2D) error {
 // Unlocks all exits in a level
 func (level *Level) UnlockExits() {
 	for _, exit := range level.Exits {
-		exit.Type = UnlockedExit
+		exit.Item.Type = UnlockedExit
 	}
 }
 

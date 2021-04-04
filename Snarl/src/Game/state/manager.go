@@ -48,10 +48,9 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 	var exitedPlayers []actor.Actor
 
 	// first level is the first level in the array
-	currentLevel := gameLevels[0]
 	levelNumber := 1
 
-	state := initGameState(currentLevel, registeredPlayers, adversaries)
+	state := initGameState(gameLevels[levelNumber - 1], registeredPlayers, adversaries)
 
 	for _, client := range playerClients {
 		// send first game state
@@ -73,7 +72,7 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 		if adversary.Type == actor.ZombieType {
 			adversaryClients = append(adversaryClients, &ZombieClient{
 				Name:         adversary.Name,
-				LevelData:    currentLevel,
+				LevelData:    *state.Level,
 				MoveDistance: adversary.MaxMoveDistance,
 				CurrentPosn:  adversary.Position,
 			})
@@ -151,7 +150,7 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 			state.MoveActorRelative(client.GetName(), level.NewPosition2D(response.Move.Row, response.Move.Col))
 
 			// handle interactions
-			newPos := playerActor.Position
+			newPos := state.GetActor(clientName).Position
 			playerTile := state.Level.GetTile(newPos)
 			// if there's an adversary here, kill the player
 			if ActorsOccupyPosition(adversaries, newPos) {
@@ -165,7 +164,7 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 				client.SendMessage(KeyMessage, newPos)
 				// update the scoreboard
 				keyCounts[playerActor.Name] += 1
-			} else if playerTile != nil && playerTile.Type == level.UnlockedExit {
+			} else if playerTile != nil && playerTile.Item != nil && playerTile.Item.Type == level.UnlockedExit {
 				exitedPlayers = append(exitedPlayers, playerActor.MoveActor(level.NewPosition2D(-1, -1)))
 				state.RemoveActor(clientName)
 				client.SendMessage(ExitMessage, newPos)
@@ -187,8 +186,16 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 				} else {
 					// If the level is over but the game is not, start the next level
 					levelNumber += 1
-					currentLevel = gameLevels[levelNumber - 1]
-
+					state.LevelNum = levelNumber
+					state.Level = &gameLevels[levelNumber - 1]
+					combinedList := append(exitedPlayers, ejectedPlayers...)
+					for _, player := range combinedList {
+						state.Players = append(state.Players, player.MoveActor(level.NewPosition2D(-1, -1)))
+					}
+					for _, playerClient := range playerClients {
+						playerClient.SendPartialState(state.GeneratePartialState(state.GetActor(playerClient.GetName()).Position, defaultPlayerViewDistance))
+					}
+					// TODO: Adversaries
 				}
 			}
 			playerPosns = append(playerPosns, newPos)
@@ -208,10 +215,15 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 			updatePlayersAndObservers(playerClients, observers)
 		}
 
+
 		// check to see if the last player has been killed
 		if len(state.Players) == 0 {
 			break
 		}
+
+		// reset player positions for pathfinding
+		playerPosns = make([]level.Position2D, len(state.Players))
+
 	}
 
 	var playerRanks []string

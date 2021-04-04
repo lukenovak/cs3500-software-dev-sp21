@@ -43,7 +43,7 @@ func main() {
 		fmt.Println("invalid number of players")
 		os.Exit(1)
 	}
-	levels, err := internal.ParseLevelFile(*levelFlag)
+	levels, err := internal.ParseLevelFile(*levelFlag, *startLevelFlag)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
