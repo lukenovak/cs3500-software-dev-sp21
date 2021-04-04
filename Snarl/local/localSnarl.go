@@ -16,15 +16,15 @@ import (
 
 const (
 	// argument flag names
-	levelFlagName        = "levels"
-	playerFlagName       = "players"
-	startLevelFlagName   = "start"
+	levelFlagName = "levels"
+	playerFlagName = "players"
+	startLevelFlagName = "start"
 	showObserverFlagName = "observe"
 
 	// argument defaults
-	defaultNumPlayers   = 1
-	defaultFilename     = "snarl.levels"
-	defaultStartLevel   = 1
+	defaultNumPlayers = 1
+	defaultFilename = "snarl.levels"
+	defaultStartLevel = 1
 	defaultShowObserver = false
 )
 
@@ -84,7 +84,7 @@ func main() {
 	var finalPrintValues []string
 	// local func run game and get return value
 	runGame := func() {
-		finalPrintValues = state.GameManager(levels, players, gamePlayers, generateAdversaries(), observers, 1, a)
+		finalPrintValues = state.GameManager(levels, players, gamePlayers, observers, len(levels), a)
 	}
 
 	// launch the main game loop
@@ -93,6 +93,10 @@ func main() {
 	// display the window (this is blocking!)
 	a.Run()
 
+	// print the leaderboard (if we get here, the game is over
+	for _, leaderboard := range finalPrintValues {
+		fmt.Println(leaderboard)
+	}
 	os.Exit(0)
 }
 
@@ -159,13 +163,4 @@ func getLocalPlayer(playerNumber int) *state.LocalKeyClient {
 		GameWindow: nil,
 	}
 
-}
-
-// DEPRECATED: Generates an array of test player
-func generatePlayers() []state.UserClient {
-	return []state.UserClient{&state.LocalKeyClient{Name: "Luke"}}
-}
-
-func generateAdversaries() []actor.Actor {
-	return []actor.Actor{actor.NewAdversaryActor(actor.ZombieType, "z1", 1) /*, actor.NewAdversaryActor(actor.GhostType, "g1", 1)*/}
 }

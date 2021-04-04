@@ -148,10 +148,12 @@ func (testLevel TestLevelObject) ToGameLevel() level.Level {
 	for _, object := range testLevel.Objects {
 		switch object.Type {
 		case "key":
-			err = newLevel.PlaceItem(object.Position.ToPosition2D(), level.NewKey())
+			key := level.Item{Type: level.KeyID}
+			err = newLevel.PlaceItem(object.Position.ToPosition2D(), &key)
 			hasKey = true
 		case "exit":
-			err = newLevel.PlaceExit(object.Position.ToPosition2D())
+			exit := level.Item{Type: level.LockedExit}
+			err = newLevel.PlaceItem(object.Position.ToPosition2D(), &exit)
 		default:
 			err = fmt.Errorf("unknown item type")
 		}
@@ -190,7 +192,7 @@ func LevelToTestLevel(inputLevel level.Level) TestLevelObject {
 	}
 
 	testObjects := make([]levelTestObject, 0)
-	positions, items := inputLevel.GetItems()
+	items, positions := inputLevel.GetItems()
 	for i, item := range items {
 		var itemType string
 		switch item.Type {
@@ -256,13 +258,7 @@ func tilesToArray(tiles [][]*level.Tile) [][]int {
 		for _, tile := range tileRow {
 			if tile == nil {
 				outputRow = append(outputRow, 0)
-			}
-			switch tile.Type {
-			case level.LockedExit:
-				outputRow = append(outputRow, 1)
-			case level.UnlockedExit:
-				outputRow = append(outputRow, 1)
-			default:
+			} else {
 				outputRow = append(outputRow, tile.Type)
 			}
 		}

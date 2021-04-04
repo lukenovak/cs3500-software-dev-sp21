@@ -17,10 +17,11 @@ const (
 
 // Represents the level and all of its tiles.
 type Level struct {
-	Tiles         [][]*Tile       // The raw tile data as laid out on a 2d plane
-	Exits         []*Tile         // Pointers to tiles that have exits (to be easily unlocked)
-	Size          Position2D      // The size of the room
-	RoomDataGraph []RoomGraphNode // A graph of RoomGraphNode, where index == room id. Useful for room metadata
+	Tiles         [][]*Tile            // The raw tile data as laid out on a 2d plane
+	Exits         []*Tile              // Pointers to tiles that have exits (to be easily unlocked)
+	Size          Position2D           // The size of the room
+	RoomDataGraph []RoomGraphNode      // A graph of RoomGraphNode, where index == room id. Useful for room metadata
+	Items         map[*Item]Position2D // A map of Items in the level to thier absolute positions in the level
 }
 
 // Generates a level with a nil-initialized 2-d tile array of the given size
@@ -31,6 +32,7 @@ func NewEmptyLevel(rows int, columns int) (Level, error) {
 	return Level{
 		Tiles: allocateLevelTiles(rows, columns),
 		Size:  NewPosition2D(rows, columns),
+		Items: map[*Item]Position2D{},
 	}, nil
 }
 
@@ -79,17 +81,22 @@ func (level Level) GetWalkableTiles(pos Position2D, numSteps int) []*Tile {
 
 // gets traversable positions that are numSteps number of steps away from the current position
 func (level Level) GetWalkableTilePositions(pos Position2D, numSteps int) []Position2D {
-	var walkablePosns []Position2D
+	walkablePosns := make(map[Position2D]bool)
+	var walkablePosnArray []Position2D
 	if numSteps > 0 {
 		adjacentWalkablePositions := level.getAdjacentWalkablePositions(pos)
 		for _, adjPosn := range adjacentWalkablePositions {
 			nextStep := level.GetWalkableTilePositions(adjPosn, numSteps-1)
 			for _, posn := range nextStep {
-				walkablePosns = append(walkablePosns, posn)
+				walkablePosns[posn] = true
 			}
-			walkablePosns = append(walkablePosns, adjPosn)
+			walkablePosns[adjPosn] = true
 		}
-		return walkablePosns
+		// convert map to array
+		for pos := range walkablePosns {
+			walkablePosnArray = append(walkablePosnArray, pos)
+		}
+		return walkablePosnArray
 	} else {
 		return []Position2D{pos}
 	}
@@ -99,16 +106,16 @@ func (level Level) GetWalkableTilePositions(pos Position2D, numSteps int) []Posi
 func (level Level) getAdjacentWalkablePositions(pos Position2D) []Position2D {
 	var walkablePositions []Position2D
 
-	if leftTile := level.GetTile(NewPosition2D(pos.Row-1, pos.Col)); leftTile != nil && (leftTile.Type == Walkable || leftTile.Type == Door || leftTile.Type == LockedExit || leftTile.Type == UnlockedExit) {
+	if leftTile := level.GetTile(NewPosition2D(pos.Row-1, pos.Col)); leftTile != nil && (leftTile.Type == Walkable || leftTile.Type == Door) {
 		walkablePositions = append(walkablePositions, NewPosition2D(pos.Row-1, pos.Col))
 	}
-	if rightTile := level.GetTile(NewPosition2D(pos.Row+1, pos.Col)); rightTile != nil && (rightTile.Type == Walkable || rightTile.Type == Door || rightTile.Type == LockedExit || rightTile.Type == UnlockedExit) {
+	if rightTile := level.GetTile(NewPosition2D(pos.Row+1, pos.Col)); rightTile != nil && (rightTile.Type == Walkable || rightTile.Type == Door) {
 		walkablePositions = append(walkablePositions, NewPosition2D(pos.Row+1, pos.Col))
 	}
-	if upTile := level.GetTile(NewPosition2D(pos.Row, pos.Col+1)); upTile != nil && (upTile.Type == Walkable || upTile.Type == Door || upTile.Type == LockedExit || upTile.Type == UnlockedExit) {
+	if upTile := level.GetTile(NewPosition2D(pos.Row, pos.Col+1)); upTile != nil && (upTile.Type == Walkable || upTile.Type == Door) {
 		walkablePositions = append(walkablePositions, NewPosition2D(pos.Row, pos.Col+1))
 	}
-	if downTile := level.GetTile(NewPosition2D(pos.Row, pos.Col-1)); downTile != nil && (downTile.Type == Walkable || downTile.Type == Door || downTile.Type == LockedExit || downTile.Type == UnlockedExit) {
+	if downTile := level.GetTile(NewPosition2D(pos.Row, pos.Col-1)); downTile != nil && (downTile.Type == Walkable || downTile.Type == Door) {
 		walkablePositions = append(walkablePositions, NewPosition2D(pos.Row, pos.Col-1))
 	}
 	return walkablePositions
@@ -126,23 +133,16 @@ func (level Level) GetTiles(origin Position2D, size Position2D) [][]*Tile {
 	return selection
 }
 
-func (level Level) GetItems() ([]Position2D, []Item) {
+func (level Level) GetItems() ([]*Item, []Position2D) {
+	items := make([]*Item, 0)
 	positions := make([]Position2D, 0)
-	items := make([]Item, 0)
 
-	for i, row := range level.Tiles {
-		for j, tile := range row {
-			if tile.Item != nil {
-				positions = append(positions, Position2D{
-					Row: i,
-					Col: j,
-				})
-				items = append(items, *tile.Item)
-			}
-		}
+	for item, pos := range level.Items {
+		items = append(items, item)
+		positions = append(positions, pos)
 	}
 
-	return positions, items
+	return items, positions
 }
 
 /* -------------------------------- Room + Hallway Generation -------------------------------- */
@@ -288,7 +288,7 @@ func (level Level) generateBetweenWaypoints(startPos *Position2D, endPos Positio
 		generateCol(-1, horizontal, left)
 	} else if endPos.Row > startPos.Row {
 		generateRow(1, vertical, down)
-	} else if endPos.Col < startPos.Col {
+	} else {
 		generateRow(-1, vertical, up)
 	}
 }
@@ -420,28 +420,19 @@ func (level Level) capHallwayEnd(startPos Position2D, direction int, hallwayId i
 	}
 }
 
-// places an exit on a valid, walkable tile. Else, throws an error
-func (level *Level) PlaceExit(exitPos Position2D) error {
-	if exitTile := level.GetTile(exitPos); exitTile != nil && exitTile.Type == Walkable {
-		level.Tiles[exitPos.Row][exitPos.Col].Type = LockedExit
-		level.Exits = append(level.Exits, exitTile)
-	} else {
-		return fmt.Errorf("invalid exit location")
-	}
-	return nil
-}
-
 // Unlocks all exits in a level
 func (level *Level) UnlockExits() {
 	for _, exit := range level.Exits {
-		exit.Type = UnlockedExit
+		exitItem := Item{Type: UnlockedExit}
+		exit.Item = &exitItem
 	}
 }
 
 // Places an item on a tile if it does not currently have one
-func (level Level) PlaceItem(pos Position2D, itemToPlace Item) error {
-	if itemTile := level.GetTile(pos); itemTile != nil && itemTile.Item == nil && itemTile.Type != Wall {
-		itemTile.Item = &itemToPlace
+func (level Level) PlaceItem(pos Position2D, itemToPlace *Item) error {
+	if itemTile := level.GetTile(pos); itemTile != nil && itemTile.Item == nil && itemTile.Type == Walkable {
+		itemTile.Item = itemToPlace
+		level.Items[itemToPlace] = pos
 		return nil
 	}
 	return fmt.Errorf("invalid item placement")
@@ -449,7 +440,8 @@ func (level Level) PlaceItem(pos Position2D, itemToPlace Item) error {
 
 // Clears a tile's item if it has one
 func (level Level) ClearItem(pos Position2D) {
-	if itemTile := level.GetTile(pos); itemTile != nil {
+	if itemTile := level.GetTile(pos); itemTile != nil && itemTile.Item != nil {
+		delete(level.Items, itemTile.Item)
 		itemTile.Item = nil
 	}
 }

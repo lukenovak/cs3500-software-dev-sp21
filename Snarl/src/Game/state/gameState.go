@@ -6,11 +6,13 @@ import (
 )
 
 type GameState struct {
-	LevelNum      int
-	Level         *level.Level
-	Players       []actor.Actor
-	PlayerClients []UserClient
-	Adversaries   []actor.Actor
+	LevelNum       int
+	Level          *level.Level
+	Players        []actor.Actor
+	PlayerClients  []UserClient
+	Adversaries    []actor.Actor
+	EjectedPlayers []string
+	ExitedPlayers  []string
 }
 
 // Creates a new game state with the players and adversaries moved to new positions
@@ -50,7 +52,6 @@ func (gs GameState) GenerateLevel(size level.Position2D) error {
 }
 
 // Adds an actor to the game state at the given position
-// Adds an actor to the game state at the given position
 func (gs *GameState) SpawnActor(actorToSpawn actor.Actor, initialPosition level.Position2D) {
 	positionedActor := actorToSpawn.MoveActor(initialPosition)
 	if actorToSpawn.Type == actor.PlayerType {
@@ -62,7 +63,7 @@ func (gs *GameState) SpawnActor(actorToSpawn actor.Actor, initialPosition level.
 
 // Checks to see if the game has been won. If it has, returns true.
 func (gs GameState) CheckVictory() bool {
-	if len(gs.Players) == 0{
+	if len(gs.Players) == 0 && len(gs.ExitedPlayers) > 0 {
 		return true
 	}
 	return false
@@ -71,10 +72,13 @@ func (gs GameState) CheckVictory() bool {
 // Changes all exits from locked exits to unlocked exits
 func (gs *GameState) UnlockExits() {
 	for _, exit := range gs.Level.Exits {
-		exit.Type = level.UnlockedExit
+		exitItem := level.Item{Type: level.UnlockedExit}
+		exit.Item = &exitItem
 	}
 }
 
+// moves the actor to the space given a cooordinate represented as the new position relative to the actor's current
+// position
 func (gs *GameState) MoveActorRelative(name string, relativeMove level.Position2D) {
 	moveActorifExists := func(actorList []actor.Actor) {
 		for i := range actorList {
@@ -90,6 +94,7 @@ func (gs *GameState) MoveActorRelative(name string, relativeMove level.Position2
 	moveActorifExists(gs.Adversaries)
 }
 
+// moves an actor to the given Position2d
 func (gs *GameState) MoveActorAbsolute(name string, newPosition level.Position2D) {
 
 	moveActorIfExists := func(actorList []actor.Actor) {
@@ -108,7 +113,7 @@ func (gs *GameState) MoveActorAbsolute(name string, newPosition level.Position2D
 func (gs GameState) GetActor(name string) *actor.Actor {
 
 	findActor := func(actorList []actor.Actor) *actor.Actor {
-		for _, player := range gs.Players {
+		for _, player := range actorList {
 			if player.Name == name {
 				return &player
 			}
@@ -127,18 +132,13 @@ func (gs GameState) GetActor(name string) *actor.Actor {
 func (gs *GameState) RemoveActor(name string) {
 
 	removeActor := func(actorList []actor.Actor) []actor.Actor {
+		var newList []actor.Actor
 		for i := range actorList {
-			if actorList[i].Name == name {
-				// reorders the array, but order doesn't matter
-				actorList[len(actorList)-1], actorList[i] = actorList[i], actorList[len(actorList)-1]
-				if len(actorList) == 1 {
-					return []actor.Actor{}
-				} else {
-					return actorList[:len(actorList)-1]
-				}
+			if actorList[i].Name != name {
+				newList = append(newList, actorList[i])
 			}
 		}
-		return actorList
+		return newList
 	}
 
 	gs.Players = removeActor(gs.Players)
@@ -155,8 +155,8 @@ func (gs GameState) GeneratePartialState(position level.Position2D, viewDistance
 
 	var visibleActors []actor.Actor
 
-	for partialX := 0; partialX < viewDistance * 2 + 1; partialX++ {
-		for partialY := 0; partialY < viewDistance * 2 + 1; partialY++ {
+	for partialX := 0; partialX < viewDistance*2+1; partialX++ {
+		for partialY := 0; partialY < viewDistance*2+1; partialY++ {
 			tilePos := level.NewPosition2D(position.Row-viewDistance+partialX, position.Col-viewDistance+partialY)
 			// add the tile to the new state
 			visibleTiles[partialX][partialY] = gs.Level.GetTile(tilePos)

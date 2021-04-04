@@ -24,11 +24,11 @@ type TestPlayer struct {
 type MoveMessage []interface{}
 
 type PlayerUpdate struct {
-	Type string `json:"type"`
-	Layout [][]int `json:"layout"`
-	Position testJson.LevelTestPoint `json:"position"`
-	Objects []testJson.TestLevelObject `json:"objects"`
-	Actors []State.ActorPositionObject `json:"actors"`
+	Type     string                      `json:"type"`
+	Layout   [][]int                     `json:"layout"`
+	Position testJson.LevelTestPoint     `json:"position"`
+	Objects  []testJson.TestLevelObject  `json:"objects"`
+	Actors   []State.ActorPositionObject `json:"actors"`
 }
 
 func (t *TestPlayer) RegisterClient() (actor.Actor, error) {
@@ -82,13 +82,12 @@ func (t *TestPlayer) GetInput() state.Response {
 		}
 		// build the relative move
 		if input.To != nil {
-			relativeMove := [2]int{input.To[0]- t.Position.Row, input.To[1] - t.Position.Col}
+			relativeMove := [2]int{input.To[0] - t.Position.Row, input.To[1] - t.Position.Col}
 			input.To = (*testJson.LevelTestPoint)(&relativeMove)
 		} else {
-			nilMove := [2]int{0,0}
+			nilMove := [2]int{0, 0}
 			input.To = (*testJson.LevelTestPoint)(&nilMove)
 		}
-
 
 		return input.toResponse(t.Name)
 	}
@@ -108,8 +107,6 @@ func buildLayout(visibleTiles [][]*level.Tile) [][]int {
 	getLayoutNumber := func(tile *level.Tile) int {
 		if tile == nil {
 			return 0
-		} else if tile.Type == level.UnlockedExit || tile.Type == level.LockedExit {
-			return 1
 		} else {
 			return tile.Type
 		}

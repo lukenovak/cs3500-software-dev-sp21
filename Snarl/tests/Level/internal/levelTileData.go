@@ -42,9 +42,6 @@ func getTileData(tileLevel level.Level, pos level.Position2D) TileData {
 			tileData.Type = "void"
 		}
 		tileData.Traversable = false
-	case level.LockedExit, level.UnlockedExit:
-		tileData.Object = "exit"
-		tileData.Traversable = true
 	case level.Walkable, level.Door:
 		tileData.Traversable = true
 	}
@@ -54,6 +51,9 @@ func getTileData(tileLevel level.Level, pos level.Position2D) TileData {
 		switch tile.Item.Type {
 		case level.KeyID:
 			tileData.Object = "key"
+		case level.LockedExit, level.UnlockedExit:
+			tileData.Object = "exit"
+			tileData.Traversable = true
 		default:
 			tileData.Object = "unknown object"
 		}

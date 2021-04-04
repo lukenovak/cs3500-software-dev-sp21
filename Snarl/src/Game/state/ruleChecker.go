@@ -37,11 +37,11 @@ func IsValidMove(currState GameState, movingActorName string, relativeMove level
 func IsLevelEnd(state GameState) bool {
 	var isEnd = true
 	for _, player := range state.Players {
-		position_tile := state.Level.GetTile(player.Position)
-		if position_tile == nil {
+		positionTile := state.Level.GetTile(player.Position)
+		if positionTile == nil {
 			return false
 		}
-		if position_tile.Type == level.UnlockedExit {
+		if positionTile.Item != nil && positionTile.Item.Type == level.UnlockedExit {
 			isEnd = true && isEnd
 		} else {
 			isEnd = false

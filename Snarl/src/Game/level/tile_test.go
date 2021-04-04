@@ -1,6 +1,7 @@
 package level
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -37,4 +38,14 @@ func newWalkable() Tile {
 // returns a new Wall tile without calling the tile generation function
 func newWall() Tile {
 	return Tile{Type: Wall, RoomId: 0, Item: nil}
+}
+
+func TestNewKey(t *testing.T) {
+	key := Item{Type: KeyID}
+
+	genKey := NewKey()
+
+	if !reflect.DeepEqual(key, genKey) {
+		t.Fail()
+	}
 }
