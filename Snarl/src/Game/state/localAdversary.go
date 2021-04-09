@@ -129,7 +129,9 @@ func (z *ZombieClient) CalculateMove(playerPosns []level.Position2D, adversaryPo
 			for _, pos := range validMoves {
 				if pos.GetManhattanDistance(posn) < minDistance && z.LevelData.GetTile(pos).Type == level.Walkable {
 					minDistance = pos.GetManhattanDistance(posn)
-					move = pos
+					if z.LevelData.GetTile(pos).Type != level.Door {
+						move = pos
+					}
 				}
 			}
 			break
