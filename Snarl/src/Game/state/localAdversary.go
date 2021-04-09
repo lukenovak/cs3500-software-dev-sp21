@@ -61,7 +61,7 @@ func (g *GhostClient) CalculateMove(playerPosns []level.Position2D, adversaryPos
 		wallTileCount := 0
 		for i, row := range g.LevelData.Tiles {
 			for j, tile := range row {
-				if tile.Type == level.Wall {
+				if tile != nil && tile.Type == level.Wall {
 					if wallTileCount == 0 {
 						randomWallPos = level.NewPosition2D(i, j)
 						wallTileCount++
