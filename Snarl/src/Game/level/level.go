@@ -21,7 +21,7 @@ type Level struct {
 	Size          Position2D           // The size of the room
 	RoomDataGraph []RoomGraphNode      // A graph of RoomGraphNode, where index == room id. Useful for room metadata
 	Items         map[*Item]Position2D // A map of Items in the level to thier absolute positions in the level
-	IsUnlocked    bool				   // Keeps track of whether the doors on this level are ulocked
+	IsUnlocked    bool                 // Keeps track of whether the doors on this level are ulocked
 }
 
 // Generates a level with a nil-initialized 2-d tile array of the given size
@@ -30,9 +30,9 @@ func NewEmptyLevel(rows int, columns int) (Level, error) {
 		return Level{Tiles: nil, Size: NewPosition2D(0, 0)}, fmt.Errorf("invalid level size")
 	}
 	return Level{
-		Tiles: allocateLevelTiles(rows, columns),
-		Size:  NewPosition2D(rows, columns),
-		Items: map[*Item]Position2D{},
+		Tiles:      allocateLevelTiles(rows, columns),
+		Size:       NewPosition2D(rows, columns),
+		Items:      map[*Item]Position2D{},
 		IsUnlocked: false,
 	}, nil
 }
@@ -427,7 +427,8 @@ func (level *Level) UnlockExits() {
 		exitItem := Item{Type: UnlockedExit}
 		tileItem := level.GetTile(itemPos).Item
 		if tileItem != nil && tileItem.Type == LockedExit {
-			level.GetTile(itemPos).Item = &exitItem
+			level.ClearItem(itemPos)
+			level.PlaceItem(itemPos, &exitItem)
 		}
 	}
 	level.IsUnlocked = true
