@@ -34,20 +34,13 @@ func IsValidMove(currState GameState, movingActorName string, relativeMove level
 	return validMove
 }
 
+// Returns true if a player is standing on an unlocked exit and is the only player remaining
 func IsLevelEnd(state GameState) bool {
-	var isEnd = true
-	for _, player := range state.Players {
-		positionTile := state.Level.GetTile(player.Position)
-		if positionTile == nil {
-			return false
-		}
-		if positionTile.Item != nil && positionTile.Item.Type == level.UnlockedExit {
-			isEnd = true && isEnd
-		} else {
-			isEnd = false
-		}
+	var playerTile *level.Tile
+	if len(state.Players) != 0 {
+		playerTile = state.Level.GetTile(state.Players[0].Position)
 	}
-	return isEnd
+	return len(state.Players) == 0 || (len(state.Players) == 1 && playerTile.Item != nil && playerTile.Item.Type == level.UnlockedExit)
 }
 
 func IsGameEnd(state GameState, maxLevel int) bool {

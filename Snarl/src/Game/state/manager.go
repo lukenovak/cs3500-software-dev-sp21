@@ -100,7 +100,7 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 	time.Sleep(2 * time.Second)
 
 	// main game loop
-	for !state.CheckVictory() {
+	for {
 		var playerPosns []level.Position2D
 		// handle player input
 		for _, client := range playerClients {
@@ -247,9 +247,9 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 		}
 	})
 
-	fmt.Print("Player Leaderboard:\n")
+	playerRanks = append(playerRanks, fmt.Sprint("Player Leaderboard:\n"))
 	for _, player := range playerRanks {
-		fmt.Printf("%v, %v, %v\n", player, exitCounts[player], keyCounts[player])
+		playerRanks = append(playerRanks, fmt.Sprintf("%v, %v, %v\n", player, exitCounts[player], keyCounts[player]))
 	}
 
 	// close all game windows at the end of the game

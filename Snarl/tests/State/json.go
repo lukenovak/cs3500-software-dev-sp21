@@ -3,7 +3,6 @@ package State
 import (
 	"encoding/json"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 	levelJson "github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/tests/Level/json"
 	"io"
@@ -30,18 +29,12 @@ func GameStateObjectFromGameState(gs state.GameState, testLevel levelJson.TestLe
 		return actorObjs
 	}
 
-	// Check the level to determine if the exits are locked
-	exitLockStatus := true
-	if gs.Level.Exits[0] != nil && gs.Level.Exits[0].Item.Type == level.UnlockedExit {
-		exitLockStatus = false
-	}
-
 	return GameStateObject{
 		Type:        "state",
 		Level:       testLevel,
 		Players:     generatePlayerObjects(gs.Players),
 		Adversaries: generatePlayerObjects(gs.Adversaries),
-		ExitLocked:  exitLockStatus,
+		ExitLocked:  gs.Level.IsUnlocked,
 	}
 }
 

@@ -14,9 +14,9 @@ func TestIsValidMove(t *testing.T) {
 
 	// level setup
 	gs := generateTestGameState()
-	testPlayer := actor.NewWalkableActor(lukeActorName, actor.PlayerType, 2)
-	secondTestPlayer := actor.NewWalkableActor(willActorName, actor.PlayerType, 2)
-	testAdversary := actor.NewWalkableActor(ghostActorName, actor.GhostType, 1)
+	testPlayer := actor.NewPlayerActor(lukeActorName, actor.PlayerType, 2)
+	secondTestPlayer := actor.NewPlayerActor(willActorName, actor.PlayerType, 2)
+	testAdversary := actor.NewPlayerActor(ghostActorName, actor.GhostType, 1)
 
 	gs.SpawnActor(testPlayer, level.NewPosition2D(1, 1))
 
@@ -66,7 +66,7 @@ func TestIsGameEnd(t *testing.T) {
 	// level setup
 	gs := generateTestGameState()
 
-	gs.SpawnActor(actor.NewWalkableActor(lukeActorName, actor.PlayerType, 2), level.NewPosition2D(1, 1))
+	gs.SpawnActor(actor.NewPlayerActor(lukeActorName, actor.PlayerType, 2), level.NewPosition2D(1, 1))
 
 	// the game should not start at the end state
 	if IsGameEnd(*gs, 5) {
@@ -77,16 +77,16 @@ func TestIsGameEnd(t *testing.T) {
 func TestIsLevelEnd(t *testing.T) {
 	// level setup
 	gs := generateTestGameState()
-	testPlayer := actor.NewWalkableActor("Luke", actor.PlayerType, 2)
+	testPlayer := actor.NewPlayerActor(lukeActorName, actor.PlayerType, 2)
 
 	// the game should not end when the player is on a locked door
-	gs.SpawnActor(testPlayer, level.NewPosition2D(14, 12))
+	gs.SpawnActor(testPlayer, level.NewPosition2D(12, 14))
 
 	if IsLevelEnd(*gs) {
 		t.Fail()
 	}
 
-	// with the door unlocked the level should not end
+	// with the door unlocked the level should be at a valid end since the player is there
 	gs.UnlockExits()
 
 	if !IsLevelEnd(*gs) {

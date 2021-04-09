@@ -61,7 +61,7 @@ func (g *GhostClient) CalculateMove(playerPosns []level.Position2D, adversaryPos
 		wallTileCount := 0
 		for i, row := range g.LevelData.Tiles {
 			for j, tile := range row {
-				if tile.Type == level.Wall {
+				if tile != nil && tile.Type == level.Wall {
 					if wallTileCount == 0 {
 						randomWallPos = level.NewPosition2D(i, j)
 						wallTileCount++
@@ -123,12 +123,15 @@ func (z *ZombieClient) CalculateMove(playerPosns []level.Position2D, adversaryPo
 	roomHasPlayer := false
 	validMoves := z.LevelData.GetWalkableTilePositions(z.CurrentPosn, z.MoveDistance)
 	for _, posn := range playerPosns {
-		if roomHasPlayer || z.LevelData.GetTile(posn).RoomId == z.LevelData.GetTile(z.CurrentPosn).RoomId {
+		if z.LevelData.GetTile(posn).RoomId == z.LevelData.GetTile(z.CurrentPosn).RoomId {
+			roomHasPlayer = true
 			minDistance := z.LevelData.Size.Col * z.LevelData.Size.Row
 			for _, pos := range validMoves {
 				if pos.GetManhattanDistance(posn) < minDistance && z.LevelData.GetTile(pos).Type == level.Walkable {
 					minDistance = pos.GetManhattanDistance(posn)
-					move = pos
+					if z.LevelData.GetTile(pos).Type != level.Door {
+						move = pos
+					}
 				}
 			}
 			break
