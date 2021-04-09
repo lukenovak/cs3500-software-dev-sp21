@@ -71,10 +71,7 @@ func (gs GameState) CheckVictory() bool {
 
 // Changes all exits from locked exits to unlocked exits
 func (gs *GameState) UnlockExits() {
-	for _, exit := range gs.Level.Exits {
-		exitItem := level.Item{Type: level.UnlockedExit}
-		exit.Item = &exitItem
-	}
+	gs.Level.UnlockExits()
 }
 
 // moves the actor to the space given a cooordinate represented as the new position relative to the actor's current

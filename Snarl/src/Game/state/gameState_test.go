@@ -94,7 +94,7 @@ func TestGameState_UnlockExits(t *testing.T) {
 
 func TestGameState_MoveActor(t *testing.T) {
 	testGameState := generateTestGameState()
-	testGameState.SpawnActor(actor.NewWalkableActor("Luke", actor.PlayerType, 2), level.NewPosition2D(1, 1))
+	testGameState.SpawnActor(actor.NewPlayerActor("Luke", actor.PlayerType, 2), level.NewPosition2D(1, 1))
 	testGameState.MoveActorRelative("Luke", level.NewPosition2D(0, 2))
 
 	if testGameState.GetActor("Luke").Position != level.NewPosition2D(1, 3) {
@@ -104,6 +104,7 @@ func TestGameState_MoveActor(t *testing.T) {
 
 /* ----------------------- TEST DATA GENERATION FUNCTIONS ------------------------------- */
 
+// Generates an example game state with the generated test level
 func generateTestGameState() *GameState {
 	testLevel := generateTestLevel()
 	return &GameState{
@@ -115,6 +116,7 @@ func generateTestGameState() *GameState {
 	}
 }
 
+// generates an example level to be used for testing
 func generateTestLevel() level.Level {
 	newLevel, err := level.NewEmptyLevel(32, 32)
 	if err != nil {

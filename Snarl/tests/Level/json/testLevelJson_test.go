@@ -33,8 +33,10 @@ func TestParseLevelTestJson(t *testing.T) {
 
 func MakeExampleLevelTestInput() LevelTestRoomInput {
 	return LevelTestRoomInput{
-		Room: levelTestRoom{Type: "room", Origin: [2]int{0, 0},
-			Bounds: []byte{},
+		Room: levelTestRoom{
+			Type:   "room",
+			Origin: [2]int{0, 0},
+			Bounds: levelTestBounds{},
 			Layout: [][]int{{0, 0, 0}, {0, 1, 0}, {0, 0, 0}},
 		},
 		Point: [2]int{1, 0},

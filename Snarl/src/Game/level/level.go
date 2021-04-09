@@ -18,10 +18,10 @@ const (
 // Represents the level and all of its tiles.
 type Level struct {
 	Tiles         [][]*Tile            // The raw tile data as laid out on a 2d plane
-	Exits         []*Tile              // Pointers to tiles that have exits (to be easily unlocked)
 	Size          Position2D           // The size of the room
 	RoomDataGraph []RoomGraphNode      // A graph of RoomGraphNode, where index == room id. Useful for room metadata
 	Items         map[*Item]Position2D // A map of Items in the level to thier absolute positions in the level
+	IsUnlocked    bool				   // Keeps track of whether the doors on this level are ulocked
 }
 
 // Generates a level with a nil-initialized 2-d tile array of the given size
@@ -422,13 +422,16 @@ func (level Level) capHallwayEnd(startPos Position2D, direction int, hallwayId i
 
 // Unlocks all exits in a level
 func (level *Level) UnlockExits() {
-	for _, exit := range level.Exits {
+	for _, itemPos := range level.Items {
 		exitItem := Item{Type: UnlockedExit}
-		exit.Item = &exitItem
+		tileItem := level.GetTile(itemPos).Item
+		if tileItem != nil && tileItem.Type == LockedExit {
+			level.GetTile(itemPos).Item = &exitItem
+		}
 	}
 }
 
-// Places an item on a tile if it does not currently have one
+// Places an item on a tile if it does not currently haveF one
 func (level Level) PlaceItem(pos Position2D, itemToPlace *Item) error {
 	if itemTile := level.GetTile(pos); itemTile != nil && itemTile.Item == nil && itemTile.Type == Walkable {
 		itemTile.Item = itemToPlace
