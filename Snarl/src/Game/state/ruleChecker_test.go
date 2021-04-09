@@ -80,13 +80,13 @@ func TestIsLevelEnd(t *testing.T) {
 	testPlayer := actor.NewPlayerActor(lukeActorName, actor.PlayerType, 2)
 
 	// the game should not end when the player is on a locked door
-	gs.SpawnActor(testPlayer, level.NewPosition2D(14, 12))
+	gs.SpawnActor(testPlayer, level.NewPosition2D(12, 14))
 
 	if IsLevelEnd(*gs) {
 		t.Fail()
 	}
 
-	// with the door unlocked the level should not end
+	// with the door unlocked the level should be at a valid end since the player is there
 	gs.UnlockExits()
 
 	if !IsLevelEnd(*gs) {
