@@ -61,14 +61,6 @@ func (gs *GameState) SpawnActor(actorToSpawn actor.Actor, initialPosition level.
 	}
 }
 
-// Checks to see if the game has been won. If it has, returns true.
-func (gs GameState) CheckVictory() bool {
-	if len(gs.Players) == 0 && len(gs.ExitedPlayers) > 0 {
-		return true
-	}
-	return false
-}
-
 // Changes all exits from locked exits to unlocked exits
 func (gs *GameState) UnlockExits() {
 	gs.Level.UnlockExits()

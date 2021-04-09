@@ -33,6 +33,7 @@ func NewEmptyLevel(rows int, columns int) (Level, error) {
 		Tiles: allocateLevelTiles(rows, columns),
 		Size:  NewPosition2D(rows, columns),
 		Items: map[*Item]Position2D{},
+		IsUnlocked: false,
 	}, nil
 }
 
@@ -429,6 +430,7 @@ func (level *Level) UnlockExits() {
 			level.GetTile(itemPos).Item = &exitItem
 		}
 	}
+	level.IsUnlocked = true
 }
 
 // Places an item on a tile if it does not currently haveF one

@@ -100,7 +100,7 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 	time.Sleep(2 * time.Second)
 
 	// main game loop
-	for !state.CheckVictory() {
+	for {
 		var playerPosns []level.Position2D
 		// handle player input
 		for _, client := range playerClients {

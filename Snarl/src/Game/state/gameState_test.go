@@ -67,22 +67,6 @@ func TestGameState_SpawnActor(t *testing.T) {
 
 }
 
-func TestGameState_CheckVictory(t *testing.T) {
-	// test a level without victory
-	testGameState := generateTestGameState()
-	if testGameState.CheckVictory() {
-		t.Fail()
-	}
-
-	// test a level where victory has been achieved
-	testGameState.UnlockExits()
-	testGameState.SpawnActor(actor.Actor{Type: actor.PlayerType}, level.NewPosition2D(12, 14))
-
-	if !testGameState.CheckVictory() {
-		t.Fail()
-	}
-}
-
 func TestGameState_UnlockExits(t *testing.T) {
 	// test a level with locked exits
 	testGameState := generateTestGameState()
