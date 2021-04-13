@@ -34,7 +34,7 @@ func main() {
 	levelFlag := flag.String(levelFlagName, defaultFilename, "Points the game to the desired level file")
 	playerFlag := flag.Int(playerFlagName, defaultNumPlayers, "The number of players in this game")
 	startLevelFlag := flag.Int(startLevelFlagName, defaultStartLevel, "The level number to start at")
-	showObserverFlag := flag.Bool(showObserverFlagName, false, "Opens an observer window if present")
+	showObserverFlag := flag.Bool(showObserverFlagName, defaultShowObserver, "Opens an observer window if present")
 
 	flag.Parse()
 
