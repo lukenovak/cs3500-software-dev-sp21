@@ -29,6 +29,10 @@ type StartLevel struct {
 // Point represents a row, column point. Maps nicely to level.Position2D
 type Point [2]int
 
+func (p Point) ToPos2D() level.Position2D {
+	return level.NewPosition2D(p[0], p[1])
+}
+
 // PointFromPos2d creates a Point from a level.Position2D
 func PointFromPos2d(d level.Position2D) Point {
 	return [2]int{d.Row, d.Col}

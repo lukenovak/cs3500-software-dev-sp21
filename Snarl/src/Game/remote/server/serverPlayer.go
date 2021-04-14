@@ -10,28 +10,38 @@ import (
 	"time"
 )
 
-const (
-	defaultTimeout = 60 * time.Second
-)
-
-// ServerPlayerClient represents a player as tracked from the server. Must be loaded with an active TCP Connection!!!
-type ServerPlayerClient struct {
-	name         string
-	nextResponse state.Response
+// PlayerClient ServerPlayerClient represents a player as tracked from the server. Must be loaded with an active TCP Connection!!!
+type PlayerClient struct {
+	name             string
 	activeConnection net.Conn
+	timeout          time.Time
 }
 
-// sends the welcome message to the player
-func (s ServerPlayerClient) RegisterClient() (actor.Actor, error) {
-	rawMsg, err := json.Marshal(remote.NewServerWelcome())
+// NewPlayerClient creates a PlayerClient according to the given parameters
+func NewPlayerClient(name string, activeConnection net.Conn, timeout time.Time) *PlayerClient {
+	return &PlayerClient{name: name, activeConnection: activeConnection, timeout: timeout}
+}
+
+// RegisterClient reads from the active connection to get the PlayerClient name
+func (s *PlayerClient) RegisterClient() (actor.Actor, error) {
+	err := s.activeConnection.SetReadDeadline(s.timeout)
 	if err != nil {
 		return actor.Actor{}, err
 	}
-	s.SendJsonMessage(rawMsg)
+
+	// read from connection to get name
+	var nameBytes []byte
+	_, err = s.activeConnection.Read(nameBytes)
+	if err != nil {
+		return actor.Actor{}, err
+	}
+
+	// return the correct actor
+	s.name = string(nameBytes)
 	return actor.NewPlayerActor(s.name, actor.PlayerType, 2), nil
 }
 
-func (s ServerPlayerClient) SendPartialState(layout [][]*level.Tile, actors []actor.Actor, pos level.Position2D) error {
+func (s *PlayerClient) SendPartialState(layout [][]*level.Tile, actors []actor.Actor, pos level.Position2D) error {
 
 	// TODO: maybe move this out of SendPartialState?
 	// Local function that searches through all the tiles in the layout and returns a list of the Objects in those tiles
@@ -78,20 +88,46 @@ func (s ServerPlayerClient) SendPartialState(layout [][]*level.Tile, actors []ac
 	return s.SendJsonMessage(message)
 }
 
-func (s ServerPlayerClient) SendMessage(message string, pos level.Position2D) error {
+func (s *PlayerClient) SendMessage(message string, pos level.Position2D) error {
 	return s.SendJsonMessage([]byte(message))
 }
 
-func (s ServerPlayerClient) GetInput() state.Response {
-	panic("implement me")
+func (s *PlayerClient) GetInput() state.Response {
+	// error response so that the game can continue if a client is sending bad data
+	errorResponse := state.Response{
+		PlayerName: s.name,
+		Move:       level.NewPosition2D(0, 0),
+		Actions:    nil,
+	}
+
+	var moveInput []byte
+	_, err := s.activeConnection.Read(moveInput)
+	if err != nil {
+		return errorResponse
+	} else {
+		// marshall to correct struct then convert to state response
+		var move remote.PlayerMove
+		err = json.Unmarshal(moveInput, &move)
+		if err != nil {
+			return errorResponse
+		}
+		movePoint := *move.To
+		return state.Response{
+			PlayerName: s.name,
+			Move:       movePoint.ToPos2D(),
+			Actions:    nil,
+		}
+	}
 }
 
-func (s ServerPlayerClient) GetName() string {
+func (s *PlayerClient) GetName() string {
 	return s.name
 }
 
-func (s ServerPlayerClient) SendJsonMessage(message json.RawMessage) error {
-	panic("implement me")
+// SendJsonMessage writes a raw json message over the active connection and returns the status of that write
+func (s *PlayerClient) SendJsonMessage(message json.RawMessage) error {
+	_, err := s.activeConnection.Write(message)
+	return err
 }
 
 // tileLayoutToIntLayout converts a 2d slice of Tile to a 2d slice of int for network communication
