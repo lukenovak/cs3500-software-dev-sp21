@@ -14,24 +14,19 @@ import (
 type PlayerClient struct {
 	name             string
 	activeConnection net.Conn
-	timeout          time.Time
+	timeout          time.Duration
 }
 
 // NewPlayerClient creates a PlayerClient according to the given parameters
-func NewPlayerClient(name string, activeConnection net.Conn, timeout time.Time) *PlayerClient {
+func NewPlayerClient(name string, activeConnection net.Conn, timeout time.Duration) *PlayerClient {
 	return &PlayerClient{name: name, activeConnection: activeConnection, timeout: timeout}
 }
 
 // RegisterClient reads from the active connection to get the PlayerClient name
 func (s *PlayerClient) RegisterClient() (actor.Actor, error) {
-	err := s.activeConnection.SetReadDeadline(s.timeout)
-	if err != nil {
-		return actor.Actor{}, err
-	}
-
 	// read from connection to get name
 	var nameBytes []byte
-	_, err = s.activeConnection.Read(nameBytes)
+	_, err := s.activeConnection.Read(nameBytes)
 	if err != nil {
 		return actor.Actor{}, err
 	}
@@ -49,7 +44,7 @@ func (s *PlayerClient) SendPartialState(layout [][]*level.Tile, actors []actor.A
 		var objects []remote.Object
 		for _, row := range layout {
 			for _, tile := range row {
-				if tile.Item != nil {
+				if tile != nil && tile.Item != nil {
 					var tileType string
 					switch tile.Item.Type {
 					case level.KeyID:
@@ -101,6 +96,7 @@ func (s *PlayerClient) GetInput() state.Response {
 	}
 
 	var moveInput []byte
+	s.activeConnection.SetReadDeadline(time.Now().Add(s.timeout))
 	_, err := s.activeConnection.Read(moveInput)
 	if err != nil {
 		return errorResponse
@@ -128,6 +124,10 @@ func (s *PlayerClient) GetName() string {
 func (s *PlayerClient) SendJsonMessage(message json.RawMessage) error {
 	_, err := s.activeConnection.Write(message)
 	return err
+}
+
+func (s *PlayerClient) AsUserClient() state.UserClient {
+	return s
 }
 
 // tileLayoutToIntLayout converts a 2d slice of Tile to a 2d slice of int for network communication

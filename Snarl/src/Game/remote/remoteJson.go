@@ -1,6 +1,7 @@
 package remote
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
@@ -11,11 +12,13 @@ type ServerWelcome struct {
 	Info string `json:"info"`
 }
 
-func NewServerWelcome() *ServerWelcome {
-	return &ServerWelcome{
+func NewServerWelcomeMessage() json.RawMessage {
+	welcome := &ServerWelcome{
 		Type: "welcome",
-		Info: fmt.Sprintf("Snarl Server version %s\n", ServerVersion),
+		Info: fmt.Sprintf("Snarl Server version %s", ServerVersion),
 	}
+	message, _ := json.Marshal(welcome)
+	return message
 }
 
 type Name string

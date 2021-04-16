@@ -7,7 +7,6 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/internal"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/internal/render"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
@@ -43,7 +42,7 @@ func main() {
 		fmt.Println("invalid number of players")
 		os.Exit(1)
 	}
-	levels, err := internal.ParseLevelFile(*levelFlag, *startLevelFlag)
+	levels, err := level.ParseLevelFile(*levelFlag, *startLevelFlag)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -84,7 +83,8 @@ func main() {
 	var finalPrintValues []string
 	// local func run game and get return value
 	runGame := func() {
-		finalPrintValues = state.GameManager(levels, players, gamePlayers, generateAdversaries(), observers, 1, a)
+		finalPrintValues = state.GameManager(levels, players, gamePlayers, generateAdversaries(), observers, 1)
+		a.Quit()
 	}
 
 	// launch the main game loop

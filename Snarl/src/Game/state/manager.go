@@ -2,7 +2,6 @@ package state
 
 import (
 	"fmt"
-	"fyne.io/fyne/v2"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"sort"
@@ -28,7 +27,6 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 	adversaries []actor.Actor, // the list of adversary actor objects
 	observers []GameObserver, // a list of observers that get access to all full game states
 	numLevels int, /* the number of levels in the game */
-	app fyne.App, // the Fyne application being run (so that we can break it down at the end of the game
 ) []string {
 
 	// if there are no levels, we panic
@@ -251,9 +249,6 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 	for _, player := range playerRanks {
 		playerRanks = append(playerRanks, fmt.Sprintf("%v, %v, %v\n", player, exitCounts[player], keyCounts[player]))
 	}
-
-	// close all game windows at the end of the game
-	app.Quit()
 
 	return playerRanks
 }

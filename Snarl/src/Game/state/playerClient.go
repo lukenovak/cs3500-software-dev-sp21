@@ -5,23 +5,25 @@ import (
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 )
 
+// UserClient represents an interactable user client
 type UserClient interface {
-	// Used to initialize the client
+	// RegisterClient Used to initialize the client
 	RegisterClient() (actor.Actor, error)
 
-	// Sends a new state to the player
-	SendPartialState(tiles [][]*level.Tile, actors []actor.Actor, pos level.Position2D) error
+	// SendPartialState Sends a new state to the player
+	SendPartialState(layout [][]*level.Tile, actors []actor.Actor, pos level.Position2D) error
 
-	// Sends a message to the player, used to acknowledge player moves
+	// SendMessage Sends a message to the player, used to acknowledge player moves
 	SendMessage(message string, pos level.Position2D) error
 
-	// Waits for a player input then returns the player's action after input
+	// GetInput Waits for a player input then returns the player's action after input
 	GetInput() Response
 
-	// Used on startup- gets the unique name Id for this client
+	// GetName returns the unique name Id for this client
 	GetName() string
 }
 
+// Response represents an internal response to a prompt to get user input.
 type Response struct {
 	PlayerName string
 	Move       level.Position2D
