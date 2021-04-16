@@ -25,14 +25,10 @@ func NewPlayerClient(name string, activeConnection net.Conn, timeout time.Durati
 // RegisterClient reads from the active connection to get the PlayerClient name
 func (s *PlayerClient) RegisterClient() (actor.Actor, error) {
 	// read from connection to get name
-	var nameBytes []byte
-	_, err := s.activeConnection.Read(nameBytes)
-	if err != nil {
-		return actor.Actor{}, err
-	}
+	nameBytes := remote.BlockingRead(s.activeConnection)
 
 	// return the correct actor
-	s.name = string(nameBytes)
+	s.name = string(*nameBytes)
 	return actor.NewPlayerActor(s.name, actor.PlayerType, 2), nil
 }
 
@@ -95,24 +91,21 @@ func (s *PlayerClient) GetInput() state.Response {
 		Actions:    nil,
 	}
 
-	var moveInput []byte
 	s.activeConnection.SetReadDeadline(time.Now().Add(s.timeout))
-	_, err := s.activeConnection.Read(moveInput)
+	moveInput := remote.BlockingRead(s.activeConnection)
+
+	// marshall to correct struct then convert to state response
+	var move remote.PlayerMove
+	err := json.Unmarshal(*moveInput, &move)
 	if err != nil {
 		return errorResponse
-	} else {
-		// marshall to correct struct then convert to state response
-		var move remote.PlayerMove
-		err = json.Unmarshal(moveInput, &move)
-		if err != nil {
-			return errorResponse
-		}
-		movePoint := *move.To
-		return state.Response{
-			PlayerName: s.name,
-			Move:       movePoint.ToPos2D(),
-			Actions:    nil,
-		}
+	}
+	movePoint := *move.To
+	return state.Response{
+		PlayerName: s.name,
+		Move:       movePoint.ToPos2D(),
+		Actions:    nil,
+
 	}
 }
 
@@ -146,3 +139,5 @@ func tileLayoutToIntLayout(tiles [][]*level.Tile) [][]int {
 	}
 	return output
 }
+
+

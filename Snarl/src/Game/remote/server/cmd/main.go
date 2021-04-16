@@ -37,10 +37,10 @@ func main() {
 		conn.Write([]byte(nameMessage))
 		var name []byte
 		println("red")
-		var byteChan chan []byte
+		byteChan := make(chan []byte)
 		go func() {
 			for {
-				var b []byte
+				b := make([]byte, 4096)
 				n, _ := conn.Read(b)
 				if n > 0 {
 					byteChan <- b
