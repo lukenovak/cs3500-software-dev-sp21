@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"fyne.io/fyne/v2"
@@ -17,7 +18,7 @@ type Player struct {
 }
 
 // HandleMove gets user input and then writes it to the server
-func (player Player) HandleMove(conn net.Conn) {
+func (player Player) HandleMove(conn net.Conn, connReader *bufio.Reader) {
 	err := keyboard.Open()
 	if err != nil {
 		panic(err)
@@ -59,13 +60,13 @@ func (player Player) HandleMove(conn net.Conn) {
 		if err != nil {
 			panic(err)
 		}
-		conn.Write(moveData)
+		conn.Write(append(moveData, '\n'))
 
 		// get result of move and act
-		rawData := remote.BlockingRead(conn)
+		rawData := remote.BlockingRead(connReader)
 		var result remote.Result
 		json.Unmarshal(*rawData, &result)
-		fmt.Printf("Result of move was: %v", result)
+		fmt.Printf("Result of move was: %s", result)
 		switch result {
 		case remote.InvalidResult:
 			continue

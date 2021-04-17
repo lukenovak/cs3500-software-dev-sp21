@@ -1,7 +1,9 @@
 package server
 
 import (
+	"bufio"
 	"encoding/json"
+	"fmt"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote"
@@ -13,15 +15,21 @@ import (
 
 // PlayerClient ServerPlayerClient represents a player as tracked from the server. Must be loaded with an active TCP Connection!!!
 type PlayerClient struct {
-	name             string
-	activeConnection net.Conn
-	timeout          time.Duration
-	currPosition	 level.Position2D
+	name                   string
+	activeConnection       net.Conn
+	activeConnectionReader *bufio.Reader
+	timeout                time.Duration
+	currPosition           level.Position2D
 }
 
 // NewPlayerClient creates a PlayerClient according to the given parameters
 func NewPlayerClient(name string, activeConnection net.Conn, timeout time.Duration) *PlayerClient {
-	return &PlayerClient{name: name, activeConnection: activeConnection, timeout: timeout}
+	return &PlayerClient{
+		name: name,
+		activeConnection: activeConnection,
+		activeConnectionReader: bufio.NewReader(activeConnection),
+		timeout: timeout,
+	}
 }
 
 // RegisterClient reads from the active connection to get the PlayerClient name
@@ -82,6 +90,7 @@ func (s *PlayerClient) SendPartialState(layout [][]*level.Tile, actors []actor.A
 }
 
 func (s *PlayerClient) SendMessage(message string, pos level.Position2D) error {
+	message = fmt.Sprintf("\"%s\"", message)
 	return s.SendJsonMessage([]byte(message))
 }
 
@@ -97,8 +106,7 @@ func (s *PlayerClient) GetInput() state.Response {
 	log.Println("sending move command")
 	s.activeConnection.Write([]byte("\"move\"\n"))
 
-	s.activeConnection.SetReadDeadline(time.Now().Add(s.timeout))
-	moveInput := remote.BlockingRead(s.activeConnection)
+	moveInput := remote.BlockingRead(s.activeConnectionReader)
 
 	// marshall to correct struct then convert to state response
 	var move remote.PlayerMove
@@ -107,12 +115,11 @@ func (s *PlayerClient) GetInput() state.Response {
 		return errorResponse
 	}
 	movePoint := move.To
-	relativeMove := level.NewPosition2D(movePoint[0] - s.currPosition.Row, movePoint[1] - s.currPosition.Col)
+	relativeMove := level.NewPosition2D(movePoint[0]-s.currPosition.Row, movePoint[1]-s.currPosition.Col)
 	return state.Response{
 		PlayerName: s.name,
 		Move:       relativeMove,
 		Actions:    nil,
-
 	}
 }
 
@@ -149,5 +156,3 @@ func tileLayoutToIntLayout(tiles [][]*level.Tile) [][]int {
 	}
 	return output
 }
-
-

@@ -79,9 +79,12 @@ func main() {
 		panic(err)
 	}
 
+	// set up connection for i/o
+	connReader := bufio.NewReader(conn)
+
 	// game loop
 	for {
-		rawData := remote.BlockingRead(conn)
+		rawData := remote.BlockingRead(connReader)
 		var parsedData typedJson
 		json.Unmarshal(*rawData, &parsedData)
 		switch parsedData.Type {
@@ -91,7 +94,7 @@ func main() {
 			fmt.Println(endGame)
 			return
 		case "start-level":
-			go runLevel(conn, name, gameWindow)
+			go runLevel(conn, connReader, name, gameWindow)
 			gameWindow.Show()
 			a.Run()
 		}
@@ -102,20 +105,20 @@ type typedJson struct {
 	Type string `json:"type"`
 }
 
-func runLevel(conn net.Conn, playerName string, gameWindow fyne.Window) {
+func runLevel(conn net.Conn, connReader *bufio.Reader, playerName string, gameWindow fyne.Window) {
 	player := client.Player{
 		Name:       playerName,
 		Posn:       level.Position2D{},
 		GameWindow: gameWindow,
 	}
 	for {
-		rawData := remote.BlockingRead(conn)
+		rawData := remote.BlockingRead(connReader)
 		var parsedData interface{}
 		json.Unmarshal(*rawData, &parsedData)
 		switch typedData := parsedData.(type) {
 		case string:
 			if typedData == moveCommand {
-				player.HandleMove(conn)
+				player.HandleMove(conn, connReader)
 			}
 		case map[string]interface{}:
 			var parsedData typedJson
