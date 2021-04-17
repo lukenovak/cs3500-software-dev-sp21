@@ -23,6 +23,7 @@ const (
 	nameMessage = "name"
 )
 
+// main runs the server
 func main() {
 	// parse command line arguments
 	timeout, levelPath, numClients, _, address, port := parseArguments()
@@ -77,6 +78,7 @@ func main() {
 	)
 }
 
+// parseArguments initializes flags for the executable
 func parseArguments() (time.Duration, string, int, bool, string, int) {
 	timeout := flag.Int("wait", defaultTimeout, "used to determine the amount of time to wait for players to register from booting the server")
 	levelPath := flag.String("levels", defaultLevels, "tells the server which levels file to use. Default is ./snarl.levels")

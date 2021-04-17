@@ -105,9 +105,10 @@ func (s *PlayerClient) GetInput() state.Response {
 		return errorResponse
 	}
 	movePoint := *move.To
+	relativeMove := level.NewPosition2D(movePoint[0] - s.currPosition.Row, movePoint[1] - s.currPosition.Col)
 	return state.Response{
 		PlayerName: s.name,
-		Move:       movePoint.ToPos2D(),
+		Move:       relativeMove,
 		Actions:    nil,
 
 	}

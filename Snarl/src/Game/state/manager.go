@@ -18,7 +18,8 @@ const (
 	timeoutLimit   = 60 * time.Second
 )
 
-const defaultPlayerViewDistance = 2
+// PlayerViewDistance is the number of tiles distance that can be viewed to all four sides of the player
+const PlayerViewDistance = 2
 
 // GameManager Runs the main game loop. Returns a ranked list of players
 func GameManager(gameLevels []level.Level, // The level struct for the first level
@@ -54,7 +55,7 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 
 	for _, client := range playerClients {
 		// send first game state
-		client.SendPartialState(state.GeneratePartialState(state.GetActor(client.GetName()).Position, defaultPlayerViewDistance))
+		client.SendPartialState(state.GeneratePartialState(state.GetActor(client.GetName()).Position, PlayerViewDistance))
 		// init scoreboard
 		exitCounts[client.GetName()] = 0
 		keyCounts[client.GetName()] = 0
@@ -86,7 +87,7 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 			if clientPlayer == nil {
 				continue
 			}
-			client.SendPartialState(state.GeneratePartialState(clientPlayer.Position, defaultPlayerViewDistance))
+			client.SendPartialState(state.GeneratePartialState(clientPlayer.Position, PlayerViewDistance))
 		}
 		for _, observer := range observers {
 			observer.GameStateChannel <- *state
@@ -198,7 +199,7 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 					}
 					placeActors(state, nextLevelPlayers, getTopLeftUnoccupiedWalkable, level.NewPosition2D(0, 0))
 					for _, playerClient := range playerClients {
-						playerClient.SendPartialState(state.GeneratePartialState(state.GetActor(playerClient.GetName()).Position, defaultPlayerViewDistance))
+						playerClient.SendPartialState(state.GeneratePartialState(state.GetActor(playerClient.GetName()).Position, PlayerViewDistance))
 					}
 					// TODO: Adversaries
 				}
