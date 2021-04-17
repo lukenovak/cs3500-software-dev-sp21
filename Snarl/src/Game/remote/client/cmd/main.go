@@ -88,7 +88,7 @@ func main() {
 	json.Unmarshal(*rawData, &parsedData)
 	switch parsedData.Type {
 	case "start-level":
-		go runLevel(conn, connReader, name, gameWindow)
+		go runGame(conn, connReader, name, gameWindow)
 		gameWindow.Show()
 		a.Run()
 	default:
@@ -96,17 +96,23 @@ func main() {
 	}
 }
 
+// typedJson is used to unmarshal an unknown json to determine its type
 type typedJson struct {
 	Type string `json:"type"`
 }
 
-func runLevel(conn net.Conn, connReader *bufio.Reader, playerName string, gameWindow fyne.Window) {
+// runGame runs the main game loop
+func runGame(conn net.Conn, connReader *bufio.Reader, playerName string, gameWindow fyne.Window) {
+
+	// create a new client-side player representation for this player
 	player := client.Player{
 		Name:       playerName,
 		Posn:       level.Position2D{},
 		GameWindow: gameWindow,
 	}
+	// run the main loop
 	for {
+		// see what the server sent us, and act depending on what kind of message it is
 		rawData := remote.BlockingRead(connReader)
 		var parsedData interface{}
 		json.Unmarshal(*rawData, &parsedData)
@@ -129,6 +135,10 @@ func runLevel(conn net.Conn, connReader *bufio.Reader, playerName string, gameWi
 				json.Unmarshal(*rawData, &updateMessage)
 				updateGui(updateMessage, gameWindow)
 				player.Posn = updateMessage.Position.ToPos2D()
+			case "start-level":
+				// in this case, we just want to go to the next message which should be a player update
+				println("advancing to the next level!")
+				continue
 			case "end-game":
 				var endGame remote.EndGame
 				json.Unmarshal(*rawData, &endGame)

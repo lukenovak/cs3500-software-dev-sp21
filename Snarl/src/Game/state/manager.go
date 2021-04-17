@@ -1,6 +1,7 @@
 package state
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
@@ -74,24 +75,7 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 
 	// init adversaries
 	var adversaryClients []AdversaryClient
-	for _, adversary := range state.Adversaries {
-		switch adversary.Type {
-		case actor.ZombieType:
-			adversaryClients = append(adversaryClients, &ZombieClient{
-				Name:         adversary.Name,
-				LevelData:    *state.Level,
-				MoveDistance: adversary.MaxMoveDistance,
-				CurrentPosn:  adversary.Position,
-			})
-		case actor.GhostType:
-			adversaryClients = append(adversaryClients, &GhostClient{
-				Name:         adversary.Name,
-				LevelData:    *state.Level,
-				MoveDistance: adversary.MaxMoveDistance,
-				CurrentPosn:  adversary.Position,
-			})
-		}
-	}
+	generateAdversaryClients(adversaries, *state.Level)
 
 	// local function that updates players and observers with new game states
 	updatePlayersAndObservers := func(userClients []UserClient, observers []GameObserver) {
@@ -204,6 +188,19 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 					break
 				} else {
 					// If the level is over but the game is not, start the next level
+
+					// collect exits
+					var exits []string
+					for _, player := range exitedPlayers {
+						exits = append(exits, player.Name)
+					}
+
+					// collect ejects
+					var ejects []string
+					for _, player := range ejectedPlayers {
+						ejects = append(ejects, player.Name)
+					}
+
 					levelNumber += 1
 					state.LevelNum = levelNumber
 					state.Level = &gameLevels[levelNumber-1]
@@ -214,10 +211,21 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 					}
 					placeActors(state, nextLevelPlayers, getTopLeftUnoccupiedWalkable, level.NewPosition2D(0, 0))
 					for _, playerClient := range playerClients {
+						endLevel, _ := json.Marshal(remote.EndLevel{
+							Type:   "end-level",
+							Key:    playerClient.GetName(),
+							Exits:  exits,
+							Ejects: ejects,
+						})
+						playerClient.SendMessage(string(endLevel), newPos)
+						startLevel, _ := json.Marshal(remote.NewStartLevel(levelNumber, nil))
+						playerClient.SendMessage(string(startLevel), newPos)
+						playerClient.SendMessage("start-level", newPos)
 						playerClient.SendPartialState(state.GeneratePartialState(state.GetActor(playerClient.GetName()).Position, PlayerViewDistance))
 					}
 					adversaries = generateAdversaries(levelNumber)
 					placeActors(state, adversaries, getBottomRightUnoccupiedWalkable, state.Level.Size)
+					generateAdversaryClients(adversaries, *state.Level)
 				}
 			}
 			playerPosns = append(playerPosns, newPos)
@@ -287,4 +295,27 @@ func generateAdversaries(levelNum int) []actor.Actor {
 		adversaries = append(adversaries, actor.NewAdversaryActor(actor.GhostType, fmt.Sprintf("g%d", i), 1))
 	}
 	return adversaries
+}
+
+func generateAdversaryClients(adversaries []actor.Actor, levelData level.Level) []AdversaryClient {
+	var adversaryClients []AdversaryClient
+	for _, adversary := range adversaries {
+		switch adversary.Type {
+		case actor.ZombieType:
+			adversaryClients = append(adversaryClients, &ZombieClient{
+				Name:         adversary.Name,
+				LevelData:    levelData,
+				MoveDistance: adversary.MaxMoveDistance,
+				CurrentPosn:  adversary.Position,
+			})
+		case actor.GhostType:
+			adversaryClients = append(adversaryClients, &GhostClient{
+				Name:         adversary.Name,
+				LevelData:    levelData,
+				MoveDistance: adversary.MaxMoveDistance,
+				CurrentPosn:  adversary.Position,
+			})
+		}
+	}
+	return adversaryClients
 }

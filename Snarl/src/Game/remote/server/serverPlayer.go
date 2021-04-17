@@ -77,7 +77,7 @@ func (s *PlayerClient) SendPartialState(layout [][]*level.Tile, actors []actor.A
 	}
 
 	// Generate and send the partial state
-	partialState := remote.NewPlayerUpdateMessage(tileLayoutToIntLayout(layout), remote.PointFromPos2d(pos), getObjectsInLayout(layout), convertedActors, "update")
+	partialState := remote.NewPlayerUpdateMessage(tileLayoutToIntLayout(layout), remote.PointFromPos2d(pos), getObjectsInLayout(layout), convertedActors, fmt.Sprintf("%s moved", s.name))
 	message, err := json.Marshal(partialState)
 	if err != nil {
 		// If we cannot marshal a partial state into a communicable json, that is a fatal error and we crash the server
@@ -90,6 +90,17 @@ func (s *PlayerClient) SendPartialState(layout [][]*level.Tile, actors []actor.A
 }
 
 func (s *PlayerClient) SendMessage(message string, pos level.Position2D) error {
+	// start level is a special case, so we handle it here
+	if message == "start-level" {
+		messageJson := remote.StartLevel{
+			Type:    "start-level",
+			Level:   0,
+			Players: nil,
+		}
+		msgBytes, _ := json.Marshal(messageJson)
+		return s.SendJsonMessage(msgBytes)
+	}
+
 	message = fmt.Sprintf("\"%s\"", message)
 	return s.SendJsonMessage([]byte(message))
 }
