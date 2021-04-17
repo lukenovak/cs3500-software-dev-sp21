@@ -20,7 +20,7 @@ const (
 	defaultObserve = false
 	defaultAddress = "127.0.0.1"
 	defaultPort = 45678
-	nameMessage = "\"name\""
+	nameMessage = "\"name\"\n"
 )
 
 // main runs the server
@@ -39,13 +39,14 @@ func main() {
 			panic(err)
 		}
 		conn.Write(remote.NewServerWelcomeMessage())
-		conn.Write([]byte(nameMessage))
+		time.Sleep(500 * time.Millisecond)
 		var name []byte
 		byteChan := make(chan []byte)
 		go func() {
 			for {
 				println("reading")
 				b := make([]byte, 4096)
+				conn.Write([]byte(nameMessage))
 				n, _ := conn.Read(b)
 				if n > 0 {
 					println("got name")

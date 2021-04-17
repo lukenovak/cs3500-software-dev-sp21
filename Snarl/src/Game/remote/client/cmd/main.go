@@ -49,7 +49,7 @@ func main() {
 	fmt.Printf("Connecting to %v\n", socket)
 	conn, err := net.Dial("tcp", socket)
 	decoder := json.NewDecoder(conn)
-	encoder := json.NewEncoder(conn)
+	//encoder := json.NewEncoder(conn)
 	if err != nil {
 		fmt.Println("Failed to connect to the server.")
 		panic(err)
@@ -65,6 +65,7 @@ func main() {
 	// name handshake
 	var serverNameCommand string
 	err = decoder.Decode(&serverNameCommand)
+	println(serverNameCommand)
 	if err != nil {
 		fmt.Println("error decoding json")
 		panic(err)
@@ -72,7 +73,7 @@ func main() {
 	if serverNameCommand != nameCommand {
 		panic(fmt.Errorf("did not recive name request as expected"))
 	}
-	err = encoder.Encode(name)
+	_, err = conn.Write([]byte(fmt.Sprintf("%s\n", name)))
 	if err != nil {
 		fmt.Println("Failed to send name.")
 		panic(err)
