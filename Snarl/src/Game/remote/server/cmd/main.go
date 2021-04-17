@@ -89,7 +89,6 @@ func main() {
 		players,
 		gamePlayers,
 		nil,
-		nil,
 		len(levels),
 	)
 }

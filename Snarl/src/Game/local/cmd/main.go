@@ -83,7 +83,7 @@ func main() {
 	var finalPrintValues []string
 	// local func run game and get return value
 	runGame := func() {
-		finalPrintValues = state.GameManager(levels, players, gamePlayers, generateAdversaries(), observers, 1)
+		finalPrintValues = state.GameManager(levels, players, gamePlayers, observers, 1)
 		a.Quit()
 	}
 
@@ -159,13 +159,4 @@ func getLocalPlayer(playerNumber int) *state.LocalKeyClient {
 		GameWindow: nil,
 	}
 
-}
-
-// DEPRECATED: Generates an array of test player
-func generatePlayers() []state.UserClient {
-	return []state.UserClient{&state.LocalKeyClient{Name: "Luke"}}
-}
-
-func generateAdversaries() []actor.Actor {
-	return []actor.Actor{actor.NewAdversaryActor(actor.ZombieType, "z1", 1) /*, actor.NewAdversaryActor(actor.GhostType, "g1", 1)*/}
 }

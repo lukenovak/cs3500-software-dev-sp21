@@ -62,7 +62,7 @@ type ActorPosition struct {
 // NewActorPositionFromActor creates an ActorPosition object from an actor.Actor
 func NewActorPositionFromActor(a actor.Actor) *ActorPosition {
 	return &ActorPosition{
-		Type:     "actor-position",
+		Type:     a.GetTypeAsString(),
 		Name:     a.Name,
 		Position: PointFromPos2d(a.Position),
 	}

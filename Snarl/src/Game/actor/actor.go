@@ -34,6 +34,19 @@ func (actor Actor) MoveActor(newPos level.Position2D) Actor {
 	}
 }
 
+// GetTypeAsString returns a string representation of this actor's type
+func (actor Actor) GetTypeAsString() string {
+	switch actor.Type {
+	case PlayerType:
+		return "player"
+	case GhostType:
+		return "ghost"
+	case ZombieType:
+		return "zombie"
+	}
+	return "unknown"
+}
+
 // Constructs a new actor with the default behavior (can occupy walkable tiles)
 func NewPlayerActor(name string, actorType int, moveDistance int) Actor {
 	return Actor{
@@ -57,6 +70,8 @@ func NewAdversaryActor(adversaryType int, name string, moveDistance int) Actor {
 		RenderedObj: 	 canvas.NewCircle(colornames.Crimson),
 	}
 }
+
+
 
 /* ------------ Tile occupancy functions --------------- */
 
