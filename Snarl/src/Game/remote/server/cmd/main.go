@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
@@ -33,6 +34,7 @@ func main() {
 	}
 	var players []state.UserClient
 	var gamePlayers []actor.Actor
+	var names []string
 	for connectedClients := 0; connectedClients < numClients; {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -71,10 +73,16 @@ func main() {
 		newGamePlayer, _ := newPlayer.RegisterClient()
 		gamePlayers = append(gamePlayers, newGamePlayer)
 		players = append(players, newPlayer.AsUserClient())
+		names = append(names, playerName)
 		connectedClients += 1
 	}
-
 	levels, _ := level.ParseLevelFile(levelPath, 1)
+	for _, player := range players {
+		// create start message
+		startJson := remote.NewStartLevel(1, names)
+		msg, _ := json.Marshal(startJson)
+		player.(*server.PlayerClient).SendJsonMessage(msg)
+	}
 	state.GameManager(
 		levels,
 		players,

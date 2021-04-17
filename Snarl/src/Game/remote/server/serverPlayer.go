@@ -94,7 +94,8 @@ func (s *PlayerClient) GetInput() state.Response {
 	}
 
 	// prompt the player for a move
-	s.activeConnection.Write([]byte("move"))
+	log.Println("sending move command")
+	s.activeConnection.Write([]byte("\"move\"\n"))
 
 	s.activeConnection.SetReadDeadline(time.Now().Add(s.timeout))
 	moveInput := remote.BlockingRead(s.activeConnection)
@@ -122,6 +123,8 @@ func (s *PlayerClient) GetName() string {
 // SendJsonMessage writes a raw json message over the active connection and returns the status of that write
 func (s *PlayerClient) SendJsonMessage(message json.RawMessage) error {
 	log.Printf("sent message %s to %s", string(message), s.name)
+	// endl terminator
+	message = append(message, '\n')
 	_, err := s.activeConnection.Write(message)
 	return err
 }

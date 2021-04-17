@@ -21,12 +21,18 @@ func NewServerWelcomeMessage() json.RawMessage {
 	return message
 }
 
-type Name string
-
 type StartLevel struct {
 	Type    string `json:"type"`
 	Level   int    `json:"level"`
-	Players []Name `json:"players"`
+	Players []string `json:"players"`
+}
+
+func NewStartLevel(levelNum int, playerList []string) *StartLevel {
+	return &StartLevel{
+		Type:    "start-level",
+		Level:   levelNum,
+		Players: playerList,
+	}
 }
 
 // Point represents a row, column point. Maps nicely to level.Position2D
@@ -100,14 +106,14 @@ const (
 
 type EndLevel struct {
 	Type   string `json:"type"`
-	Key    Name   `json:"key"`
-	Exits  []Name `json:"exits"`
-	Ejects []Name `json:"ejects"`
+	Key    string   `json:"key"`
+	Exits  []string `json:"exits"`
+	Ejects []string `json:"ejects"`
 }
 
 type PlayerScore struct {
 	Type   string `json:"type"`
-	Name   Name   `json:"name"`
+	Name   string   `json:"name"`
 	Exits  int    `json:"exits"`
 	Ejects int    `json:"ejects"`
 	Keys   int    `json:"keys"`

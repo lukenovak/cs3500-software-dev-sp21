@@ -29,7 +29,7 @@ func main() {
 	// setup the gui application and keyboard
 	a := app.New()
 	fyne.SetCurrentApp(a)
-	gameWindow := fyne.CurrentApp().NewWindow("snarl client")
+	gameWindow := a.NewWindow("snarl client")
 
 
 	// parse command line arguments
@@ -91,7 +91,9 @@ func main() {
 			fmt.Println(endGame)
 			return
 		case "start-level":
-			runLevel(conn, gameWindow)
+			go runLevel(conn, gameWindow)
+			gameWindow.Show()
+			a.Run()
 		}
 	}
 }
@@ -104,7 +106,7 @@ func runLevel(conn net.Conn, gameWindow fyne.Window) {
 	for {
 		rawData := remote.BlockingRead(conn)
 		var parsedData interface{}
-		json.Unmarshal(*rawData, parsedData)
+		json.Unmarshal(*rawData, &parsedData)
 		switch typedData := parsedData.(type) {
 		case string:
 			if typedData == moveCommand {
@@ -190,7 +192,7 @@ func updateGui(updateMessage remote.PlayerUpdateMessage, gameWindow fyne.Window)
 	// converting to tiles
 	tiles := make([][]*level.Tile, 0)
 	for i, row := range updateMessage.Layout {
-		tiles = append(tiles, make([]*level.Tile, 0))
+		tiles = append(tiles, make([]*level.Tile, len(row)))
 		for j, tileType := range row {
 			tile := level.Tile{
 				Type: tileType,
