@@ -30,24 +30,15 @@ func main() {
 	a := app.New()
 	fyne.SetCurrentApp(a)
 	gameWindow := fyne.CurrentApp().NewWindow("snarl client")
-	err := keyboard.Open()
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		err := keyboard.Close()
-		if err != nil {
-			panic(err)
-		}
-	}()
+
 
 	// parse command line arguments
 	address, port := parseArguments()
 	socket := fmt.Sprintf("%v:%v", address, port)
 
 	// get client name from stdin
-	fmt.Print("Enter your client's name: ")
 	input := bufio.NewReader(os.Stdin)
+	fmt.Print("Enter your client's name: ")
 	name, err := input.ReadString('\n')
 	if err != nil {
 		fmt.Println("Failed to read name.")
@@ -64,14 +55,21 @@ func main() {
 		panic(err)
 	}
 
+	// handle welcome
+	var serverWelcome remote.ServerWelcome
+	err = decoder.Decode(&serverWelcome)
+	if err == nil {
+		println(serverWelcome.Info)
+	}
+
 	// name handshake
-	var nameCommand string
-	err = decoder.Decode(&nameCommand)
+	var serverNameCommand string
+	err = decoder.Decode(&serverNameCommand)
 	if err != nil {
 		fmt.Println("error decoding json")
 		panic(err)
 	}
-	if nameCommand != nameCommand {
+	if serverNameCommand != nameCommand {
 		panic(fmt.Errorf("did not recive name request as expected"))
 	}
 	err = encoder.Encode(name)
@@ -130,6 +128,16 @@ func runLevel(conn net.Conn, gameWindow fyne.Window) {
 }
 
 func handleMove(conn net.Conn) {
+	err := keyboard.Open()
+	if err != nil {
+		panic(err)
+	}
+	defer func() {
+		err := keyboard.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
 	for {
 		// get move from user
 		move := level.NewPosition2D(0, 0)

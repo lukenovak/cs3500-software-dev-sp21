@@ -6,6 +6,7 @@ import (
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
+	"log"
 	"net"
 	"time"
 )
@@ -104,7 +105,7 @@ func (s *PlayerClient) GetInput() state.Response {
 	if err != nil {
 		return errorResponse
 	}
-	movePoint := *move.To
+	movePoint := move.To
 	relativeMove := level.NewPosition2D(movePoint[0] - s.currPosition.Row, movePoint[1] - s.currPosition.Col)
 	return state.Response{
 		PlayerName: s.name,
@@ -120,6 +121,7 @@ func (s *PlayerClient) GetName() string {
 
 // SendJsonMessage writes a raw json message over the active connection and returns the status of that write
 func (s *PlayerClient) SendJsonMessage(message json.RawMessage) error {
+	log.Printf("sent message %s to %s", string(message), s.name)
 	_, err := s.activeConnection.Write(message)
 	return err
 }

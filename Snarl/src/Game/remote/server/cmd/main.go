@@ -20,14 +20,17 @@ const (
 	defaultObserve = false
 	defaultAddress = "127.0.0.1"
 	defaultPort = 45678
-	nameMessage = "name"
+	nameMessage = "\"name\""
 )
 
 // main runs the server
 func main() {
 	// parse command line arguments
 	timeout, levelPath, numClients, _, address, port := parseArguments()
-	listener, _ := net.Listen("tcp", fmt.Sprintf("%s:%d", address, port))
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", address, port))
+	if err != nil {
+		panic(err)
+	}
 	var players []state.UserClient
 	var gamePlayers []actor.Actor
 	for connectedClients := 0; connectedClients < numClients; {
@@ -41,9 +44,11 @@ func main() {
 		byteChan := make(chan []byte)
 		go func() {
 			for {
+				println("reading")
 				b := make([]byte, 4096)
 				n, _ := conn.Read(b)
 				if n > 0 {
+					println("got name")
 					byteChan <- bytes.Trim(b[0:n], "\r\n")
 					break
 				}
@@ -60,6 +65,7 @@ func main() {
 			}
 			break
 		}
+		println("got player name")
 		newPlayer := server.NewPlayerClient(playerName, conn, timeout)
 		newGamePlayer, _ := newPlayer.RegisterClient()
 		gamePlayers = append(gamePlayers, newGamePlayer)
