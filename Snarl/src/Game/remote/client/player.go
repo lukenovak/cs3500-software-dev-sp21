@@ -66,7 +66,7 @@ func (player Player) HandleMove(conn net.Conn, connReader *bufio.Reader) {
 		rawData := remote.BlockingRead(connReader)
 		var result remote.Result
 		json.Unmarshal(*rawData, &result)
-		fmt.Printf("Result of move was: %s", result)
+		fmt.Printf("Result of move was: %s\n", result)
 		switch result {
 		case remote.InvalidResult:
 			continue

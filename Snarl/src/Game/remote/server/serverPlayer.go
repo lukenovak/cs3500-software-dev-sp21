@@ -140,6 +140,10 @@ func (s *PlayerClient) AsUserClient() state.UserClient {
 	return s
 }
 
+func (s *PlayerClient) CloseConnection() error {
+	return s.activeConnection.Close()
+}
+
 // tileLayoutToIntLayout converts a 2d slice of Tile to a 2d slice of int for network communication
 func tileLayoutToIntLayout(tiles [][]*level.Tile) [][]int {
 	output := make([][]int, 0)

@@ -84,13 +84,17 @@ func main() {
 		msg, _ := json.Marshal(startJson)
 		player.(*server.PlayerClient).SendJsonMessage(msg)
 	}
-	state.GameManager(
+	scores := state.GameManager(
 		levels,
 		players,
 		gamePlayers,
 		nil,
 		len(levels),
 	)
+
+	// if we get here, the game has ended
+	endGame(players, scores)
+	err = listener.Close()
 }
 
 // parseArguments initializes flags for the executable
@@ -106,4 +110,26 @@ func parseArguments() (time.Duration, string, int, bool, string, int) {
 	timeoutInt := *timeout
 	timeoutSecond := time.Duration(timeoutInt) * time.Second
 	return timeoutSecond, *levelPath, *clients, *shouldObserve, *address, *port
+}
+
+func endGame(players []state.UserClient, scores []string) {
+	endGameMessage := remote.EndGame{
+		Type: "end-game",
+		Scores: []remote.PlayerScore{
+			{
+				Type:   "score",
+				Name:   "lol",
+				Exits:  0,
+				Ejects: 0,
+				Keys:   0,
+			},
+		},
+	}
+
+	jsonMessage, _ := json.Marshal(endGameMessage)
+	for _, player := range players {
+		playerClient := player.(*server.PlayerClient)
+		playerClient.SendJsonMessage(jsonMessage)
+		playerClient.CloseConnection()
+	}
 }

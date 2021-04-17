@@ -82,22 +82,17 @@ func main() {
 	// set up connection for i/o
 	connReader := bufio.NewReader(conn)
 
-	// game loop
-	for {
-		rawData := remote.BlockingRead(connReader)
-		var parsedData typedJson
-		json.Unmarshal(*rawData, &parsedData)
-		switch parsedData.Type {
-		case "end-game":
-			var endGame remote.EndGame
-			json.Unmarshal(*rawData, &endGame)
-			fmt.Println(endGame)
-			return
-		case "start-level":
-			go runLevel(conn, connReader, name, gameWindow)
-			gameWindow.Show()
-			a.Run()
-		}
+	// move to game Loop
+	rawData := remote.BlockingRead(connReader)
+	var parsedData typedJson
+	json.Unmarshal(*rawData, &parsedData)
+	switch parsedData.Type {
+	case "start-level":
+		go runLevel(conn, connReader, name, gameWindow)
+		gameWindow.Show()
+		a.Run()
+	default:
+		println("cannot start game without start-level command")
 	}
 }
 
@@ -134,6 +129,13 @@ func runLevel(conn net.Conn, connReader *bufio.Reader, playerName string, gameWi
 				json.Unmarshal(*rawData, &updateMessage)
 				updateGui(updateMessage, gameWindow)
 				player.Posn = updateMessage.Position.ToPos2D()
+			case "end-game":
+				var endGame remote.EndGame
+				json.Unmarshal(*rawData, &endGame)
+				fmt.Println(endGame)
+				fyne.CurrentApp().Quit()
+				conn.Close()
+				return
 			}
 		}
 	}
