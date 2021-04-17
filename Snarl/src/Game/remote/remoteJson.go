@@ -56,8 +56,8 @@ type ActorPosition struct {
 // NewActorPositionFromActor creates an ActorPosition object from an actor.Actor
 func NewActorPositionFromActor(a actor.Actor) *ActorPosition {
 	return &ActorPosition{
-		Type: "actor-position",
-		Name: a.Name,
+		Type:     "actor-position",
+		Name:     a.Name,
 		Position: PointFromPos2d(a.Position),
 	}
 }
@@ -85,10 +85,18 @@ func NewPlayerUpdateMessage(layout [][]int, position Point, objects []Object, ac
 
 type PlayerMove struct {
 	Type string `json:"type"`
-	To   *Point `json:"to"`
+	To   Point  `json:"to"`
 }
 
 type Result string
+
+const (
+	OKResult      = "OK"
+	KeyResult     = "Key"
+	ExitResult    = "Exit"
+	EjectResult   = "Eject"
+	InvalidResult = "Invalid"
+)
 
 type EndLevel struct {
 	Type   string `json:"type"`
