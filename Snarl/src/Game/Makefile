@@ -2,7 +2,7 @@
 
 # go variables
 GOBASE := $(shell pwd)
-MAINFILE := $(wildcard ./cmd/main.go)
+MAINFILE := $(wildcard ./local/cmd/main.go)
 
 BINARYNAME := "snarl"
 
