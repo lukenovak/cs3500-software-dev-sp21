@@ -43,7 +43,7 @@ func main() {
 				b := make([]byte, 4096)
 				n, _ := conn.Read(b)
 				if n > 0 {
-					byteChan <- b
+					byteChan <- b[0:n]
 					break
 				}
 			}

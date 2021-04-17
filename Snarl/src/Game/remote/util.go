@@ -9,14 +9,14 @@ func BlockingRead(conn net.Conn) *[]byte {
 		for {
 			n, _ := conn.Read(b)
 			if n > 0 {
-				byteChan <- b
+				byteChan <- b[0:n]
 				break
 			}
 		}
 	}()
 	for {
 		select {
-		case <- byteChan:
+		case b = <- byteChan:
 			return &b
 		default:
 			continue
