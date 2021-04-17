@@ -22,8 +22,8 @@ func NewServerWelcomeMessage() json.RawMessage {
 }
 
 type StartLevel struct {
-	Type    string `json:"type"`
-	Level   int    `json:"level"`
+	Type    string   `json:"type"`
+	Level   int      `json:"level"`
 	Players []string `json:"players"`
 }
 
@@ -105,7 +105,7 @@ const (
 )
 
 type EndLevel struct {
-	Type   string `json:"type"`
+	Type   string   `json:"type"`
 	Key    string   `json:"key"`
 	Exits  []string `json:"exits"`
 	Ejects []string `json:"ejects"`
@@ -113,10 +113,14 @@ type EndLevel struct {
 
 type PlayerScore struct {
 	Type   string `json:"type"`
-	Name   string   `json:"name"`
+	Name   string `json:"name"`
 	Exits  int    `json:"exits"`
 	Ejects int    `json:"ejects"`
 	Keys   int    `json:"keys"`
+}
+
+func (score PlayerScore) String() string {
+	return fmt.Sprintf("%v, %v, %v, %v\n", score.Name, score.Exits, score.Keys, score.Ejects)
 }
 
 type EndGame struct {

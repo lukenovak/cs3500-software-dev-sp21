@@ -16,12 +16,12 @@ import (
 
 const (
 	defaultTimeout = 60
-	defaultLevels = "snarl.levels"
+	defaultLevels  = "snarl.levels"
 	defaultClients = 1
 	defaultObserve = false
 	defaultAddress = "127.0.0.1"
-	defaultPort = 45678
-	nameMessage = "\"name\"\n"
+	defaultPort    = 45678
+	nameMessage    = "\"name\"\n"
 )
 
 // main runs the server
@@ -60,7 +60,7 @@ func main() {
 		var playerName string
 		for {
 			select {
-			case name = <- byteChan:
+			case name = <-byteChan:
 				playerName = string(name)
 				break
 			default:
@@ -112,18 +112,10 @@ func parseArguments() (time.Duration, string, int, bool, string, int) {
 	return timeoutSecond, *levelPath, *clients, *shouldObserve, *address, *port
 }
 
-func endGame(players []state.UserClient, scores []string) {
+func endGame(players []state.UserClient, scores []remote.PlayerScore) {
 	endGameMessage := remote.EndGame{
-		Type: "end-game",
-		Scores: []remote.PlayerScore{
-			{
-				Type:   "score",
-				Name:   "lol",
-				Exits:  0,
-				Ejects: 0,
-				Keys:   0,
-			},
-		},
+		Type:   "end-game",
+		Scores: scores,
 	}
 
 	jsonMessage, _ := json.Marshal(endGameMessage)
