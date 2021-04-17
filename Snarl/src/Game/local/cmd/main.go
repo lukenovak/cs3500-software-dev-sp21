@@ -9,6 +9,7 @@ import (
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/internal/render"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 	"os"
 )
@@ -80,10 +81,15 @@ func main() {
 		gamePlayers = append(gamePlayers, newPlayer)
 	}
 
-	var finalPrintValues []string
+	var playerScores []remote.PlayerScore
 	// local func run game and get return value
 	runGame := func() {
-		finalPrintValues = state.GameManager(levels, players, gamePlayers, observers, 1)
+		playerScores = state.GameManager(levels, players, gamePlayers, observers, 1)
+		fmt.Println("Player Leaderboard:")
+		fmt.Println("Name, Exits, Keys, Ejections")
+		for _, score := range playerScores {
+			fmt.Println(score)
+		}
 		a.Quit()
 	}
 
