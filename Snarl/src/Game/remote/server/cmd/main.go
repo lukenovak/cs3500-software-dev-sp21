@@ -44,14 +44,14 @@ func main() {
 		time.Sleep(500 * time.Millisecond)
 		var name []byte
 		byteChan := make(chan []byte)
+
+		// special blocking read for initial handshake
 		go func() {
 			for {
-				println("reading")
 				b := make([]byte, 4096)
 				conn.Write([]byte(nameMessage))
 				n, _ := conn.Read(b)
 				if n > 0 {
-					println("got name")
 					byteChan <- bytes.Trim(b[0:n], "\r\n")
 					break
 				}
@@ -68,7 +68,8 @@ func main() {
 			}
 			break
 		}
-		println("got player name")
+
+		// start client with name
 		newPlayer := server.NewPlayerClient(playerName, conn, timeout)
 		newGamePlayer, _ := newPlayer.RegisterClient()
 		gamePlayers = append(gamePlayers, newGamePlayer)
