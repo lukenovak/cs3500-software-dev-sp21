@@ -15,6 +15,7 @@ type PlayerClient struct {
 	name             string
 	activeConnection net.Conn
 	timeout          time.Duration
+	currPosition	 level.Position2D
 }
 
 // NewPlayerClient creates a PlayerClient according to the given parameters
@@ -24,22 +25,22 @@ func NewPlayerClient(name string, activeConnection net.Conn, timeout time.Durati
 
 // RegisterClient reads from the active connection to get the PlayerClient name
 func (s *PlayerClient) RegisterClient() (actor.Actor, error) {
-	// read from connection to get name
-	nameBytes := remote.BlockingRead(s.activeConnection)
-
-	// return the correct actor
-	s.name = string(*nameBytes)
-	return actor.NewPlayerActor(s.name, actor.PlayerType, 2), nil
+	newActor := actor.NewPlayerActor(s.name, actor.PlayerType, 2)
+	s.currPosition = newActor.Position
+	return newActor, nil
 }
 
 func (s *PlayerClient) SendPartialState(layout [][]*level.Tile, actors []actor.Actor, pos level.Position2D) error {
+
+	// update position
+	s.currPosition = pos
 
 	// TODO: maybe move this out of SendPartialState?
 	// Local function that searches through all the tiles in the layout and returns a list of the Objects in those tiles
 	getObjectsInLayout := func(layout [][]*level.Tile) []remote.Object {
 		var objects []remote.Object
-		for _, row := range layout {
-			for _, tile := range row {
+		for r, row := range layout {
+			for c, tile := range row {
 				if tile != nil && tile.Item != nil {
 					var tileType string
 					switch tile.Item.Type {
@@ -52,7 +53,7 @@ func (s *PlayerClient) SendPartialState(layout [][]*level.Tile, actors []actor.A
 					}
 					objects = append(objects, remote.Object{
 						Type:     tileType,
-						Position: remote.PointFromPos2d(pos),
+						Position: remote.PointFromPos2d(level.NewPosition2D(r, c)),
 					})
 				}
 			}
@@ -90,6 +91,9 @@ func (s *PlayerClient) GetInput() state.Response {
 		Move:       level.NewPosition2D(0, 0),
 		Actions:    nil,
 	}
+
+	// prompt the player for a move
+	s.activeConnection.Write([]byte("move"))
 
 	s.activeConnection.SetReadDeadline(time.Now().Add(s.timeout))
 	moveInput := remote.BlockingRead(s.activeConnection)

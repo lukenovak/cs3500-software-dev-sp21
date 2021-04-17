@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
@@ -36,14 +37,13 @@ func main() {
 		conn.Write(remote.NewServerWelcomeMessage())
 		conn.Write([]byte(nameMessage))
 		var name []byte
-		println("red")
 		byteChan := make(chan []byte)
 		go func() {
 			for {
 				b := make([]byte, 4096)
 				n, _ := conn.Read(b)
 				if n > 0 {
-					byteChan <- b[0:n]
+					byteChan <- bytes.Trim(b[0:n], "\r\n")
 					break
 				}
 			}
@@ -59,7 +59,6 @@ func main() {
 			}
 			break
 		}
-		print("read")
 		newPlayer := server.NewPlayerClient(playerName, conn, timeout)
 		newGamePlayer, _ := newPlayer.RegisterClient()
 		gamePlayers = append(gamePlayers, newGamePlayer)
