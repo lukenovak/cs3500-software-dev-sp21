@@ -74,7 +74,7 @@ func (player *LocalKeyClient) RegisterClient() (actor.Actor, error) {
 	return actor.NewPlayerActor(player.Name, actor.PlayerType, 2).MoveActor(level.NewPosition2D(-1, -1)), nil
 }
 
-// works the same as the normal client
+// SendPartialState works the same as the normal client
 func (player *LocalKeyClient) SendPartialState(tiles [][]*level.Tile, actors []actor.Actor, pos level.Position2D) error {
 	render.GuiState(tiles, actors, actors, player.GameWindow)
 	return nil
@@ -85,7 +85,7 @@ func (player *LocalKeyClient) SendMessage(message string, pos level.Position2D) 
 	return nil
 }
 
-// Reads from the keyboard until the user hits enter, which locks in their move
+// GetInput Reads from the keyboard until the user hits enter, which locks in their move
 func (player *LocalKeyClient) GetInput() Response {
 	player.GameWindow.RequestFocus()
 	move := level.NewPosition2D(0, 0)

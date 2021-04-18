@@ -7,9 +7,9 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/internal"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/internal/render"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 	"os"
 )
@@ -34,7 +34,7 @@ func main() {
 	levelFlag := flag.String(levelFlagName, defaultFilename, "Points the game to the desired level file")
 	playerFlag := flag.Int(playerFlagName, defaultNumPlayers, "The number of players in this game")
 	startLevelFlag := flag.Int(startLevelFlagName, defaultStartLevel, "The level number to start at")
-	showObserverFlag := flag.Bool(showObserverFlagName, false, "Opens an observer window if present")
+	showObserverFlag := flag.Bool(showObserverFlagName, defaultShowObserver, "Opens an observer window if present")
 
 	flag.Parse()
 
@@ -43,7 +43,7 @@ func main() {
 		fmt.Println("invalid number of players")
 		os.Exit(1)
 	}
-	levels, err := internal.ParseLevelFile(*levelFlag, *startLevelFlag)
+	levels, err := level.ParseLevelFile(*levelFlag, *startLevelFlag)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -81,10 +81,16 @@ func main() {
 		gamePlayers = append(gamePlayers, newPlayer)
 	}
 
-	var finalPrintValues []string
+	var playerScores []remote.PlayerScore
 	// local func run game and get return value
 	runGame := func() {
-		finalPrintValues = state.GameManager(levels, players, gamePlayers, generateAdversaries(), observers, 1, a)
+		playerScores = state.GameManager(levels, players, gamePlayers, observers, 1)
+		fmt.Println("Player Leaderboard:")
+		fmt.Println("Name, Exits, Keys, Ejections")
+		for _, score := range playerScores {
+			fmt.Println(score)
+		}
+		a.Quit()
 	}
 
 	// launch the main game loop
@@ -159,13 +165,4 @@ func getLocalPlayer(playerNumber int) *state.LocalKeyClient {
 		GameWindow: nil,
 	}
 
-}
-
-// DEPRECATED: Generates an array of test player
-func generatePlayers() []state.UserClient {
-	return []state.UserClient{&state.LocalKeyClient{Name: "Luke"}}
-}
-
-func generateAdversaries() []actor.Actor {
-	return []actor.Actor{actor.NewAdversaryActor(actor.ZombieType, "z1", 1) /*, actor.NewAdversaryActor(actor.GhostType, "g1", 1)*/}
 }

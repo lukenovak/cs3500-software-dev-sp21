@@ -2,9 +2,9 @@
 
 # go variables
 GOBASE := $(shell pwd)
-MAINFILE := $(wildcard ./local/cmd/main.go)
+MAINFILE := $(wildcard ./cmd/main.go)
 
-BINARYNAME := "snarl"
+BINARYNAME := "snarl-server"
 
 build:
 	echo $(PWD)

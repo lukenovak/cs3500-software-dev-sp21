@@ -1,9 +1,8 @@
-package internal
+package level
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"os"
 )
 
@@ -31,8 +30,8 @@ type levelHall struct {
 type levelPoint [2]int
 
 // converts a levelPoint to a Position2D
-func (point levelPoint) toPosition2D() level.Position2D {
-	return level.NewPosition2D(point[0], point[1])
+func (point levelPoint) toPosition2D() Position2D {
+	return NewPosition2D(point[0], point[1])
 }
 
 // Bounds json representation
@@ -49,8 +48,8 @@ type inputLevel struct {
 }
 
 // converts an inputLevel to a game level
-func (input inputLevel) toGameLevel() level.Level {
-	var newLevel, err = level.NewEmptyLevel(4, 4)
+func (input inputLevel) toGameLevel() Level {
+	var newLevel, err = NewEmptyLevel(4, 4)
 	if err != nil {
 		panic(err)
 	}
@@ -67,7 +66,7 @@ func (input inputLevel) toGameLevel() level.Level {
 	for _, hallway := range input.Hallways {
 		newFrom := hallway.From.toPosition2D()
 		newTo := hallway.To.toPosition2D()
-		var newWaypoints []level.Position2D
+		var newWaypoints []Position2D
 		for _, point := range hallway.Waypoints {
 			newWaypoints = append(newWaypoints, point.toPosition2D())
 		}
@@ -82,10 +81,10 @@ func (input inputLevel) toGameLevel() level.Level {
 	for _, object := range input.Objects {
 		switch object.Type {
 		case "key":
-			err = newLevel.PlaceItem(object.Position.toPosition2D(), &level.Item{Type: level.KeyID})
+			err = newLevel.PlaceItem(object.Position.toPosition2D(), &Item{Type: KeyID})
 			hasKey = true
 		case "exit":
-			err = newLevel.PlaceItem(object.Position.toPosition2D(), &level.Item{Type: level.UnlockedExit})
+			err = newLevel.PlaceItem(object.Position.toPosition2D(), &Item{Type: UnlockedExit})
 		default:
 			err = fmt.Errorf("unknown item type")
 		}
@@ -111,7 +110,7 @@ type levelTestObject struct {
 /* ---------- Parsing JSON ---------- */
 
 // Parses a single level
-func ParseLevelFile(filename string, startLevel int) ([]level.Level, error) {
+func ParseLevelFile(filename string, startLevel int) ([]Level, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -119,7 +118,7 @@ func ParseLevelFile(filename string, startLevel int) ([]level.Level, error) {
 
 	d := json.NewDecoder(file)
 
-	var parsedLevels []level.Level
+	var parsedLevels []Level
 	numLevels := 0
 	d.Decode(&numLevels)
 	var decodedLevel inputLevel
