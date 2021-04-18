@@ -152,6 +152,7 @@ func runGame(conn net.Conn, connReader *bufio.Reader, playerName string, gameWin
 }
 
 func updateGui(updateMessage remote.PlayerUpdateMessage, gameWindow fyne.Window) {
+
 	// converting to tiles
 	tiles := make([][]*level.Tile, 0)
 	for i, row := range updateMessage.Layout {
@@ -179,27 +180,31 @@ func updateGui(updateMessage remote.PlayerUpdateMessage, gameWindow fyne.Window)
 	// generate actor lists
 	players := make([]actor.Actor, 0)
 	adversaries := make([]actor.Actor, 0)
+	convertToRelative := func(pos level.Position2D) level.Position2D {
+		updatePosition := updateMessage.Position.ToPos2D()
+		return level.NewPosition2D(pos.Row - updatePosition.Row + 2, pos.Col - updatePosition.Col + 2)
+	}
 	for _, actorData := range updateMessage.Actors {
 		switch actorData.Type {
 		case "player":
 			players = append(players, actor.Actor{
 				Type:        actor.PlayerType,
 				Name:        actorData.Name,
-				Position:    actorData.Position.ToPos2D(),
+				Position:    convertToRelative(actorData.Position.ToPos2D()),
 				RenderedObj: canvas.NewCircle(colornames.Cornflowerblue),
 			})
 		case "zombie":
 			adversaries = append(adversaries, actor.Actor{
 				Type:        actor.ZombieType,
 				Name:        actorData.Name,
-				Position:    actorData.Position.ToPos2D(),
+				Position:    convertToRelative(actorData.Position.ToPos2D()),
 				RenderedObj: canvas.NewCircle(colornames.Crimson),
 			})
 		case "ghost":
 			adversaries = append(adversaries, actor.Actor{
 				Type:        actor.GhostType,
 				Name:        actorData.Name,
-				Position:    actorData.Position.ToPos2D(),
+				Position:    convertToRelative(actorData.Position.ToPos2D()),
 				RenderedObj: canvas.NewCircle(colornames.Hotpink),
 			})
 		}

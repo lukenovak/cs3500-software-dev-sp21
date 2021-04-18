@@ -70,9 +70,15 @@ func (s *PlayerClient) SendPartialState(layout [][]*level.Tile, actors []actor.A
 		return objects
 	}
 
+	// convert the actors to absolute coordinates to meet protocol standards
+	var absoluteActors []actor.Actor
+	for _, a := range actors {
+		absoluteActors = append(absoluteActors, a.MoveActor(level.NewPosition2D(s.currPosition.Row - 2 + a.Position.Row, s.currPosition.Col - 2 + a.Position.Col)))
+	}
+
 	// convert game actors to ActorPositions
 	var convertedActors []remote.ActorPosition
-	for _, a := range actors {
+	for _, a := range absoluteActors {
 		convertedActors = append(convertedActors, *remote.NewActorPositionFromActor(a))
 	}
 

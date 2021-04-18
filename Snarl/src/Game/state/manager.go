@@ -74,8 +74,7 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 	}
 
 	// init adversaries
-	var adversaryClients []AdversaryClient
-	generateAdversaryClients(adversaries, *state.Level)
+	adversaryClients := generateAdversaryClients(state.Adversaries, *state.Level)
 
 	// local function that updates players and observers with new game states
 	updatePlayersAndObservers := func(userClients []UserClient, observers []GameObserver) {
@@ -225,7 +224,7 @@ func GameManager(gameLevels []level.Level, // The level struct for the first lev
 					}
 					adversaries = generateAdversaries(levelNumber)
 					placeActors(state, adversaries, getBottomRightUnoccupiedWalkable, state.Level.Size)
-					generateAdversaryClients(adversaries, *state.Level)
+					adversaryClients = generateAdversaryClients(adversaries, *state.Level)
 				}
 			}
 			playerPosns = append(playerPosns, newPos)
