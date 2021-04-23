@@ -127,3 +127,8 @@ type EndGame struct {
 	Type   string        `json:"type"`
 	Scores []PlayerScore `json:"scores"`
 }
+
+// TypedJson is used to unmarshal an unknown json to determine its type
+type TypedJson struct {
+	Type string `json:"type"`
+}

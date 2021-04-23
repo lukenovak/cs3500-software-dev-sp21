@@ -7,9 +7,8 @@ import (
 	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote/client"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 	"net"
 	"os"
 )
@@ -17,12 +16,12 @@ import (
 const (
 	defaultAddress = "127.0.0.1"
 	defaultPort    = 45678
-	nameCommand    = "name"
+	typeCommand    = "type"
 	moveCommand    = "move"
 )
 
 func main() {
-	// setup the gui application and keyboard
+	// setup the gui application
 	a := app.New()
 	fyne.SetCurrentApp(a)
 	gameWindow := a.NewWindow("snarl client")
@@ -31,13 +30,21 @@ func main() {
 	address, port := parseArguments()
 	socket := fmt.Sprintf("%v:%v", address, port)
 
-	// get client name from stdin
+	// get adversary type from stdin
 	input := bufio.NewReader(os.Stdin)
-	fmt.Print("Enter your client's name: ")
-	name, err := input.ReadString('\n')
-	if err != nil {
-		fmt.Println("Failed to read name.")
-		panic(err)
+	var adversaryType string
+	for {
+		fmt.Print("Enter your adversary type (one of 'zombie' or 'ghost'): ")
+		adversaryType, err := input.ReadString('\n')
+		if err != nil {
+			fmt.Println("Failed to read type.")
+			panic(err)
+		}
+		if adversaryType == "zombie" || adversaryType == "ghost" {
+			break
+		} else {
+			fmt.Println("Invalid type. Try again.")
+		}
 	}
 
 	// connect to server
@@ -57,20 +64,19 @@ func main() {
 		println(serverWelcome.Info)
 	}
 
-	// name handshake
-	var serverNameCommand string
-	err = decoder.Decode(&serverNameCommand)
-	println(serverNameCommand)
+	// type handshake
+	var serverTypeCommand string
+	err = decoder.Decode(&serverTypeCommand)
 	if err != nil {
 		fmt.Println("error decoding json")
 		panic(err)
 	}
-	if serverNameCommand != nameCommand {
-		panic(fmt.Errorf("did not recive name request as expected"))
+	if serverTypeCommand != typeCommand {
+		panic(fmt.Errorf("did not recive type request as expected"))
 	}
-	_, err = conn.Write([]byte(fmt.Sprintf("%s\n", name)))
+	_, err = conn.Write([]byte(fmt.Sprintf("%s\n", adversaryType)))
 	if err != nil {
-		fmt.Println("Failed to send name.")
+		fmt.Println("Failed to send type.")
 		panic(err)
 	}
 
@@ -83,7 +89,7 @@ func main() {
 	json.Unmarshal(*rawData, &parsedData)
 	switch parsedData.Type {
 	case "start-level":
-		go runGame(conn, connReader, name, gameWindow)
+		go runGame(conn, connReader, adversaryType, gameWindow)
 		gameWindow.Show()
 		a.Run()
 	default:
@@ -92,14 +98,19 @@ func main() {
 }
 
 // runGame runs the main game loop
-func runGame(conn net.Conn, connReader *bufio.Reader, playerName string, gameWindow fyne.Window) {
+func runGame(conn net.Conn, connReader *bufio.Reader, adversaryType string, gameWindow fyne.Window) {
 
-	// create a new client-side player representation for this player
-	player := client.Player{
-		Name:       playerName,
-		Posn:       level.Position2D{},
-		GameWindow: gameWindow,
+	// create a new client-side adversary representation for this adversary
+	var adversary state.AdversaryClient
+	switch adversaryType {
+	case "zombie":
+		adversary := state.ZombieClient{}
+	case "ghost":
+		adversary := state.GhostClient{}
+	default:
+		panic("invalid adversary type")
 	}
+
 	// run the main loop
 	for {
 		// see what the server sent us, and act depending on what kind of message it is
@@ -109,10 +120,10 @@ func runGame(conn net.Conn, connReader *bufio.Reader, playerName string, gameWin
 		switch typedData := parsedData.(type) {
 		case string:
 			if typedData == moveCommand {
-				player.HandleMove(conn, connReader)
+				adversary.CalculateMove()
 			}
 		case map[string]interface{}:
-			var parsedData remote.TypedJson
+			var parsedData typedJson
 			json.Unmarshal(*rawData, &parsedData)
 			switch parsedData.Type {
 			case "end-level":
@@ -123,7 +134,7 @@ func runGame(conn net.Conn, connReader *bufio.Reader, playerName string, gameWin
 			case "player-update":
 				var updateMessage remote.PlayerUpdateMessage
 				json.Unmarshal(*rawData, &updateMessage)
-				remote.UpdateGui(updateMessage, gameWindow)
+				updateGui(updateMessage, gameWindow)
 				player.Posn = updateMessage.Position.ToPos2D()
 			case "start-level":
 				// in this case, we just want to go to the next message which should be a player update
