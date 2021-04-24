@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"fyne.io/fyne/v2/app"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/internal/render"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote/server"
@@ -27,7 +29,7 @@ const (
 // main runs the server
 func main() {
 	// parse command line arguments
-	timeout, levelPath, numClients, _, address, port := parseArguments()
+	timeout, levelPath, numClients, shouldObserve, address, port := parseArguments()
 	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", address, port))
 	if err != nil {
 		panic(err)
@@ -35,6 +37,8 @@ func main() {
 	var players []state.UserClient
 	var gamePlayers []actor.Actor
 	var names []string
+
+	// first phase- register players
 	for connectedClients := 0; connectedClients < numClients; {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -77,6 +81,8 @@ func main() {
 		names = append(names, playerName)
 		connectedClients += 1
 	}
+	// second phase- register adversaries
+
 	levels, _ := level.ParseLevelFile(levelPath, 1)
 	for _, player := range players {
 		// create start message
@@ -84,11 +90,22 @@ func main() {
 		msg, _ := json.Marshal(startJson)
 		player.(*server.PlayerClient).SendJsonMessage(msg)
 	}
+
+	// handle observers
+	observerApp := app.New()
+	observerWindow := observerApp.NewWindow("snarl server observer")
+	observer := state.NewGameObserver(func(gs state.GameState) {
+		render.GuiState(gs.Level.Tiles, gs.Players, gs.Adversaries, observerWindow)
+	})
+	var observers []state.GameObserver = nil
+	if shouldObserve {
+		observers = append(observers, observer)
+	}
 	scores := state.GameManager(
 		levels,
 		players,
 		gamePlayers,
-		nil,
+		observers,
 		len(levels),
 	)
 

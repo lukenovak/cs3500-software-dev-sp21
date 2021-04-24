@@ -44,32 +44,6 @@ func (s *PlayerClient) SendPartialState(layout [][]*level.Tile, actors []actor.A
 	// update position
 	s.currPosition = pos
 
-	// TODO: maybe move this out of SendPartialState?
-	// Local function that searches through all the tiles in the layout and returns a list of the Objects in those tiles
-	getObjectsInLayout := func(layout [][]*level.Tile) []remote.Object {
-		var objects []remote.Object
-		for r, row := range layout {
-			for c, tile := range row {
-				if tile != nil && tile.Item != nil {
-					var tileType string
-					switch tile.Item.Type {
-					case level.KeyID:
-						tileType = "key"
-					case level.UnlockedExit, level.LockedExit:
-						tileType = "exit"
-					default:
-						tileType = "unknown-item"
-					}
-					objects = append(objects, remote.Object{
-						Type:     tileType,
-						Position: remote.PointFromPos2d(level.NewPosition2D(r, c)),
-					})
-				}
-			}
-		}
-		return objects
-	}
-
 	// convert the actors to absolute coordinates to meet protocol standards
 	var absoluteActors []actor.Actor
 	for _, a := range actors {
@@ -83,7 +57,7 @@ func (s *PlayerClient) SendPartialState(layout [][]*level.Tile, actors []actor.A
 	}
 
 	// Generate and send the partial state
-	partialState := remote.NewPlayerUpdateMessage(tileLayoutToIntLayout(layout), remote.PointFromPos2d(pos), getObjectsInLayout(layout), convertedActors, fmt.Sprintf("%s moved", s.name))
+	partialState := remote.NewPlayerUpdateMessage(tileLayoutToIntLayout(layout), remote.PointFromPos2d(pos), remote.GetObjectsFromLayout(layout), convertedActors, fmt.Sprintf("%s moved", s.name))
 	message, err := json.Marshal(partialState)
 	if err != nil {
 		// If we cannot marshal a partial state into a communicable json, that is a fatal error and we crash the server

@@ -94,3 +94,32 @@ func UpdateGui(updateMessage PlayerUpdateMessage, gameWindow fyne.Window) {
 
 	render.GuiState(tiles, players, adversaries, gameWindow)
 }
+
+// GetObjectsFromLayout takes a 2d array of tiles, and spits out a list of all the objects in that layout
+func GetObjectsFromLayout(layout [][]*level.Tile) []Object {
+	var objects []Object
+	for r, row := range layout {
+		for c, tile := range row {
+			if tile != nil && tile.Item != nil {
+				var tileType = tile.Item.TypeAsString()
+				objects = append(objects, Object{
+					Type:     tileType,
+					Position: PointFromPos2d(level.NewPosition2D(r, c)),
+				})
+			}
+		}
+	}
+	return objects
+}
+
+// GetObjectsFromLevel converts a level's objects field to an array of Object
+func GetObjectsFromLevel(gameLevel level.Level) []Object {
+	var objects []Object
+	for item, position := range gameLevel.Items {
+		objects = append(objects, Object{
+			Type:     item.TypeAsString(),
+			Position: PointFromPos2d(position),
+		})
+	}
+	return objects
+}
