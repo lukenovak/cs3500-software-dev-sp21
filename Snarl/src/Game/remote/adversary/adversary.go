@@ -21,9 +21,11 @@ type Adversary struct {
 func (adversary Adversary) HandleMove(conn net.Conn, connReader *bufio.Reader) {
 	for {
 		// send move to server
+		move := adversary.Client.CalculateMove(adversary.PlayerPositions).Move
+		fmt.Printf("Moving to: %v", move)
 		moveData, err := json.Marshal(remote.PlayerMove{
 			Type: "move",
-			To:   remote.PointFromPos2d(adversary.Client.CalculateMove(adversary.PlayerPositions).Move),
+			To:   remote.PointFromPos2d(move),
 		})
 		if err != nil {
 			panic(err)
