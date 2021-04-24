@@ -33,22 +33,9 @@ func BlockingRead(r *bufio.Reader) *[]byte {
 	}
 }
 
-func UpdateGui(updateMessage PlayerUpdateMessage, gameWindow fyne.Window) {
-
-	// converting to tiles
-	tiles := make([][]*level.Tile, 0)
-	for i, row := range updateMessage.Layout {
-		tiles = append(tiles, make([]*level.Tile, len(row)))
-		for j, tileType := range row {
-			tile := level.Tile{
-				Type: tileType,
-			}
-			tiles[i][j] = &tile
-		}
-	}
-
+func UpdateGui(tiles [][]*level.Tile, position Point, objects []Object, actors []ActorPosition, gameWindow fyne.Window) {
 	// add items to tiles
-	for _, object := range updateMessage.Objects {
+	for _, object := range objects {
 		var item level.Item
 		switch object.Type {
 		case "key":
@@ -63,10 +50,10 @@ func UpdateGui(updateMessage PlayerUpdateMessage, gameWindow fyne.Window) {
 	players := make([]actor.Actor, 0)
 	adversaries := make([]actor.Actor, 0)
 	convertToRelative := func(pos level.Position2D) level.Position2D {
-		updatePosition := updateMessage.Position.ToPos2D()
+		updatePosition := position.ToPos2D()
 		return level.NewPosition2D(pos.Row-updatePosition.Row+2, pos.Col-updatePosition.Col+2)
 	}
-	for _, actorData := range updateMessage.Actors {
+	for _, actorData := range actors {
 		switch actorData.Type {
 		case "player":
 			players = append(players, actor.Actor{

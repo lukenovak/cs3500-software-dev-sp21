@@ -123,7 +123,17 @@ func runGame(conn net.Conn, connReader *bufio.Reader, playerName string, gameWin
 			case "player-update":
 				var updateMessage remote.PlayerUpdateMessage
 				json.Unmarshal(*rawData, &updateMessage)
-				remote.UpdateGui(updateMessage, gameWindow)
+				tiles := make([][]*level.Tile, 0)
+				for i, row := range updateMessage.Layout {
+					tiles = append(tiles, make([]*level.Tile, len(row)))
+					for j, tileType := range row {
+						tile := level.Tile{
+							Type: tileType,
+						}
+						tiles[i][j] = &tile
+					}
+				}
+				remote.UpdateGui(tiles, updateMessage.Position, updateMessage.Objects, updateMessage.Actors, gameWindow)
 				player.Posn = updateMessage.Position.ToPos2D()
 			case "start-level":
 				// in this case, we just want to go to the next message which should be a player update
