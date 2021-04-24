@@ -98,6 +98,10 @@ func (g *GhostClient) UpdatePosition(d level.Position2D) {
 	g.CurrentPosn = d
 }
 
+func (g *GhostClient) UpdateLevel(level level.Level) {
+	g.LevelData = level
+}
+
 func (g *GhostClient) GetName() string {
 	return g.Name
 }
@@ -112,6 +116,10 @@ type ZombieClient struct {
 
 func (z *ZombieClient) UpdatePosition(d level.Position2D) {
 	z.CurrentPosn = d
+}
+
+func (z *ZombieClient) UpdateLevel(level level.Level) {
+	z.LevelData = level
 }
 
 func (z *ZombieClient) GetName() string {

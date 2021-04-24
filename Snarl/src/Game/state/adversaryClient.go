@@ -10,6 +10,9 @@ type AdversaryClient interface {
 	// Sends an update to the AdversaryClient if its adversary has been moved to a new position
 	UpdatePosition(d level.Position2D)
 
+	// Updates the level data of an adversary
+	UpdateLevel(level level.Level)
+
 	// Gets the name to search for the adversary
 	GetName() string
 }
