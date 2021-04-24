@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote/adversary"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
@@ -139,8 +140,15 @@ func runGame(conn net.Conn, connReader *bufio.Reader, adversaryType string, game
 			case "adversary-update":
 				var updateMessage remote.AdversaryUpdateMessage
 				json.Unmarshal(*rawData, &updateMessage)
-				// TODO make GUI update
-				//updateGui(updateMessage, gameWindow)
+				remote.UpdateGui(updateMessage.Level.ToGameLevel().Tiles, updateMessage.Position, updateMessage.Objects, updateMessage.Actors, gameWindow)
+				playerPositions := make([]level.Position2D, 0)
+				for _, actor := range updateMessage.Actors {
+					if actor.Type == "player" {
+						playerPositions = append(playerPositions, actor.Position.ToPos2D())
+					}
+				}
+				localAdversary.PlayerPositions = playerPositions
+				localAdversary.Client.UpdateLevel(updateMessage.Level.ToGameLevel())
 				localAdversary.Client.UpdatePosition(updateMessage.Position.ToPos2D())
 			case "start-level":
 				// in this case, we just want to go to the next message which should be a player update
