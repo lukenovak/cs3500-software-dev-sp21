@@ -59,6 +59,9 @@ type ActorPosition struct {
 	Position Point  `json:"position"`
 }
 
+// Layout represents a grid of tiles
+type Layout [][]int
+
 // NewActorPositionFromActor creates an ActorPosition object from an actor.Actor
 func NewActorPositionFromActor(a actor.Actor) *ActorPosition {
 	return &ActorPosition{
@@ -70,7 +73,7 @@ func NewActorPositionFromActor(a actor.Actor) *ActorPosition {
 
 type PlayerUpdateMessage struct {
 	Type     string          `json:"type"`
-	Layout   [][]int         `json:"layout"`
+	Layout   Layout          `json:"layout"`
 	Position Point           `json:"position"`
 	Objects  []Object        `json:"objects"`
 	Actors   []ActorPosition `json:"actors"`
@@ -78,7 +81,7 @@ type PlayerUpdateMessage struct {
 }
 
 // NewPlayerUpdateMessage constructs a PlayerUpdateMessage from the necessary fields
-func NewPlayerUpdateMessage(layout [][]int, position Point, objects []Object, actors []ActorPosition, message string) *PlayerUpdateMessage {
+func NewPlayerUpdateMessage(layout Layout, position Point, objects []Object, actors []ActorPosition, message string) *PlayerUpdateMessage {
 	return &PlayerUpdateMessage{
 		Type:     "player-update",
 		Layout:   layout,
@@ -87,6 +90,38 @@ func NewPlayerUpdateMessage(layout [][]int, position Point, objects []Object, ac
 		Actors:   actors,
 		Message:  message,
 	}
+}
+
+type Room struct {
+	Type   string `json:"type"`
+	Origin Point  `json:"origin"`
+	Bounds Bounds `json:"bounds"`
+	Layout Layout `json:"layout"`
+}
+
+type Hallway struct {
+	From      Point   `json:"from"`
+	To        Point   `json:"to"`
+	Waypoints []Point `json:"waypoints"`
+}
+
+type Bounds struct {
+	Rows    int `json:"rows"`
+	Columns int `json:"columns"`
+}
+
+type Level struct {
+	Rooms    []Room    `json:"rooms"`
+	Hallways []Hallway `json:"hallways"`
+}
+
+type AdversaryUpdateMessage struct {
+	Type     string          `json:"type"`
+	Level    Level           `json:"level"`
+	Position Point           `json:"position"`
+	Objects  []Object        `json:"objects"`
+	Actors   []ActorPosition `json:"actors"`
+	Message  string          `json:"message"`
 }
 
 type PlayerMove struct {
