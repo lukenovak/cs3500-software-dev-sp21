@@ -124,6 +124,18 @@ type AdversaryUpdateMessage struct {
 	Message  string          `json:"message"`
 }
 
+// NewAdversaryUpdateMessage constructs an AdversaryUpdateMessage from a game Level, a Position2D, and some ActorPositions
+func NewAdversaryUpdateMessage(gameLevel level.Level, pos level.Position2D, actors []ActorPosition) *AdversaryUpdateMessage {
+	return &AdversaryUpdateMessage{
+		Type:     "adversary-update",
+		Level:    LevelToTestLevel(gameLevel),
+		Position: PointFromPos2d(pos),
+		Objects:  GetObjectsFromLevel(gameLevel),
+		Actors:   actors,
+		Message:  "update",
+	}
+}
+
 type PlayerMove struct {
 	Type string `json:"type"`
 	To   Point  `json:"to"`

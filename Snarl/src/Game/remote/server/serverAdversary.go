@@ -38,13 +38,7 @@ func (a Adversary) CalculateMove(playerPosns []level.Position2D, adversaryPositi
 	appendToActorPositions("adversary", adversaryPositions)
 	
 	// Package the whole thing into a player update and wait for a response
-	remote.NewPlayerUpdateMessage(
-		tileLayoutToIntLayout(a.currentLevel.Tiles),
-		remote.PointFromPos2d(a.currPos),
-		remote.GetObjectsFromLevel(a.currentLevel),
-		actorPositions,
-		"update",
-	)
+	remote.NewAdversaryUpdateMessage(a.currentLevel, a.currPos, actorPositions)
 
 	moveInput := remote.BlockingRead(a.activeConnectionReader)
 
@@ -69,7 +63,7 @@ func (a Adversary) CalculateMove(playerPosns []level.Position2D, adversaryPositi
 }
 
 func (a Adversary) UpdatePosition(d level.Position2D) {
-	panic("implement me")
+	a.currPos = d
 }
 
 func (a Adversary) GetName() string {
