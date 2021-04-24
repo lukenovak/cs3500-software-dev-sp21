@@ -123,3 +123,109 @@ func GetObjectsFromLevel(gameLevel level.Level) []Object {
 	}
 	return objects
 }
+
+// ToGameLevel converts server Level to a standard level.Level
+func (jsonLevel Level) ToGameLevel() level.Level {
+	var newLevel, err = level.NewEmptyLevel(4, 4)
+	if err != nil {
+		panic(err)
+	}
+	// generate rooms
+	for _, room := range jsonLevel.Rooms {
+		newOrigin := room.Origin.ToPos2D()
+		err = newLevel.GenerateRectangularRoomWithLayout(newOrigin, len(room.Layout), len(room.Layout[0]), room.Layout)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	// generate hallways
+	for _, hallway := range jsonLevel.Hallways {
+		newFrom := hallway.From.ToPos2D()
+		newTo := hallway.To.ToPos2D()
+		var newWaypoints []level.Position2D
+		for _, point := range hallway.Waypoints {
+			newWaypoints = append(newWaypoints, point.ToPos2D())
+		}
+		err = newLevel.GenerateHallway(newFrom, newTo, newWaypoints)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return newLevel
+}
+
+func LevelToTestLevel(inputLevel level.Level) Level {
+	testRooms := make([]Room, 0)
+	testHallways := make([]Hallway, 0)
+
+	for _, node := range inputLevel.RoomDataGraph {
+		switch node.Type() {
+		case "room":
+			testRooms = append(testRooms, roomToTestRoom(node.(*level.RoomData), inputLevel))
+		case "hallway":
+			testHallways = append(testHallways, hallToTestHall(node.(*level.HallData)))
+		}
+	}
+
+	return Level{
+		Rooms:    testRooms,
+		Hallways: testHallways,
+	}
+}
+
+// roomToTestRoom converts a room in a level.Level to a Room object
+func roomToTestRoom(room *level.RoomData, inputLevel level.Level) Room {
+	return Room{
+		Type: "room",
+		Origin: Point{
+			room.TopLeft.Row,
+			room.TopLeft.Col,
+		},
+		Bounds: Bounds{
+			Rows:    room.Size.Row,
+			Columns: room.Size.Col,
+		},
+		Layout: TilesToArray(inputLevel.GetTiles(room.TopLeft, room.Size)),
+	}
+}
+
+// hallToTestHall converts a game hallway to a Hallway object
+func hallToTestHall(hall *level.HallData) Hallway {
+	waypoints := make([]Point, 0)
+	for _, point := range hall.Waypoints {
+		waypoints = append(waypoints, Point{
+			point.Row,
+			point.Col,
+		})
+	}
+	return Hallway{
+		From: Point{
+			hall.Start.Row,
+			hall.Start.Col,
+		},
+		To: Point{
+			hall.End.Row,
+			hall.End.Col,
+		},
+		Waypoints: waypoints,
+	}
+}
+
+// TilesToArray converts a level layout to an array of integer
+func TilesToArray(tiles [][]*level.Tile) [][]int {
+	output := make([][]int, 0)
+	for _, tileRow := range tiles {
+		outputRow := make([]int, 0)
+		for _, tile := range tileRow {
+			if tile == nil {
+				outputRow = append(outputRow, 0)
+			} else {
+				outputRow = append(outputRow, tile.Type)
+			}
+		}
+		output = append(output, outputRow)
+	}
+	return output
+}

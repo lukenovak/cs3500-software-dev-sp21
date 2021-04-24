@@ -57,7 +57,7 @@ func (s *PlayerClient) SendPartialState(layout [][]*level.Tile, actors []actor.A
 	}
 
 	// Generate and send the partial state
-	partialState := remote.NewPlayerUpdateMessage(tileLayoutToIntLayout(layout), remote.PointFromPos2d(pos), remote.GetObjectsFromLayout(layout), convertedActors, fmt.Sprintf("%s moved", s.name))
+	partialState := remote.NewPlayerUpdateMessage(remote.TilesToArray(layout), remote.PointFromPos2d(pos), remote.GetObjectsFromLayout(layout), convertedActors, fmt.Sprintf("%s moved", s.name))
 	message, err := json.Marshal(partialState)
 	if err != nil {
 		// If we cannot marshal a partial state into a communicable json, that is a fatal error and we crash the server
@@ -133,21 +133,4 @@ func (s *PlayerClient) AsUserClient() state.UserClient {
 
 func (s *PlayerClient) CloseConnection() error {
 	return s.activeConnection.Close()
-}
-
-// tileLayoutToIntLayout converts a 2d slice of Tile to a 2d slice of int for network communication
-func tileLayoutToIntLayout(tiles [][]*level.Tile) [][]int {
-	output := make([][]int, 0)
-	for _, tileRow := range tiles {
-		outputRow := make([]int, 0)
-		for _, tile := range tileRow {
-			if tile == nil {
-				outputRow = append(outputRow, 0)
-			} else {
-				outputRow = append(outputRow, tile.Type)
-			}
-		}
-		output = append(output, outputRow)
-	}
-	return output
 }
