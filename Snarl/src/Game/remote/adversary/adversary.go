@@ -12,19 +12,18 @@ import (
 )
 
 type Adversary struct {
-	client     state.AdversaryClient
-	Posn       level.Position2D
-	GameWindow fyne.Window
+	Client          state.AdversaryClient
+	PlayerPositions []level.Position2D
+	GameWindow      fyne.Window
 }
 
 // HandleMove gets user input and then writes it to the server
 func (adversary Adversary) HandleMove(conn net.Conn, connReader *bufio.Reader) {
 	for {
-
 		// send move to server
 		moveData, err := json.Marshal(remote.PlayerMove{
 			Type: "move",
-			To:   remote.PointFromPos2d(adversary.Posn.AddPosition(move)),
+			To:   remote.PointFromPos2d(adversary.Client.CalculateMove(adversary.PlayerPositions).Move),
 		})
 		if err != nil {
 			panic(err)
