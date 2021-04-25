@@ -47,6 +47,18 @@ An `(adversary-update-message)` is a JSON object containing an adversary update 
 }
 ```
 
+By implementing a new type of update, the previous protocol is kept intact, while the new functionality is able to get
+the information it needs.
+
 This update message is very similar to the `(player-update-message)` and differs only in the `level` field. This change
 was required because adversaries receive the entire level, not just a localized layout. A `(level)` is defined in
-Milestone 4.
+the testing task for Milestone 4, and works using a system of Rooms, Hallways, and layouts for each room.
+
+### Backward Compatibility in running the executable
+
+Finally, the executable is 100% backward compatible. This is accomplished by having the number
+of remote adversaries set at the command line with a new flag. The game manager knows how many
+adversaries are connected, as it has been extended with an `outsideAdversaries` field, and it
+generates local adversaries to fill out any remaining spots not filled by the remote adversaries.
+In the case that no remote adversaries are specified, the game manager would handle all of the
+adversary behavior exactly as it did before.
