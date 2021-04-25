@@ -133,6 +133,8 @@ func runGame(conn net.Conn, connReader *bufio.Reader, adversaryType int, gameWin
 	localAdversary := adversary.Adversary{
 		Client:     client,
 		GameWindow: gameWindow,
+		Conn: conn,
+		ConnReader: connReader,
 	}
 
 	// run the main loop
@@ -144,7 +146,7 @@ func runGame(conn net.Conn, connReader *bufio.Reader, adversaryType int, gameWin
 		switch typedData := parsedData.(type) {
 		case string:
 			if typedData == moveCommand {
-				localAdversary.HandleMove(conn, connReader)
+				localAdversary.HandleMove()
 			}
 		case map[string]interface{}:
 			var parsedData remote.TypedJson
@@ -160,12 +162,16 @@ func runGame(conn net.Conn, connReader *bufio.Reader, adversaryType int, gameWin
 				json.Unmarshal(*rawData, &updateMessage)
 				//remote.UpdateGui(updateMessage.Level.ToGameLevel().Tiles, updateMessage.Position, updateMessage.Objects, updateMessage.Actors, gameWindow)
 				playerPositions := make([]level.Position2D, 0)
+				adversaryPositions := make([]level.Position2D, 0)
 				for _, actor := range updateMessage.Actors {
 					if actor.Type == "player" {
 						playerPositions = append(playerPositions, actor.Position.ToPos2D())
+					} else {
+						adversaryPositions = append(adversaryPositions, actor.Position.ToPos2D())
 					}
 				}
 				localAdversary.PlayerPositions = playerPositions
+				localAdversary.AdversaryPositions = adversaryPositions
 				localAdversary.Client.UpdateLevel(updateMessage.Level.ToGameLevel())
 				localAdversary.Client.UpdatePosition(updateMessage.Position.ToPos2D())
 				continue
