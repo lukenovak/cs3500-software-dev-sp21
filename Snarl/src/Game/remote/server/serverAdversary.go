@@ -50,13 +50,26 @@ func (a *Adversary) CalculateMove(playerPosns []level.Position2D, adversaryPosit
 	appendToActorPositions("adversary", adversaryPositions)
 
 	// Package the whole thing into a player update and wait for a response
-	remote.NewAdversaryUpdateMessage(a.currentLevel, a.currPos, actorPositions)
+	adversaryMessage, _ := json.Marshal(remote.NewAdversaryUpdateMessage(a.currentLevel, a.currPos, actorPositions))
+	err := a.SendJsonMessage(adversaryMessage)
+	if err != nil {
+		log.Println("unable to communicate with adversary. moving 0, 0")
+		return state.Response{
+			PlayerName: a.name,
+			Move:       level.NewPosition2D(0, 0),
+			Actions:    nil,
+		}
+	}
+
+	log.Println("sending move command to an adversary")
+	// tell the remote adversary to return a move
+	a.activeConnection.Write([]byte("\"move\"\n"))
 
 	moveInput := remote.BlockingRead(a.activeConnectionReader)
 
 	// input should be a Move
 	var move remote.PlayerMove
-	err := json.Unmarshal(*moveInput, &move)
+	err = json.Unmarshal(*moveInput, &move)
 	if err != nil {
 		log.Println("invalid move sent by adversary, moving 0, 0")
 		return state.Response{
@@ -88,4 +101,13 @@ func (a *Adversary) GetType() int {
 
 func (a *Adversary) UpdateLevel(level level.Level) {
 	a.currentLevel = level
+}
+
+// SendJsonMessage writes a raw json message over the active connection and returns the status of that write
+func (a *Adversary) SendJsonMessage(message json.RawMessage) error {
+	log.Printf("sent message %s to adversary %s", string(message), a.name)
+	// endl terminator
+	message = append(message, '\n')
+	_, err := a.activeConnection.Write(message)
+	return err
 }

@@ -43,7 +43,7 @@ func main() {
 
 	// first phase- register players
 	log.Println("registering players...")
-	for connectedClients := 0; connectedClients < numClients; {
+	for len(players) < numClients {
 		// initial name handshake
 		conn, playerName := initialHandshake(listener)
 
@@ -53,18 +53,17 @@ func main() {
 		gamePlayers = append(gamePlayers, newGamePlayer)
 		players = append(players, newPlayer.AsUserClient())
 		names = append(names, playerName)
-		connectedClients += 1
 	}
 
 	// second phase- register adversaries
 	var adversaries []state.AdversaryClient
 	log.Println("registering adversaries...")
-	for connectedAdversasries := 0; connectedAdversasries < numAdversaries; {
+	for len(adversaries) < numAdversaries {
 		// get name
 		conn, name := initialHandshake(listener)
 
 		// get type
-		_, err = conn.Write([]byte("\"type (1 for zombie, 2 for ghost)\"\n"))
+		_, err = conn.Write([]byte("\"type\"\n"))
 		if err != nil {
 			// if we can't write to the connection for the type, close it and move onto the next
 			conn.Close()
@@ -80,11 +79,17 @@ func main() {
 
 
 	levels, _ := level.ParseLevelFile(levelPath, 1)
+
+	// deliver the first start level message
 	for _, player := range players {
 		// create start message
 		startJson := remote.NewStartLevel(1, names)
 		msg, _ := json.Marshal(startJson)
 		player.(*server.PlayerClient).SendJsonMessage(msg)
+	}
+	for _, adversary := range adversaries {
+		msg, _ := json.Marshal(remote.NewStartLevel(1, names))
+		adversary.(*server.Adversary).SendJsonMessage(msg)
 	}
 
 	// handle observers

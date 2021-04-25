@@ -329,6 +329,8 @@ func generateAdversaryClients(adversaries []actor.Actor, levelData level.Level, 
 		for _, client := range outsideClients {
 			// if the name matches an existing client name, append it to the array and move on
 			if adversary.Name == client.GetName() {
+				client.UpdateLevel(levelData)
+				client.UpdatePosition(adversary.Position)
 				adversaryClients = append(adversaryClients, client)
 				continue
 			}
