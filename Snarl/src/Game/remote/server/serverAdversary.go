@@ -14,13 +14,25 @@ import (
 type Adversary struct {
 	currentLevel           level.Level
 	name                   string
+	adversaryType          int
 	currPos                level.Position2D
 	activeConnection       net.Conn
 	activeConnectionReader *bufio.Reader
 }
 
-func (a Adversary) CalculateMove(playerPosns []level.Position2D, adversaryPositions []level.Position2D) state.Response {
-	
+func NewServerAdversary(name string, adversaryType int, activeConnection net.Conn) *Adversary {
+	return &Adversary{
+		currentLevel:           level.Level{},
+		name:                   name,
+		adversaryType:          adversaryType,
+		currPos:                level.NewPosition2D(-1, -1),
+		activeConnection:       activeConnection,
+		activeConnectionReader: bufio.NewReader(activeConnection),
+	}
+}
+
+func (a *Adversary) CalculateMove(playerPosns []level.Position2D, adversaryPositions []level.Position2D) state.Response {
+
 	var actorPositions []remote.ActorPosition
 
 	// appendToActorPositions converts a list of positions to ActorPositions and appends to actorPositions
@@ -36,7 +48,7 @@ func (a Adversary) CalculateMove(playerPosns []level.Position2D, adversaryPositi
 
 	appendToActorPositions("player", playerPosns)
 	appendToActorPositions("adversary", adversaryPositions)
-	
+
 	// Package the whole thing into a player update and wait for a response
 	remote.NewAdversaryUpdateMessage(a.currentLevel, a.currPos, actorPositions)
 
@@ -62,11 +74,14 @@ func (a Adversary) CalculateMove(playerPosns []level.Position2D, adversaryPositi
 	}
 }
 
-func (a Adversary) UpdatePosition(d level.Position2D) {
+func (a *Adversary) UpdatePosition(d level.Position2D) {
 	a.currPos = d
 }
 
-func (a Adversary) GetName() string {
+func (a *Adversary) GetName() string {
 	return a.name
 }
 
+func (a *Adversary) GetType() int {
+	return a.adversaryType
+}

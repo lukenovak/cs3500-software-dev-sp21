@@ -1,6 +1,7 @@
 package state
 
 import (
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"math/rand"
 )
@@ -102,6 +103,10 @@ func (g *GhostClient) GetName() string {
 	return g.Name
 }
 
+func (g *GhostClient) GetType() int {
+	return actor.GhostType
+}
+
 // client that moves zombie-type enemies
 type ZombieClient struct {
 	Name         string
@@ -145,4 +150,8 @@ func (z *ZombieClient) CalculateMove(playerPosns []level.Position2D, adversaryPo
 		PlayerName: z.Name,
 		Move:       move,
 	}
+}
+
+func (z *ZombieClient) GetType() int {
+	return actor.ZombieType
 }

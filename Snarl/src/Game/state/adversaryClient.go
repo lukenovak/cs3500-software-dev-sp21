@@ -12,10 +12,14 @@ type AdversaryClient interface {
 
 	// Gets the name to search for the adversary
 	GetName() string
+
+	// Gets the type of the adversary
+	GetType() int
 }
 
 type ExampleAdvClient struct {
 	Name     	  	string
+	Type			int
 	LevelData  		level.Level
 	MoveDistance 	int
 	CurrentPosn  	level.Position2D

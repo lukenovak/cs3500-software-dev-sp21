@@ -84,7 +84,7 @@ func main() {
 	var playerScores []remote.PlayerScore
 	// local func run game and get return value
 	runGame := func() {
-		playerScores = state.GameManager(levels, players, gamePlayers, observers, 1)
+		playerScores = state.ManageGame(levels, players, gamePlayers, observers, 1)
 		fmt.Println("Player Leaderboard:")
 		fmt.Println("Name, Exits, Keys, Ejections")
 		for _, score := range playerScores {

@@ -57,7 +57,7 @@ func Test(names []string,
 
 	var managerTrace []interface{}
 
-	go state.GameManager(gameLevel, testUserClients, testPlayers, testAdversaries, testObservers, 1)
+	go state.ManageGame(gameLevel, testUserClients, testPlayers, testAdversaries, testObservers, 1)
 
 	// wait for a signal to stop from the last player
 	for {
