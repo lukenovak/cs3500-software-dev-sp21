@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote/adversary"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 	"net"
 	"os"
@@ -101,14 +103,18 @@ func main() {
 func runGame(conn net.Conn, connReader *bufio.Reader, adversaryType string, gameWindow fyne.Window) {
 
 	// create a new client-side adversary representation for this adversary
-	var adversary state.AdversaryClient
+	var client state.AdversaryClient
 	switch adversaryType {
 	case "zombie":
-		adversary := state.ZombieClient{}
+		client = &state.ZombieClient{}
 	case "ghost":
-		adversary := state.GhostClient{}
+		client = &state.GhostClient{}
 	default:
 		panic("invalid adversary type")
+	}
+	localAdversary := adversary.Adversary{
+		Client:     client,
+		GameWindow: gameWindow,
 	}
 
 	// run the main loop
@@ -120,10 +126,10 @@ func runGame(conn net.Conn, connReader *bufio.Reader, adversaryType string, game
 		switch typedData := parsedData.(type) {
 		case string:
 			if typedData == moveCommand {
-				adversary.CalculateMove()
+				localAdversary.HandleMove(conn, connReader)
 			}
 		case map[string]interface{}:
-			var parsedData typedJson
+			var parsedData remote.TypedJson
 			json.Unmarshal(*rawData, &parsedData)
 			switch parsedData.Type {
 			case "end-level":
@@ -131,11 +137,19 @@ func runGame(conn net.Conn, connReader *bufio.Reader, adversaryType string, game
 				json.Unmarshal(*rawData, &endLevel)
 				fmt.Println(endLevel)
 				return
-			case "player-update":
-				var updateMessage remote.PlayerUpdateMessage
+			case "adversary-update":
+				var updateMessage remote.AdversaryUpdateMessage
 				json.Unmarshal(*rawData, &updateMessage)
-				updateGui(updateMessage, gameWindow)
-				player.Posn = updateMessage.Position.ToPos2D()
+				remote.UpdateGui(updateMessage.Level.ToGameLevel().Tiles, updateMessage.Position, updateMessage.Objects, updateMessage.Actors, gameWindow)
+				playerPositions := make([]level.Position2D, 0)
+				for _, actor := range updateMessage.Actors {
+					if actor.Type == "player" {
+						playerPositions = append(playerPositions, actor.Position.ToPos2D())
+					}
+				}
+				localAdversary.PlayerPositions = playerPositions
+				localAdversary.Client.UpdateLevel(updateMessage.Level.ToGameLevel())
+				localAdversary.Client.UpdatePosition(updateMessage.Position.ToPos2D())
 			case "start-level":
 				// in this case, we just want to go to the next message which should be a player update
 				println("advancing to the next level!")

@@ -15,7 +15,7 @@ type GhostClient struct {
 }
 
 // calulates a move for a ghost type adversary
-func (g *GhostClient) CalculateMove(playerPosns []level.Position2D, adversaryPosns []level.Position2D) Response {
+func (g *GhostClient) CalculateMove(playerPosns []level.Position2D) Response {
 	// find the move that results in the minimum distance to a player in the same room
 	move := g.CurrentPosn
 	roomHasPlayer := false
@@ -99,6 +99,10 @@ func (g *GhostClient) UpdatePosition(d level.Position2D) {
 	g.CurrentPosn = d
 }
 
+func (g *GhostClient) UpdateLevel(level level.Level) {
+	g.LevelData = level
+}
+
 func (g *GhostClient) GetName() string {
 	return g.Name
 }
@@ -119,11 +123,15 @@ func (z *ZombieClient) UpdatePosition(d level.Position2D) {
 	z.CurrentPosn = d
 }
 
+func (z *ZombieClient) UpdateLevel(level level.Level) {
+	z.LevelData = level
+}
+
 func (z *ZombieClient) GetName() string {
 	return z.Name
 }
 
-func (z *ZombieClient) CalculateMove(playerPosns []level.Position2D, adversaryPosns []level.Position2D) Response {
+func (z *ZombieClient) CalculateMove(playerPosns []level.Position2D) Response {
 	move := z.CurrentPosn
 	roomHasPlayer := false
 	validMoves := z.LevelData.GetWalkableTilePositions(z.CurrentPosn, z.MoveDistance)
