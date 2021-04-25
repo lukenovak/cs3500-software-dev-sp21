@@ -85,3 +85,7 @@ func (a *Adversary) GetName() string {
 func (a *Adversary) GetType() int {
 	return a.adversaryType
 }
+
+func (a *Adversary) UpdateLevel(level level.Level) {
+	a.currentLevel = level
+}
