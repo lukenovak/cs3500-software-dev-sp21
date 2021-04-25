@@ -231,9 +231,15 @@ func ManageGame(gameLevels []level.Level, // The level struct for the first leve
 			playerPosns = append(playerPosns, newPos)
 		}
 
+		// get adversary positions
+		var adversaryPosns []level.Position2D
+		for _, adversary := range adversaries {
+			adversaryPosns = append(adversaryPosns, adversary.Position)
+		}
+
 		// Move the adversaries
 		for _, adversary := range adversaryClients {
-			moveResponse := adversary.CalculateMove(playerPosns, []level.Position2D{})
+			moveResponse := adversary.CalculateMove(playerPosns, adversaryPosns)
 			state.MoveActorAbsolute(adversary.GetName(), moveResponse.Move)
 			// check for ejections
 			if ActorsOccupyPosition(state.Players, moveResponse.Move) {
