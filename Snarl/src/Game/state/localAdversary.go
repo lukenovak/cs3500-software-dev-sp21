@@ -1,6 +1,7 @@
 package state
 
 import (
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"math/rand"
 )
@@ -19,10 +20,12 @@ func (g *GhostClient) CalculateMove(playerPosns []level.Position2D, adversaryPos
 	move := g.CurrentPosn
 	roomHasPlayer := false
 	walkableMoves := g.LevelData.GetWalkableTilePositions(g.CurrentPosn, g.MoveDistance)
+	validMoves := getValidMovesFromAllWalkables(walkableMoves, adversaryPosns, g.LevelData)
+
 	minDistance := g.LevelData.Size.Col * g.LevelData.Size.Row
 	for _, playerPosn := range playerPosns {
 		if g.LevelData.GetTile(playerPosn).RoomId == g.LevelData.GetTile(g.CurrentPosn).RoomId {
-			for _, pos := range walkableMoves {
+			for _, pos := range validMoves {
 				if testDistance := pos.GetManhattanDistance(playerPosn); testDistance < minDistance {
 					move = pos
 					minDistance = testDistance
@@ -40,6 +43,7 @@ func (g *GhostClient) CalculateMove(playerPosns []level.Position2D, adversaryPos
 		}
 	}
 
+	// if we get here, all players are in other rooms
 	// find if a teleport is possible
 	hasAdjacentWall := false
 	if leftTile := g.LevelData.GetTile(level.NewPosition2D(g.CurrentPosn.Row-1, g.CurrentPosn.Col)); leftTile != nil && leftTile.Type == level.Wall {
@@ -84,8 +88,10 @@ func (g *GhostClient) CalculateMove(playerPosns []level.Position2D, adversaryPos
 	}
 
 	// pick a random move as a last resort
-	if len(walkableMoves) > 0 {
-		move = walkableMoves[rand.Intn(len(walkableMoves))]
+	if len(validMoves) > 0 {
+		move = validMoves[rand.Intn(len(validMoves))]
+	} else {
+		move = g.CurrentPosn
 	}
 
 	return Response{
@@ -98,8 +104,16 @@ func (g *GhostClient) UpdatePosition(d level.Position2D) {
 	g.CurrentPosn = d
 }
 
+func (g *GhostClient) UpdateLevel(level level.Level) {
+	g.LevelData = level
+}
+
 func (g *GhostClient) GetName() string {
 	return g.Name
+}
+
+func (g *GhostClient) GetType() int {
+	return actor.GhostType
 }
 
 // client that moves zombie-type enemies
@@ -114,6 +128,10 @@ func (z *ZombieClient) UpdatePosition(d level.Position2D) {
 	z.CurrentPosn = d
 }
 
+func (z *ZombieClient) UpdateLevel(level level.Level) {
+	z.LevelData = level
+}
+
 func (z *ZombieClient) GetName() string {
 	return z.Name
 }
@@ -121,7 +139,14 @@ func (z *ZombieClient) GetName() string {
 func (z *ZombieClient) CalculateMove(playerPosns []level.Position2D, adversaryPosns []level.Position2D) Response {
 	move := z.CurrentPosn
 	roomHasPlayer := false
-	validMoves := z.LevelData.GetWalkableTilePositions(z.CurrentPosn, z.MoveDistance)
+	walkableMoves := z.LevelData.GetWalkableTilePositions(z.CurrentPosn, z.MoveDistance)
+	validMoves := getValidMovesFromAllWalkables(walkableMoves, adversaryPosns, z.LevelData)
+
+	// if there are no valid moves, return from this function with a 0 move
+	if len(validMoves) == 0 {
+		return Response{PlayerName: z.Name, Move: z.CurrentPosn}
+	}
+
 	for _, posn := range playerPosns {
 		if z.LevelData.GetTile(posn).RoomId == z.LevelData.GetTile(z.CurrentPosn).RoomId {
 			roomHasPlayer = true
@@ -145,4 +170,29 @@ func (z *ZombieClient) CalculateMove(playerPosns []level.Position2D, adversaryPo
 		PlayerName: z.Name,
 		Move:       move,
 	}
+}
+
+func (z *ZombieClient) GetType() int {
+	return actor.ZombieType
+}
+
+// getValidMovesFromAllWalkables reduces the full list of walkable moves to those that the adversary can acutally move to
+func getValidMovesFromAllWalkables(walkableMoves []level.Position2D, adversaryPosns []level.Position2D, levelData level.Level) []level.Position2D {
+	var validMoves []level.Position2D
+
+	// exclude player moves and doors from the valid moves
+	for _, walkable := range walkableMoves {
+		valid := true
+		for _, pos := range adversaryPosns {
+			if pos.Equals(walkable) || levelData.GetTile(walkable).Type == level.Door {
+				valid = false
+				break
+			}
+		}
+		if valid {
+			validMoves = append(validMoves, walkable)
+		}
+	}
+
+	return validMoves
 }

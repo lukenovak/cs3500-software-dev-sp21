@@ -82,9 +82,9 @@ func main() {
 	}
 
 	var playerScores []remote.PlayerScore
-	// local func run game and get return value
+	// Wrapper to run the game manager and capture the scores it returns at its end
 	runGame := func() {
-		playerScores = state.GameManager(levels, players, gamePlayers, observers, 1)
+		playerScores = state.ManageGame(levels, players, gamePlayers, observers, nil, len(levels) - *startLevelFlag)
 		fmt.Println("Player Leaderboard:")
 		fmt.Println("Name, Exits, Keys, Ejections")
 		for _, score := range playerScores {
@@ -100,61 +100,6 @@ func main() {
 	a.Run()
 
 	os.Exit(0)
-}
-
-// DEPRECATED: generates an example level
-func generateGameStateLevel() level.Level {
-	newLevel, err := level.NewEmptyLevel(32, 32)
-	if err != nil {
-		panic(err)
-	}
-	// first room from 0,0 to 5, 4
-	err = newLevel.GenerateRectangularRoom(level.NewPosition2D(0, 0),
-		5,
-		6,
-		[]level.Position2D{level.NewPosition2D(4, 1), level.NewPosition2D(3, 5)})
-	if err != nil {
-		panic(err)
-	}
-
-	// second room from 9, 9 to 14, 16
-	err = newLevel.GenerateRectangularRoom(level.NewPosition2D(9, 9),
-		8,
-		6,
-		[]level.Position2D{level.NewPosition2D(13, 9)})
-	if err != nil {
-		panic(err)
-	}
-
-	// Third room from 20, 21 to 28, 29
-	err = newLevel.GenerateRectangularRoom(level.NewPosition2D(21, 20),
-		9,
-		9,
-		[]level.Position2D{level.NewPosition2D(25, 20)})
-	if err != nil {
-		panic(err)
-	}
-
-	// connecting hallways
-	hallwayWaypoints := []level.Position2D{{3, 7}, {13, 7}}
-	err = newLevel.GenerateHallway(level.NewPosition2D(3, 5), level.NewPosition2D(13, 9), hallwayWaypoints)
-	if err != nil {
-		panic(err)
-	}
-
-	hallwayWaypoints = []level.Position2D{{25, 1}}
-	err = newLevel.GenerateHallway(level.NewPosition2D(4, 1), level.NewPosition2D(25, 20), hallwayWaypoints)
-	if err != nil {
-		panic(err)
-	}
-
-	exit := level.Item{Type: level.LockedExit}
-	newLevel.PlaceItem(level.NewPosition2D(14, 12), &exit)
-
-	key := level.Item{Type: level.KeyID}
-	newLevel.PlaceItem(level.NewPosition2D(25, 25), &key)
-
-	return newLevel
 }
 
 func getLocalPlayer(playerNumber int) *state.LocalKeyClient {

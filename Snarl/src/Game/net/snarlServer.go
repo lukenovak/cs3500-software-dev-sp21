@@ -84,7 +84,7 @@ func main() {
 		msg, _ := json.Marshal(startJson)
 		player.(*server.PlayerClient).SendJsonMessage(msg)
 	}
-	scores := state.GameManager(
+	scores := state.ManageGame(
 		levels,
 		players,
 		gamePlayers,

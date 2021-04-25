@@ -7,13 +7,9 @@ import (
 	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/canvas"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/internal/render"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote/client"
-	"golang.org/x/image/colornames"
 	"net"
 	"os"
 )
@@ -30,7 +26,6 @@ func main() {
 	a := app.New()
 	fyne.SetCurrentApp(a)
 	gameWindow := a.NewWindow("snarl client")
-
 
 	// parse command line arguments
 	address, port := parseArguments()
@@ -84,7 +79,7 @@ func main() {
 
 	// move to game Loop
 	rawData := remote.BlockingRead(connReader)
-	var parsedData typedJson
+	var parsedData remote.TypedJson
 	json.Unmarshal(*rawData, &parsedData)
 	switch parsedData.Type {
 	case "start-level":
@@ -94,11 +89,6 @@ func main() {
 	default:
 		println("cannot start game without start-level command")
 	}
-}
-
-// typedJson is used to unmarshal an unknown json to determine its type
-type typedJson struct {
-	Type string `json:"type"`
 }
 
 // runGame runs the main game loop
@@ -122,7 +112,7 @@ func runGame(conn net.Conn, connReader *bufio.Reader, playerName string, gameWin
 				player.HandleMove(conn, connReader)
 			}
 		case map[string]interface{}:
-			var parsedData typedJson
+			var parsedData remote.TypedJson
 			json.Unmarshal(*rawData, &parsedData)
 			switch parsedData.Type {
 			case "end-level":
@@ -133,7 +123,17 @@ func runGame(conn net.Conn, connReader *bufio.Reader, playerName string, gameWin
 			case "player-update":
 				var updateMessage remote.PlayerUpdateMessage
 				json.Unmarshal(*rawData, &updateMessage)
-				updateGui(updateMessage, gameWindow)
+				tiles := make([][]*level.Tile, 0)
+				for i, row := range updateMessage.Layout {
+					tiles = append(tiles, make([]*level.Tile, len(row)))
+					for j, tileType := range row {
+						tile := level.Tile{
+							Type: tileType,
+						}
+						tiles[i][j] = &tile
+					}
+				}
+				remote.UpdateGui(tiles, updateMessage.Position, updateMessage.Objects, updateMessage.Actors, gameWindow)
 				player.Posn = updateMessage.Position.ToPos2D()
 			case "start-level":
 				// in this case, we just want to go to the next message which should be a player update
@@ -149,68 +149,6 @@ func runGame(conn net.Conn, connReader *bufio.Reader, playerName string, gameWin
 			}
 		}
 	}
-}
-
-func updateGui(updateMessage remote.PlayerUpdateMessage, gameWindow fyne.Window) {
-
-	// converting to tiles
-	tiles := make([][]*level.Tile, 0)
-	for i, row := range updateMessage.Layout {
-		tiles = append(tiles, make([]*level.Tile, len(row)))
-		for j, tileType := range row {
-			tile := level.Tile{
-				Type: tileType,
-			}
-			tiles[i][j] = &tile
-		}
-	}
-
-	// add items to tiles
-	for _, object := range updateMessage.Objects {
-		var item level.Item
-		switch object.Type {
-		case "key":
-			item = level.Item{Type: level.KeyID}
-		case "exit":
-			item = level.Item{Type: level.LockedExit}
-		}
-		tiles[object.Position[0]][object.Position[1]].Item = &item
-	}
-
-	// generate actor lists
-	players := make([]actor.Actor, 0)
-	adversaries := make([]actor.Actor, 0)
-	convertToRelative := func(pos level.Position2D) level.Position2D {
-		updatePosition := updateMessage.Position.ToPos2D()
-		return level.NewPosition2D(pos.Row - updatePosition.Row + 2, pos.Col - updatePosition.Col + 2)
-	}
-	for _, actorData := range updateMessage.Actors {
-		switch actorData.Type {
-		case "player":
-			players = append(players, actor.Actor{
-				Type:        actor.PlayerType,
-				Name:        actorData.Name,
-				Position:    convertToRelative(actorData.Position.ToPos2D()),
-				RenderedObj: canvas.NewCircle(colornames.Cornflowerblue),
-			})
-		case "zombie":
-			adversaries = append(adversaries, actor.Actor{
-				Type:        actor.ZombieType,
-				Name:        actorData.Name,
-				Position:    convertToRelative(actorData.Position.ToPos2D()),
-				RenderedObj: canvas.NewCircle(colornames.Crimson),
-			})
-		case "ghost":
-			adversaries = append(adversaries, actor.Actor{
-				Type:        actor.GhostType,
-				Name:        actorData.Name,
-				Position:    convertToRelative(actorData.Position.ToPos2D()),
-				RenderedObj: canvas.NewCircle(colornames.Hotpink),
-			})
-		}
-	}
-
-	render.GuiState(tiles, players, adversaries, gameWindow)
 }
 
 func parseArguments() (string, int) {
