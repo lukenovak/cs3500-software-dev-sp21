@@ -15,7 +15,7 @@ const (
 
 /* -------------------------------- Level Representation & struct methods -------------------------------- */
 
-// Represents the level and all of its tiles.
+// Level represents a single game level and all of its tiles.
 type Level struct {
 	Tiles         [][]*Tile            // The raw tile data as laid out on a 2d plane
 	Size          Position2D           // The size of the room
@@ -24,7 +24,7 @@ type Level struct {
 	IsUnlocked    bool                 // Keeps track of whether the doors on this level are ulocked
 }
 
-// Generates a level with a nil-initialized 2-d tile array of the given size
+// NewEmptyLevel a level with a nil-initialized 2-d tile array of the given size
 func NewEmptyLevel(rows int, columns int) (Level, error) {
 	if rows < 1 || columns < 1 {
 		return Level{Tiles: nil, Size: NewPosition2D(0, 0)}, fmt.Errorf("invalid level size")
@@ -55,7 +55,7 @@ func (level Level) isInboundsPosition(pos Position2D) bool {
 	return 0 <= pos.Row && pos.Row < level.Size.Row && 0 <= pos.Col && pos.Col < level.Size.Col
 }
 
-// Alternate method of retrieving tiles using a Position2D. RETURNS NIL IF POS IS OUT OF BOUNDS!
+// GetTile retrieves a tile in the level tile array using a Position2D. RETURNS NIL IF POS IS OUT OF BOUNDS!
 func (level Level) GetTile(pos Position2D) *Tile {
 	if level.isInboundsPosition(pos) {
 		return level.Tiles[pos.Row][pos.Col]
@@ -63,31 +63,14 @@ func (level Level) GetTile(pos Position2D) *Tile {
 	return nil
 }
 
-// Gets the actual traversable Tiles that are numSteps number of steps away from the current position
-func (level Level) GetWalkableTiles(pos Position2D, numSteps int) []*Tile {
-	var walkableTiles []*Tile
-	if numSteps > 0 {
-		adjacentWalkablePositions := level.getAdjacentWalkablePositions(pos)
-		for _, adjPosn := range adjacentWalkablePositions {
-			nextStep := level.GetWalkableTiles(adjPosn, numSteps-1)
-			for _, tile := range nextStep {
-				walkableTiles = append(walkableTiles, tile)
-			}
-		}
-		return walkableTiles
-	} else {
-		return []*Tile{level.GetTile(pos)}
-	}
-}
-
 // gets traversable positions that are numSteps number of steps away from the current position
-func (level Level) GetWalkableTilePositions(pos Position2D, numSteps int) []Position2D {
+func (level Level) GetTraversableTilePositions(pos Position2D, numSteps int) []Position2D {
 	walkablePosns := make(map[Position2D]bool)
 	var walkablePosnArray []Position2D
 	if numSteps > 0 {
 		adjacentWalkablePositions := level.getAdjacentWalkablePositions(pos)
 		for _, adjPosn := range adjacentWalkablePositions {
-			nextStep := level.GetWalkableTilePositions(adjPosn, numSteps-1)
+			nextStep := level.GetTraversableTilePositions(adjPosn, numSteps-1)
 			for _, posn := range nextStep {
 				walkablePosns[posn] = true
 			}
@@ -103,7 +86,7 @@ func (level Level) GetWalkableTilePositions(pos Position2D, numSteps int) []Posi
 	}
 }
 
-// gets traversable positions in the level that are adjacent to the given position
+// helper for GetWalkableTiles that gets traversable positions in the level that are adjacent to the given position
 func (level Level) getAdjacentWalkablePositions(pos Position2D) []Position2D {
 	var walkablePositions []Position2D
 
@@ -122,6 +105,7 @@ func (level Level) getAdjacentWalkablePositions(pos Position2D) []Position2D {
 	return walkablePositions
 }
 
+// GetTiles returns a 2d array of tiles of the given size, starting from the given origin and going down and to the right
 func (level Level) GetTiles(origin Position2D, size Position2D) [][]*Tile {
 	selection := allocateLevelTiles(size.Row, size.Col)
 
@@ -134,6 +118,7 @@ func (level Level) GetTiles(origin Position2D, size Position2D) [][]*Tile {
 	return selection
 }
 
+// GetItems returns a list of the items in this level and their positions
 func (level Level) GetItems() ([]*Item, []Position2D) {
 	items := make([]*Item, 0)
 	positions := make([]Position2D, 0)
@@ -148,7 +133,8 @@ func (level Level) GetItems() ([]*Item, []Position2D) {
 
 /* -------------------------------- Room + Hallway Generation -------------------------------- */
 
-// adds a Room's tiles to a Level, and expands the Level if necessary
+// GenerateRectangularRoom adds a Room's tiles to a Level, and expands the Level if necessary
+// DEPRECATED, but needed to support tests written before level layouts were introduced
 func (level *Level) GenerateRectangularRoom(topLeft Position2D, rows int, cols int, doors []Position2D) error {
 	newRoomId := len(level.RoomDataGraph)
 
@@ -181,7 +167,8 @@ func (level *Level) GenerateRectangularRoom(topLeft Position2D, rows int, cols i
 	return nil
 }
 
-// given a top coordinate and a room layout, make the given rectangular room
+// GenerateRectangularRoomWithLayout makes a rectangular room with the given integer layout at the position given in
+// the level. Returns an error if that space is already occupied.
 func (level *Level) GenerateRectangularRoomWithLayout(topLeft Position2D, rows int, cols int, layout [][]int) error {
 	newRoomId := len(level.RoomDataGraph)
 
@@ -222,7 +209,7 @@ func (level Level) checkRoomValidity(topLeft Position2D, rows int, cols int) err
 	return nil
 }
 
-// generates a "hallway", which is a start and end point, with an ordered list of waypoints
+// GenerateHallway generates a "hallway", which is a start and end point, with an ordered list of waypoints
 func (level *Level) GenerateHallway(start Position2D, end Position2D, waypoints []Position2D) error {
 	newHallwayId := len(level.RoomDataGraph)
 
@@ -421,7 +408,7 @@ func (level Level) capHallwayEnd(startPos Position2D, direction int, hallwayId i
 	}
 }
 
-// Unlocks all exits in a level
+// UnlockExits all exits in a level by changing all LockedExit items to UnlockedExit items
 func (level *Level) UnlockExits() {
 	for _, itemPos := range level.Items {
 		exitItem := Item{Type: UnlockedExit}
@@ -434,7 +421,7 @@ func (level *Level) UnlockExits() {
 	level.IsUnlocked = true
 }
 
-// Places an item on a tile if it does not currently have one
+// PlaceItem places an item on a tile if it does not currently have one
 func (level Level) PlaceItem(pos Position2D, itemToPlace *Item) error {
 	if itemTile := level.GetTile(pos); itemTile != nil && itemTile.Item == nil && itemTile.Type == Walkable {
 		itemTile.Item = itemToPlace
@@ -444,7 +431,7 @@ func (level Level) PlaceItem(pos Position2D, itemToPlace *Item) error {
 	return fmt.Errorf("invalid item placement")
 }
 
-// Clears a tile's item if it has one
+// ClearItem sets a tile's item to nil if it has one
 func (level Level) ClearItem(pos Position2D) {
 	if itemTile := level.GetTile(pos); itemTile != nil && itemTile.Item != nil {
 		delete(level.Items, itemTile.Item)

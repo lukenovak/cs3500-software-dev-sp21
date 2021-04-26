@@ -9,8 +9,8 @@ import (
 	"fyne.io/fyne/v2/app"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote/adversary"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net/adversary"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 	"math/rand"
 	"net"
@@ -57,7 +57,7 @@ func main() {
 	}
 
 	// adversary name is a random int. No need to check vs others, since the chances of a dupe are 1/2^31
-	adversaryName := fmt.Sprintf("remote-%d", rand.Int())
+	adversaryName := fmt.Sprintf("net-%d", rand.Int())
 
 	// connect to server
 	fmt.Printf("Connecting to %v\n", socket)
@@ -70,7 +70,7 @@ func main() {
 	}
 
 	// handle welcome
-	var serverWelcome remote.ServerWelcome
+	var serverWelcome net.ServerWelcome
 	err = decoder.Decode(&serverWelcome)
 	if err == nil {
 		println(serverWelcome.Info)
@@ -104,8 +104,8 @@ func main() {
 	connReader := bufio.NewReader(conn)
 
 	// move to game Loop
-	rawData := remote.BlockingRead(connReader)
-	var parsedData remote.TypedJson
+	rawData := net.BlockingRead(connReader)
+	var parsedData net.TypedJson
 	json.Unmarshal(*rawData, &parsedData)
 	switch parsedData.Type {
 	case "start-level":
@@ -140,7 +140,7 @@ func runGame(conn net.Conn, connReader *bufio.Reader, adversaryType int, gameWin
 	// run the main loop
 	for {
 		// see what the server sent us, and act depending on what kind of message it is
-		rawData := remote.BlockingRead(connReader)
+		rawData := net.BlockingRead(connReader)
 		var parsedData interface{}
 		json.Unmarshal(*rawData, &parsedData)
 		switch typedData := parsedData.(type) {
@@ -149,18 +149,18 @@ func runGame(conn net.Conn, connReader *bufio.Reader, adversaryType int, gameWin
 				localAdversary.HandleMove()
 			}
 		case map[string]interface{}:
-			var parsedData remote.TypedJson
+			var parsedData net.TypedJson
 			json.Unmarshal(*rawData, &parsedData)
 			switch parsedData.Type {
 			case "end-level":
-				var endLevel remote.EndLevel
+				var endLevel net.EndLevel
 				json.Unmarshal(*rawData, &endLevel)
 				fmt.Println(endLevel)
 				return
 			case "adversary-update":
-				var updateMessage remote.AdversaryUpdateMessage
+				var updateMessage net.AdversaryUpdateMessage
 				json.Unmarshal(*rawData, &updateMessage)
-				//remote.UpdateGui(updateMessage.Level.ToGameLevel().Tiles, updateMessage.Position, updateMessage.Objects, updateMessage.Actors, gameWindow)
+				//net.UpdateGui(updateMessage.Level.ToGameLevel().Tiles, updateMessage.Position, updateMessage.Objects, updateMessage.Actors, gameWindow)
 				playerPositions := make([]level.Position2D, 0)
 				adversaryPositions := make([]level.Position2D, 0)
 				for _, actor := range updateMessage.Actors {
@@ -180,7 +180,7 @@ func runGame(conn net.Conn, connReader *bufio.Reader, adversaryType int, gameWin
 				println("advancing to the next level!")
 				continue
 			case "end-game":
-				var endGame remote.EndGame
+				var endGame net.EndGame
 				json.Unmarshal(*rawData, &endGame)
 				fmt.Println(endGame)
 				fyne.CurrentApp().Quit()

@@ -18,7 +18,7 @@ func TestRoomTraversables(testInput testJson.LevelTestRoomInput) []interface{} {
 		}
 	}
 
-	traversablePoints := newLevel.GetWalkableTilePositions(level.NewPosition2D(testInput.Point[1], testInput.Point[0]), 1)
+	traversablePoints := newLevel.GetTraversableTilePositions(level.NewPosition2D(testInput.Point[1], testInput.Point[0]), 1)
 
 	if len(traversablePoints) > 0 {
 		return generateTraversableSuccessMessage(testInput.Point, testInput.Room.Origin, traversablePoints)

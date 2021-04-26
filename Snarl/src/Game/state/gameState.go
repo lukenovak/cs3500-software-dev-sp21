@@ -5,53 +5,15 @@ import (
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 )
 
+// GameState contains all of the current information necessary to track the state of one game level.
 type GameState struct {
-	LevelNum       int
-	Level          *level.Level
-	Players        []actor.Actor
-	PlayerClients  []UserClient
-	Adversaries    []actor.Actor
-	EjectedPlayers []string
-	ExitedPlayers  []string
+	LevelNum       int            // The level number of the active level
+	Level          *level.Level   // A pointer to the current active level (also contains items)
+	Players        []actor.Actor  // The current list of Player actors (also contains positions)
+	Adversaries    []actor.Actor  // The current list of Adversary actors (also contains positions)
 }
 
-// Creates a new game state with the players and adversaries moved to new positions
-func (gs GameState) CreateUpdatedGameState(updatedPlayers []actor.Actor, updatedAdversaries []actor.Actor) *GameState {
-	return &GameState{
-		LevelNum:    gs.LevelNum,
-		Level:       gs.Level,
-		Players:     updatedPlayers,
-		Adversaries: updatedAdversaries,
-	}
-}
-
-// Creates a deep copy of the game state
-func (gs GameState) CopyGameState() GameState {
-
-	copiedPlayers := make([]actor.Actor, 0)
-	copy(copiedPlayers, gs.Players)
-	copiedAdversaries := make([]actor.Actor, 0)
-	copy(copiedAdversaries, gs.Adversaries)
-
-	return GameState{
-		LevelNum:    gs.LevelNum,
-		Level:       gs.Level,
-		Players:     copiedPlayers,
-		Adversaries: copiedAdversaries,
-	}
-}
-
-// Generates a new level
-func (gs GameState) GenerateLevel(size level.Position2D) error {
-	newLevel, err := level.NewEmptyLevel(size.Row, size.Col)
-	if err != nil {
-		return err
-	}
-	gs.Level = &newLevel
-	return nil
-}
-
-// Adds an actor to the game state at the given position
+// SpawnActor adds the given actor to the game state at the given position
 func (gs *GameState) SpawnActor(actorToSpawn actor.Actor, initialPosition level.Position2D) {
 	positionedActor := actorToSpawn.MoveActor(initialPosition)
 	if actorToSpawn.Type == actor.PlayerType {
@@ -61,12 +23,12 @@ func (gs *GameState) SpawnActor(actorToSpawn actor.Actor, initialPosition level.
 	}
 }
 
-// Changes all exits from locked exits to unlocked exits
+// UnlockExits changes all exits from locked exits to unlocked exits
 func (gs *GameState) UnlockExits() {
 	gs.Level.UnlockExits()
 }
 
-// moves the actor to the space given a cooordinate represented as the new position relative to the actor's current
+// MoveActorRelative moves the actor to the space given a cooordinate represented as the new position relative to the actor's current
 // position
 func (gs *GameState) MoveActorRelative(name string, relativeMove level.Position2D) {
 	moveActorifExists := func(actorList []actor.Actor) {
@@ -83,9 +45,11 @@ func (gs *GameState) MoveActorRelative(name string, relativeMove level.Position2
 	moveActorifExists(gs.Adversaries)
 }
 
-// moves an actor to the given Position2d
+// MoveActorAbsolute moves the actor with the given name to the given Position2D, in absolute coordinates from the
+// level origin
 func (gs *GameState) MoveActorAbsolute(name string, newPosition level.Position2D) {
 
+	// local function searches for an actor, and if one matches the given name, it moves the actor
 	moveActorIfExists := func(actorList []actor.Actor) {
 		for i := range actorList {
 			if actorList[i].Name == name {
@@ -98,7 +62,7 @@ func (gs *GameState) MoveActorAbsolute(name string, newPosition level.Position2D
 	moveActorIfExists(gs.Adversaries)
 }
 
-// Searches a gamestate for an actor with the given name (which functions as an id)
+// GetActor Searches a gamestate for an actor with the given name (which functions as an id)
 func (gs GameState) GetActor(name string) *actor.Actor {
 
 	findActor := func(actorList []actor.Actor) *actor.Actor {
@@ -117,7 +81,7 @@ func (gs GameState) GetActor(name string) *actor.Actor {
 	return findActor(gs.Adversaries)
 }
 
-// Mutates the current game state and removes the actor from the array
+// RemoveActor Mutates the current game state and removes the actor from the array
 func (gs *GameState) RemoveActor(name string) {
 
 	removeActor := func(actorList []actor.Actor) []actor.Actor {
@@ -134,7 +98,8 @@ func (gs *GameState) RemoveActor(name string) {
 	gs.Adversaries = removeActor(gs.Adversaries)
 }
 
-// Generates a "partial game state" showing all tiles with in an n x n square as well as all actors in that square
+// GeneratePartialState returns a "partial game state" in the form of a tuple with a Tile layout, a list of Actors in
+// that are in that space, and a Position2D containing the position it is being called from
 func (gs GameState) GeneratePartialState(position level.Position2D, viewDistance int) ([][]*level.Tile, []actor.Actor, level.Position2D) {
 	// allocation
 	visibleTiles := make([][]*level.Tile, viewDistance*2+1)
@@ -161,6 +126,28 @@ func (gs GameState) GeneratePartialState(position level.Position2D, viewDistance
 	}
 
 	return visibleTiles, visibleActors, position
+}
+
+/* ---------------------------- External Use Functions ------------------------------------- */
+
+// ActorsOccupyPosition checks all actors to see if one occupies the position. If it does, returns true. Else returns false
+func ActorsOccupyPosition(actors []actor.Actor, pos level.Position2D) bool {
+	for _, actr := range actors {
+		if actr.Position.Equals(pos) {
+			return true
+		}
+	}
+	return false
+}
+
+// GetActorAtPosition returns an actor at a position if it exists. Otherwise it returns nil
+func GetActorAtPosition(actors []actor.Actor, pos level.Position2D) *actor.Actor {
+	for _, actr := range actors {
+		if actr.Position.Equals(pos) {
+			return &actr
+		}
+	}
+	return nil
 }
 
 /* ---------------------------- Internal Use Functions ------------------------------------- */
@@ -230,24 +217,4 @@ func getBottomRightUnoccupiedWalkable(gameState GameState, startPosn level.Posit
 	}
 
 	return closestTilePosn
-}
-
-// function to check if all actors don't occupy a position
-func ActorsOccupyPosition(actors []actor.Actor, pos level.Position2D) bool {
-	for _, actr := range actors {
-		if actr.Position.Equals(pos) {
-			return true
-		}
-	}
-	return false
-}
-
-// gets an actor at a position if it exists. else return nil
-func GetActorAtPosition(actors []actor.Actor, pos level.Position2D) *actor.Actor {
-	for _, actr := range actors {
-		if actr.Position.Equals(pos) {
-			return &actr
-		}
-	}
-	return nil
 }

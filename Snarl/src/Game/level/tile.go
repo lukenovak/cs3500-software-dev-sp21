@@ -45,6 +45,7 @@ func NewKey() Item {
 	}
 }
 
+// Equals returns true if the two given tiles are the same
 func (t Tile) Equals(secondTile Tile) bool {
 	return t.Type == secondTile.Type &&
 		!(t.Item == nil && secondTile.Item != nil) &&
@@ -53,6 +54,7 @@ func (t Tile) Equals(secondTile Tile) bool {
 			(t.Item.Type == secondTile.Item.Type))
 }
 
+// TypeAsString returns a string representation of this item's type
 func (i Item) TypeAsString() string {
 	switch i.Type {
 	case KeyID:

@@ -1,17 +1,29 @@
 package level
 
+// RoomGraphNode represents a single node in the graph of RoomData and HallData that makes up a level's metadata graph
 type RoomGraphNode interface {
-	GetId() int                                    // returns the room or hallway ID. Useful for surveying tiles in a specific room
-	ConnectNode(connectingNode RoomGraphNode)      // Adds the given room as a connection to the room it's called on, and vice versa
-	insertConnection(connectingNode RoomGraphNode) // Inserts a single node into a room graph's connections. Internal Use Only!
-	Type() string                                  // returns a string representing the type of the room
-	GetConnections() []RoomGraphNode               // Gets the list of this room's connections
+	// GetId returns the room or hallway ID. Useful for surveying tiles in a specific room
+	GetId() int
+
+	// ConnectNode the given room as a connection to the room it's called on, and vice versa
+	ConnectNode(connectingNode RoomGraphNode)
+
+	// insertConnection inserts a single node into a room graph's connections. Internal Use Only!
+	insertConnection(connectingNode RoomGraphNode)
+
+	// Type returns a string representing the type of the room
+	Type() string
+
+	// GetConnections the list of this room's connections
+	GetConnections() []RoomGraphNode
+
+	// GetStartPoint returns the start point of this room or hallway
 	GetStartPoint() Position2D
 }
 
 /* ------------------------- Room Metadata ------------------------------- */
 
-// Keeps track of room metadata
+// RoomData represents room metadata
 type RoomData struct {
 	Id          int
 	TopLeft     Position2D
@@ -47,7 +59,7 @@ func (room RoomData) GetStartPoint() Position2D {
 
 /* ------------------------- Hallway Metadata ------------------------------- */
 
-// Keeps track of hallway metadata, which is slightly different than room metadata
+// HallData contains hallway metadata, which is slightly different than room metadata
 type HallData struct {
 	Id          int
 	Start       Position2D
