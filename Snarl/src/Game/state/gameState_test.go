@@ -89,16 +89,41 @@ func TestGameState_RemoveActor(t *testing.T) {
 	}
 }
 
+func TestGetActorAtPosition(t *testing.T) {
+	actors := []actor.Actor{
+		{
+			Type: actor.PlayerType,
+			Name: "bob",
+			Position: level.Position2D{
+				Row: 4,
+				Col: 3,
+			},
+		},
+		{
+			Type: actor.PlayerType,
+			Name: "ben",
+			Position: level.Position2D{
+				Row: 1,
+				Col: 1,
+			},
+		},
+	}
+
+	if GetActorAtPosition(actors, level.Position2D{1, 1}).Name != "ben" {
+		t.Fail()
+	}
+}
+
 /* ----------------------- TEST DATA GENERATION FUNCTIONS ------------------------------- */
 
 // Generates an example game state with the generated test level
 func generateTestGameState() *GameState {
 	testLevel := generateTestLevel()
 	return &GameState{
-		LevelNum:      1,
-		Level:         &testLevel,
-		Players:       nil,
-		Adversaries:   nil,
+		LevelNum:    1,
+		Level:       &testLevel,
+		Players:     nil,
+		Adversaries: nil,
 	}
 }
 
