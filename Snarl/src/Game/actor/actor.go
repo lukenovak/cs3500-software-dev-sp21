@@ -5,6 +5,7 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
 	"golang.org/x/image/colornames"
+	"image/color"
 )
 
 // actor type constants
@@ -14,6 +15,7 @@ const (
 	ZombieType = 2
 )
 
+// Actor is a struct that represents the in-game data used to track an Adversary or Player
 type Actor struct {
 	Type            int
 	Name            string
@@ -61,17 +63,21 @@ func NewPlayerActor(name string, actorType int, moveDistance int) Actor {
 
 // Constructs an actor with the adversary behavior (cannot walk on doors)
 func NewAdversaryActor(adversaryType int, name string, moveDistance int) Actor {
+	var adversaryColor color.Color
+	switch adversaryType {
+	case ZombieType: adversaryColor = colornames.Crimson
+	case GhostType: adversaryColor = colornames.Lightgray
+	default: adversaryColor = colornames.Hotpink
+	}
 	return Actor{
 		Type:            adversaryType,
 		Name:            name,
 		Position:        level.NewPosition2D(-1, -1),
 		CanOccupyTile:   adversaryOccupy,
 		MaxMoveDistance: moveDistance,
-		RenderedObj: 	 canvas.NewCircle(colornames.Crimson),
+		RenderedObj: 	 canvas.NewCircle(adversaryColor),
 	}
 }
-
-
 
 /* ------------ Tile occupancy functions --------------- */
 
@@ -80,6 +86,7 @@ func canOccupyWalkable(currTile *level.Tile) bool {
 	return currTile != nil && (currTile.Type == level.Walkable || currTile.Type == level.Door)
 }
 
+// generic lambda for whether an adversary can occupy a tile
 func adversaryOccupy(currTile *level.Tile) bool {
 	return currTile != nil && currTile.Type == level.Walkable
 }

@@ -214,6 +214,7 @@ func ManageGame(gameLevels []level.Level, // The level struct for the first leve
 
 					// generate the adversaries for the next level and place them. Generate clients (if necessary after that)
 					adversaries = generateAdversaries(levelNumber, outsideAdversaries)
+					state.Adversaries = nil
 					placeActors(state, adversaries, getBottomRightUnoccupiedWalkable, state.Level.Size)
 					adversaryClients = generateAdversaryClients(adversaries, *state.Level, outsideAdversaries)
 				}

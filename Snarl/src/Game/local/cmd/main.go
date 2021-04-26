@@ -88,7 +88,7 @@ func main() {
 		fmt.Println("Player Leaderboard:")
 		fmt.Println("Name, Exits, Keys, Ejections")
 		for _, score := range playerScores {
-			fmt.Println(score)
+			fmt.Printf("%s, %d, %d, %d", score.Name, score.Exits, score.Keys, score.Ejects)
 		}
 		a.Quit()
 	}
