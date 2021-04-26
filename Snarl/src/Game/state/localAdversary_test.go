@@ -5,6 +5,7 @@ import (
 	"testing"
 )
 
+// test that zombies make the correct moves
 func TestZombieClient_CalculateMove(t *testing.T) {
 	testLevel := generateTestLevel()
 	testZombie := ZombieClient{
@@ -29,12 +30,13 @@ func TestZombieClient_CalculateMove(t *testing.T) {
 	}
 }
 
+// test that ghosts make the correct moves
 func TestGhostClient_CalculateMove(t *testing.T) {
 	testGhost := GhostClient{
 		Name:         "g1",
 		LevelData:    generateTestLevel(),
 		MoveDistance: 1,
-		CurrentPosn:  level.Position2D{1,1},
+		CurrentPosn:  level.NewPosition2D(1,1),
 	}
 
 	ghostPosns := []level.Position2D{level.NewPosition2D(1, 1)}

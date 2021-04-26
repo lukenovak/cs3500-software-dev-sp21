@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"fyne.io/fyne/v2"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
+	snarlNet "github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 	"net"
 )
@@ -28,9 +28,9 @@ func (adversary Adversary) HandleMove() {
 		// send move to server
 		move := adversary.Client.CalculateMove(adversary.PlayerPositions, adversary.AdversaryPositions).Move
 		fmt.Printf("Moving to: %v", move)
-		moveData, err := json.Marshal(net.PlayerMove{
+		moveData, err := json.Marshal(snarlNet.PlayerMove{
 			Type: "move",
-			To:   net.PointFromPos2d(move),
+			To:   snarlNet.PointFromPos2d(move),
 		})
 		if err != nil {
 			panic(err)
@@ -38,12 +38,12 @@ func (adversary Adversary) HandleMove() {
 		adversary.Conn.Write(append(moveData, '\n'))
 
 		// get result of move and act
-		rawData := net.BlockingRead(adversary.ConnReader)
-		var result net.Result
+		rawData := snarlNet.BlockingRead(adversary.ConnReader)
+		var result snarlNet.Result
 		json.Unmarshal(*rawData, &result)
 		fmt.Printf("Result of move was: %s\n", result)
 		switch result {
-		case net.InvalidResult:
+		case snarlNet.InvalidResult:
 			continue
 		default:
 			// update the position and continue

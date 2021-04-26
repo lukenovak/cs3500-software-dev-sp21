@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
+	snarlNet "github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 	"log"
 	"net"
@@ -36,15 +36,15 @@ func NewServerAdversary(name string, adversaryType int, activeConnection net.Con
 
 func (a *Adversary) CalculateMove(playerPosns []level.Position2D, adversaryPositions []level.Position2D) state.Response {
 
-	var actorPositions []net.ActorPosition
+	var actorPositions []snarlNet.ActorPosition
 
 	// appendToActorPositions converts a list of positions to ActorPositions and appends to actorPositions
 	appendToActorPositions := func(actorType string, posns []level.Position2D) {
 		for _, posn := range posns {
-			actorPositions = append(actorPositions, net.ActorPosition{
+			actorPositions = append(actorPositions, snarlNet.ActorPosition{
 				Type:     "player",
 				Name:     "",
-				Position: net.PointFromPos2d(posn),
+				Position: snarlNet.PointFromPos2d(posn),
 			})
 		}
 	}
@@ -53,7 +53,7 @@ func (a *Adversary) CalculateMove(playerPosns []level.Position2D, adversaryPosit
 	appendToActorPositions("adversary", adversaryPositions)
 
 	// Package the whole thing into a player update and wait for a response
-	adversaryMessage, _ := json.Marshal(net.NewAdversaryUpdateMessage(a.currentLevel, a.currPos, actorPositions))
+	adversaryMessage, _ := json.Marshal(snarlNet.NewAdversaryUpdateMessage(a.currentLevel, a.currPos, actorPositions))
 	err := a.SendJsonMessage(adversaryMessage)
 	if err != nil {
 		log.Println("unable to communicate with adversary. moving 0, 0")
@@ -65,13 +65,13 @@ func (a *Adversary) CalculateMove(playerPosns []level.Position2D, adversaryPosit
 	}
 
 	log.Println("sending move command to an adversary")
-	// tell the net adversary to return a move
+	// tell the snarlNet adversary to return a move
 	a.activeConnection.Write([]byte("\"move\"\n"))
 
-	moveInput := net.BlockingRead(a.activeConnectionReader)
+	moveInput := snarlNet.BlockingRead(a.activeConnectionReader)
 
 	// input should be a Move
-	var move net.PlayerMove
+	var move snarlNet.PlayerMove
 	err = json.Unmarshal(*moveInput, &move)
 	if err != nil {
 		log.Println("invalid move sent by adversary, moving 0, 0")

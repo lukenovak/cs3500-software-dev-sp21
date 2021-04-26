@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"fyne.io/fyne/v2"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
+	snarlNet "github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
 	"github.com/eiannone/keyboard"
 	"net"
 )
@@ -55,9 +55,9 @@ func (player Player) HandleMove(conn net.Conn, connReader *bufio.Reader) {
 		}
 
 		// send move to server
-		moveData, err := json.Marshal(net.PlayerMove{
+		moveData, err := json.Marshal(snarlNet.PlayerMove{
 			Type: "move",
-			To:   net.PointFromPos2d(player.Posn.AddPosition(move)),
+			To:   snarlNet.PointFromPos2d(player.Posn.AddPosition(move)),
 		})
 		if err != nil {
 			panic(err)
@@ -65,12 +65,12 @@ func (player Player) HandleMove(conn net.Conn, connReader *bufio.Reader) {
 		conn.Write(append(moveData, '\n'))
 
 		// get result of move and act
-		rawData := net.BlockingRead(connReader)
-		var result net.Result
+		rawData := snarlNet.BlockingRead(connReader)
+		var result snarlNet.Result
 		json.Unmarshal(*rawData, &result)
 		fmt.Printf("Result of move was: %s\n", result)
 		switch result {
-		case net.InvalidResult:
+		case snarlNet.InvalidResult:
 			continue
 		default:
 			return

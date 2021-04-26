@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	SuccessMessage = "Success"
+	SuccessMessage = "Ok"
 	InvalidMessage = "Invalid"
 	ExitMessage    = "Exit"
 	KeyMessage     = "Key"

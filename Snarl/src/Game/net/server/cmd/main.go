@@ -10,7 +10,7 @@ import (
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/internal/render"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
+	snarlNet "github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net/server"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 	"log"
@@ -71,7 +71,7 @@ func main() {
 		}
 		connReader := bufio.NewReader(conn)
 		var adversaryType int
-		json.Unmarshal(*net.BlockingRead(connReader), &adversaryType)
+		json.Unmarshal(*snarlNet.BlockingRead(connReader), &adversaryType)
 
 		// create a client with that name and type
 		adversaries = append(adversaries, server.NewServerAdversary(name, adversaryType, conn))
@@ -83,12 +83,12 @@ func main() {
 	// deliver the first start level message
 	for _, player := range players {
 		// create start message
-		startJson := net.NewStartLevel(1, names)
+		startJson := snarlNet.NewStartLevel(1, names)
 		msg, _ := json.Marshal(startJson)
 		player.(*server.PlayerClient).SendJsonMessage(msg)
 	}
 	for _, adversary := range adversaries {
-		msg, _ := json.Marshal(net.NewStartLevel(1, names))
+		msg, _ := json.Marshal(snarlNet.NewStartLevel(1, names))
 		adversary.(*server.Adversary).SendJsonMessage(msg)
 	}
 
@@ -123,7 +123,7 @@ func parseArguments() (time.Duration, string, int, int, bool, string, int) {
 	timeout := flag.Int("wait", defaultTimeout, "used to determine the amount of time to wait for players to register from booting the server")
 	levelPath := flag.String("levels", defaultLevels, "tells the server which levels file to use. Default is ./snarl.levels")
 	clients := flag.Int("clients", defaultClients, "tells the server how many clients to wait for. Default is 4")
-	numAdversaries := flag.Int("adversaries", defaultAdversaries, "tells the server how many adversaries to wait for. Default is 0 (no net adversaries)")
+	numAdversaries := flag.Int("adversaries", defaultAdversaries, "tells the server how many adversaries to wait for. Default is 0 (no snarlNet adversaries)")
 	shouldObserve := flag.Bool("observe", defaultObserve, "launches a local observer if toggled")
 	address := flag.String("address", defaultAddress, "tells the server what ip address to listen on")
 	port := flag.Int("port", defaultPort, "tells the server what por to listen on")
@@ -140,7 +140,7 @@ func initialHandshake(listener net.Listener) (net.Conn, string) {
 	if err != nil {
 		panic(err)
 	}
-	conn.Write(net.NewServerWelcomeMessage())
+	conn.Write(snarlNet.NewServerWelcomeMessage())
 	time.Sleep(500 * time.Millisecond)
 	var name []byte
 	byteChan := make(chan []byte)
@@ -172,8 +172,8 @@ func initialHandshake(listener net.Listener) (net.Conn, string) {
 	return conn, playerName
 }
 
-func endGame(players []state.UserClient, scores []net.PlayerScore) {
-	endGameMessage := net.EndGame{
+func endGame(players []state.UserClient, scores []snarlNet.PlayerScore) {
+	endGameMessage := snarlNet.EndGame{
 		Type:   "end-game",
 		Scores: scores,
 	}

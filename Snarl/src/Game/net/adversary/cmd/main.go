@@ -9,7 +9,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
+	snarlNet "github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net/adversary"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 	"math/rand"
@@ -57,7 +57,7 @@ func main() {
 	}
 
 	// adversary name is a random int. No need to check vs others, since the chances of a dupe are 1/2^31
-	adversaryName := fmt.Sprintf("net-%d", rand.Int())
+	adversaryName := fmt.Sprintf("snarlNet-%d", rand.Int())
 
 	// connect to server
 	fmt.Printf("Connecting to %v\n", socket)
@@ -70,7 +70,7 @@ func main() {
 	}
 
 	// handle welcome
-	var serverWelcome net.ServerWelcome
+	var serverWelcome snarlNet.ServerWelcome
 	err = decoder.Decode(&serverWelcome)
 	if err == nil {
 		println(serverWelcome.Info)
@@ -104,8 +104,8 @@ func main() {
 	connReader := bufio.NewReader(conn)
 
 	// move to game Loop
-	rawData := net.BlockingRead(connReader)
-	var parsedData net.TypedJson
+	rawData := snarlNet.BlockingRead(connReader)
+	var parsedData snarlNet.TypedJson
 	json.Unmarshal(*rawData, &parsedData)
 	switch parsedData.Type {
 	case "start-level":
@@ -140,7 +140,7 @@ func runGame(conn net.Conn, connReader *bufio.Reader, adversaryType int, gameWin
 	// run the main loop
 	for {
 		// see what the server sent us, and act depending on what kind of message it is
-		rawData := net.BlockingRead(connReader)
+		rawData := snarlNet.BlockingRead(connReader)
 		var parsedData interface{}
 		json.Unmarshal(*rawData, &parsedData)
 		switch typedData := parsedData.(type) {
@@ -149,18 +149,18 @@ func runGame(conn net.Conn, connReader *bufio.Reader, adversaryType int, gameWin
 				localAdversary.HandleMove()
 			}
 		case map[string]interface{}:
-			var parsedData net.TypedJson
+			var parsedData snarlNet.TypedJson
 			json.Unmarshal(*rawData, &parsedData)
 			switch parsedData.Type {
 			case "end-level":
-				var endLevel net.EndLevel
+				var endLevel snarlNet.EndLevel
 				json.Unmarshal(*rawData, &endLevel)
 				fmt.Println(endLevel)
 				return
 			case "adversary-update":
-				var updateMessage net.AdversaryUpdateMessage
+				var updateMessage snarlNet.AdversaryUpdateMessage
 				json.Unmarshal(*rawData, &updateMessage)
-				//net.UpdateGui(updateMessage.Level.ToGameLevel().Tiles, updateMessage.Position, updateMessage.Objects, updateMessage.Actors, gameWindow)
+				//snarlNet.UpdateGui(updateMessage.Level.ToGameLevel().Tiles, updateMessage.Position, updateMessage.Objects, updateMessage.Actors, gameWindow)
 				playerPositions := make([]level.Position2D, 0)
 				adversaryPositions := make([]level.Position2D, 0)
 				for _, actor := range updateMessage.Actors {
@@ -180,7 +180,7 @@ func runGame(conn net.Conn, connReader *bufio.Reader, adversaryType int, gameWin
 				println("advancing to the next level!")
 				continue
 			case "end-game":
-				var endGame net.EndGame
+				var endGame snarlNet.EndGame
 				json.Unmarshal(*rawData, &endGame)
 				fmt.Println(endGame)
 				fyne.CurrentApp().Quit()
