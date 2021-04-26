@@ -107,9 +107,9 @@ type levelTestObject struct {
 	Position levelPoint
 }
 
-/* ---------- Parsing JSON ---------- */
+/* ---------- External Parsing API ---------- */
 
-// Parses a single level
+// ParseLevelFile parses a valid SNARL level file
 func ParseLevelFile(filename string, startLevel int) ([]Level, error) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -126,5 +126,11 @@ func ParseLevelFile(filename string, startLevel int) ([]Level, error) {
 		d.Decode(&decodedLevel)
 		parsedLevels = append(parsedLevels, decodedLevel.toGameLevel())
 	}
-	return parsedLevels, nil
+
+	// error check for the start level
+	if startLevel > len(parsedLevels) {
+		return nil, fmt.Errorf("start level greater than the number of levels")
+	}
+
+	return parsedLevels[startLevel - 1:], nil
 }

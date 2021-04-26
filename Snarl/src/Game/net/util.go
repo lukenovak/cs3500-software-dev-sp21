@@ -1,4 +1,4 @@
-package remote
+package net
 
 import (
 	"bufio"
@@ -13,7 +13,7 @@ import (
 // BlockingRead reads from a connection, but blocks until we have data in the connection
 func BlockingRead(r *bufio.Reader) *[]byte {
 	byteChan := make(chan []byte)
-	b := make([]byte, 4096)
+	b := make([]byte, 4096) // buffer is 4k- we should never be exceeding this!
 	go func() {
 		for {
 			n, _ := r.ReadBytes('\n')
@@ -33,6 +33,8 @@ func BlockingRead(r *bufio.Reader) *[]byte {
 	}
 }
 
+// UpdateGui is used to update the current GUI based on the given client player or adversary information and the active
+// fyne window
 func UpdateGui(tiles [][]*level.Tile, position Point, objects []Object, actors []ActorPosition, gameWindow fyne.Window) {
 	// add items to tiles
 	for _, object := range objects {
@@ -143,7 +145,8 @@ func (jsonLevel Level) ToGameLevel() level.Level {
 	return newLevel
 }
 
-func LevelToTestLevel(inputLevel level.Level) Level {
+// ConvertLevelToTestLevel takes a game Level and converts it into a json Level using the game level's RoomData
+func ConvertLevelToTestLevel(inputLevel level.Level) Level {
 	testRooms := make([]Room, 0)
 	testHallways := make([]Hallway, 0)
 

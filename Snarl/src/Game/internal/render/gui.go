@@ -14,7 +14,8 @@ const (
 	fontSize = 16
 )
 
-// renders a given state in the given Fyne window
+// GuiState renders a given state in the given Fyne window. It is the only externally exposed rendering function, and
+// will be called at each update to update the current rendered level
 func GuiState(stateLevelTiles [][]*level.Tile, statePlayers []actor.Actor, stateAdversaries []actor.Actor, gameWindow fyne.Window) {
 	levelSize := level.NewPosition2D(len(stateLevelTiles), len(stateLevelTiles[0]))
 	levelTiles := renderGuiLevel(stateLevelTiles)
@@ -40,7 +41,7 @@ func renderGuiLevel(levelToRender [][]*level.Tile) []*fyne.Container {
 	return tileContainers
 }
 
-// creates a single tile to be rendered
+// renderGuiTile creates a single tile to be rendered
 func renderGuiTile(tileToRender *level.Tile) *fyne.Container {
 	var rectColor color.Color
 	var containerContent fyne.CanvasObject
@@ -57,6 +58,7 @@ func renderGuiTile(tileToRender *level.Tile) *fyne.Container {
 		return &textRender
 	}
 
+	// create the tile based on the tile's type. Render 0 if nil
 	if tileToRender == nil {
 		rectColor = color.RGBA{R: 0, G: 0, B: 0}
 	} else {
@@ -72,6 +74,7 @@ func renderGuiTile(tileToRender *level.Tile) *fyne.Container {
 		}
 	}
 
+	// if we don't have text, we have a color so render a rectangle with that color
 	if containerContent == nil {
 		containerContent = canvas2.NewRectangle(rectColor)
 	}

@@ -19,7 +19,7 @@ func (g *GhostClient) CalculateMove(playerPosns []level.Position2D, adversaryPos
 	// find the move that results in the minimum distance to a player in the same room
 	move := g.CurrentPosn
 	roomHasPlayer := false
-	walkableMoves := g.LevelData.GetWalkableTilePositions(g.CurrentPosn, g.MoveDistance)
+	walkableMoves := g.LevelData.GetTraversableTilePositions(g.CurrentPosn, g.MoveDistance)
 	validMoves := getValidMovesFromAllWalkables(walkableMoves, adversaryPosns, g.LevelData)
 
 	minDistance := g.LevelData.Size.Col * g.LevelData.Size.Row
@@ -139,7 +139,7 @@ func (z *ZombieClient) GetName() string {
 func (z *ZombieClient) CalculateMove(playerPosns []level.Position2D, adversaryPosns []level.Position2D) Response {
 	move := z.CurrentPosn
 	roomHasPlayer := false
-	walkableMoves := z.LevelData.GetWalkableTilePositions(z.CurrentPosn, z.MoveDistance)
+	walkableMoves := z.LevelData.GetTraversableTilePositions(z.CurrentPosn, z.MoveDistance)
 	validMoves := getValidMovesFromAllWalkables(walkableMoves, adversaryPosns, z.LevelData)
 
 	// if there are no valid moves, return from this function with a 0 move

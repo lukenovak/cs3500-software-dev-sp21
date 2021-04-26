@@ -8,8 +8,8 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote/client"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net/client"
 	"net"
 	"os"
 )
@@ -51,7 +51,7 @@ func main() {
 	}
 
 	// handle welcome
-	var serverWelcome remote.ServerWelcome
+	var serverWelcome net.ServerWelcome
 	err = decoder.Decode(&serverWelcome)
 	if err == nil {
 		println(serverWelcome.Info)
@@ -78,8 +78,8 @@ func main() {
 	connReader := bufio.NewReader(conn)
 
 	// move to game Loop
-	rawData := remote.BlockingRead(connReader)
-	var parsedData remote.TypedJson
+	rawData := net.BlockingRead(connReader)
+	var parsedData net.TypedJson
 	json.Unmarshal(*rawData, &parsedData)
 	switch parsedData.Type {
 	case "start-level":
@@ -91,7 +91,8 @@ func main() {
 	}
 }
 
-// runGame runs the main game loop
+// runGame runs the main game loop from the client side. Receives updates states from the server, then prompts
+// the user for input when asked and returns that input to the server to handle
 func runGame(conn net.Conn, connReader *bufio.Reader, playerName string, gameWindow fyne.Window) {
 
 	// create a new client-side player representation for this player
@@ -103,7 +104,7 @@ func runGame(conn net.Conn, connReader *bufio.Reader, playerName string, gameWin
 	// run the main loop
 	for {
 		// see what the server sent us, and act depending on what kind of message it is
-		rawData := remote.BlockingRead(connReader)
+		rawData := net.BlockingRead(connReader)
 		var parsedData interface{}
 		json.Unmarshal(*rawData, &parsedData)
 		switch typedData := parsedData.(type) {
@@ -112,16 +113,16 @@ func runGame(conn net.Conn, connReader *bufio.Reader, playerName string, gameWin
 				player.HandleMove(conn, connReader)
 			}
 		case map[string]interface{}:
-			var parsedData remote.TypedJson
+			var parsedData net.TypedJson
 			json.Unmarshal(*rawData, &parsedData)
 			switch parsedData.Type {
 			case "end-level":
-				var endLevel remote.EndLevel
+				var endLevel net.EndLevel
 				json.Unmarshal(*rawData, &endLevel)
 				fmt.Println(endLevel)
 				return
 			case "player-update":
-				var updateMessage remote.PlayerUpdateMessage
+				var updateMessage net.PlayerUpdateMessage
 				json.Unmarshal(*rawData, &updateMessage)
 				tiles := make([][]*level.Tile, 0)
 				for i, row := range updateMessage.Layout {
@@ -133,14 +134,14 @@ func runGame(conn net.Conn, connReader *bufio.Reader, playerName string, gameWin
 						tiles[i][j] = &tile
 					}
 				}
-				remote.UpdateGui(tiles, updateMessage.Position, updateMessage.Objects, updateMessage.Actors, gameWindow)
+				net.UpdateGui(tiles, updateMessage.Position, updateMessage.Objects, updateMessage.Actors, gameWindow)
 				player.Posn = updateMessage.Position.ToPos2D()
 			case "start-level":
 				// in this case, we just want to go to the next message which should be a player update
 				println("advancing to the next level!")
 				continue
 			case "end-game":
-				var endGame remote.EndGame
+				var endGame net.EndGame
 				json.Unmarshal(*rawData, &endGame)
 				fmt.Println(endGame)
 				fyne.CurrentApp().Quit()
@@ -151,6 +152,7 @@ func runGame(conn net.Conn, connReader *bufio.Reader, playerName string, gameWin
 	}
 }
 
+// parseArguments is a helper for main that takes care of the flag parsing
 func parseArguments() (string, int) {
 	address := flag.String("address", defaultAddress, "tells the client what IP address to connect over")
 	port := flag.Int("port", defaultPort, "tells the client what port to connect over")

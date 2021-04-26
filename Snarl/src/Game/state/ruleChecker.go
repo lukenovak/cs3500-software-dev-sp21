@@ -12,7 +12,7 @@ func IsValidMove(currState GameState, movingActorName string, relativeMove level
 		return false
 	} else {
 
-		validTiles := currState.Level.GetWalkableTilePositions(movingActor.Position, movingActor.MaxMoveDistance)
+		validTiles := currState.Level.GetTraversableTilePositions(movingActor.Position, movingActor.MaxMoveDistance)
 
 		// generic contains functions for posns (no generics)
 		posnListContains := func(posnList []level.Position2D, searchPosn level.Position2D) bool {

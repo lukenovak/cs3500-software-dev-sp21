@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 	"log"
 	"net"
@@ -51,13 +51,13 @@ func (s *PlayerClient) SendPartialState(layout [][]*level.Tile, actors []actor.A
 	}
 
 	// convert game actors to ActorPositions
-	var convertedActors []remote.ActorPosition
+	var convertedActors []net.ActorPosition
 	for _, a := range absoluteActors {
-		convertedActors = append(convertedActors, *remote.NewActorPositionFromActor(a))
+		convertedActors = append(convertedActors, *net.NewActorPositionFromActor(a))
 	}
 
 	// Generate and send the partial state
-	partialState := remote.NewPlayerUpdateMessage(remote.TilesToArray(layout), remote.PointFromPos2d(pos), remote.GetObjectsFromLayout(layout), convertedActors, fmt.Sprintf("%s moved", s.name))
+	partialState := net.NewPlayerUpdateMessage(net.TilesToArray(layout), net.PointFromPos2d(pos), net.GetObjectsFromLayout(layout), convertedActors, fmt.Sprintf("%s moved", s.name))
 	message, err := json.Marshal(partialState)
 	if err != nil {
 		// If we cannot marshal a partial state into a communicable json, that is a fatal error and we crash the server
@@ -72,7 +72,7 @@ func (s *PlayerClient) SendPartialState(layout [][]*level.Tile, actors []actor.A
 func (s *PlayerClient) SendMessage(message string, pos level.Position2D) error {
 	// start level is a special case, so we handle it here
 	if message == "start-level" {
-		messageJson := remote.StartLevel{
+		messageJson := net.StartLevel{
 			Type:    "start-level",
 			Level:   0,
 			Players: nil,
@@ -97,10 +97,10 @@ func (s *PlayerClient) GetInput() state.Response {
 	log.Println("sending move command")
 	s.activeConnection.Write([]byte("\"move\"\n"))
 
-	moveInput := remote.BlockingRead(s.activeConnectionReader)
+	moveInput := net.BlockingRead(s.activeConnectionReader)
 
 	// marshall to correct struct then convert to state response
-	var move remote.PlayerMove
+	var move net.PlayerMove
 	err := json.Unmarshal(*moveInput, &move)
 	if err != nil {
 		return errorResponse
@@ -127,10 +127,14 @@ func (s *PlayerClient) SendJsonMessage(message json.RawMessage) error {
 	return err
 }
 
+// AsUserClient casts a *PlayerClient to the UserClient interface it implements
 func (s *PlayerClient) AsUserClient() state.UserClient {
 	return s
 }
 
+// CloseConnection closes the connection of the PlayerClient is is called on
+// IMPORTANT: Once a connection is closed it cannot be reopened without manually initializing a new one and mutating
+// the PlayerClient
 func (s *PlayerClient) CloseConnection() error {
 	return s.activeConnection.Close()
 }

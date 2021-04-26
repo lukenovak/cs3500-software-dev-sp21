@@ -9,7 +9,7 @@ import (
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/internal/render"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 	"os"
 )
@@ -81,7 +81,7 @@ func main() {
 		gamePlayers = append(gamePlayers, newPlayer)
 	}
 
-	var playerScores []remote.PlayerScore
+	var playerScores []net.PlayerScore
 	// Wrapper to run the game manager and capture the scores it returns at its end
 	runGame := func() {
 		playerScores = state.ManageGame(levels, players, gamePlayers, observers, nil, len(levels) - *startLevelFlag)

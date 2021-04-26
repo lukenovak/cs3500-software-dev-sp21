@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"fyne.io/fyne/v2"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 	"net"
 )
 
+// Adversary represents a server-side adversary that the server-run game manager can interact with. We do not need to
+// know what type of Adversary this is since this representation calls out to the client to get a move
 type Adversary struct {
 	Client             state.AdversaryClient
 	PlayerPositions    []level.Position2D
@@ -26,9 +28,9 @@ func (adversary Adversary) HandleMove() {
 		// send move to server
 		move := adversary.Client.CalculateMove(adversary.PlayerPositions, adversary.AdversaryPositions).Move
 		fmt.Printf("Moving to: %v", move)
-		moveData, err := json.Marshal(remote.PlayerMove{
+		moveData, err := json.Marshal(net.PlayerMove{
 			Type: "move",
-			To:   remote.PointFromPos2d(move),
+			To:   net.PointFromPos2d(move),
 		})
 		if err != nil {
 			panic(err)
@@ -36,12 +38,12 @@ func (adversary Adversary) HandleMove() {
 		adversary.Conn.Write(append(moveData, '\n'))
 
 		// get result of move and act
-		rawData := remote.BlockingRead(adversary.ConnReader)
-		var result remote.Result
+		rawData := net.BlockingRead(adversary.ConnReader)
+		var result net.Result
 		json.Unmarshal(*rawData, &result)
 		fmt.Printf("Result of move was: %s\n", result)
 		switch result {
-		case remote.InvalidResult:
+		case net.InvalidResult:
 			continue
 		default:
 			// update the position and continue

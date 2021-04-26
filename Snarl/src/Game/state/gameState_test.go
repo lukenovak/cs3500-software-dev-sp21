@@ -6,43 +6,6 @@ import (
 	"testing"
 )
 
-func TestGameState_CreateUpdatedGameState(t *testing.T) {
-	// game state generation
-	testGameState := generateTestGameState()
-	if len(testGameState.Players) > 0 {
-		t.Fatal()
-	}
-	testGameState.SpawnActor(actor.Actor{Type: actor.PlayerType}, level.NewPosition2D(1, 1))
-	testGameState.SpawnActor(actor.Actor{Type: 1}, level.NewPosition2D(1, 2))
-
-	// create the updated (intermediate) game state
-	newPlayers := []actor.Actor{{Type: actor.PlayerType, Position: level.NewPosition2D(2, 1)}}
-	newAdversaries := []actor.Actor{{Type: 1, Position: level.NewPosition2D(1, 3)}}
-	newGameState := testGameState.CreateUpdatedGameState(newPlayers, newAdversaries)
-
-	// test to see that the game state has been updated properly
-
-	// players in right (new) positions
-	if len(newGameState.Players) != 1 || !newGameState.Players[0].Position.Equals(level.NewPosition2D(2, 1)) {
-		t.Fail()
-	}
-
-	// adversaries in right (new) positions
-	if len(newGameState.Adversaries) != 1 || !newGameState.Adversaries[0].Position.Equals(level.NewPosition2D(1, 3)) {
-		t.Fail()
-	}
-
-	// Level is the same (pointer)
-	if newGameState.Level != testGameState.Level {
-		t.Fail()
-	}
-
-	// Level Num has not changed
-	if newGameState.LevelNum != testGameState.LevelNum {
-		t.Fail()
-	}
-}
-
 func TestGameState_SpawnActor(t *testing.T) {
 	// game state generation
 	testGameState := generateTestGameState()

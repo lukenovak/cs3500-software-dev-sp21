@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"fyne.io/fyne/v2"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/remote"
+	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
 	"github.com/eiannone/keyboard"
 	"net"
 )
 
+// A Player is the client-side representation of a Player. It gets the raw input from the human player and writes
+// it back to the server to update the game state
 type Player struct {
 	Name string
 	Posn level.Position2D
@@ -53,9 +55,9 @@ func (player Player) HandleMove(conn net.Conn, connReader *bufio.Reader) {
 		}
 
 		// send move to server
-		moveData, err := json.Marshal(remote.PlayerMove{
+		moveData, err := json.Marshal(net.PlayerMove{
 			Type: "move",
-			To:   remote.PointFromPos2d(player.Posn.AddPosition(move)),
+			To:   net.PointFromPos2d(player.Posn.AddPosition(move)),
 		})
 		if err != nil {
 			panic(err)
@@ -63,12 +65,12 @@ func (player Player) HandleMove(conn net.Conn, connReader *bufio.Reader) {
 		conn.Write(append(moveData, '\n'))
 
 		// get result of move and act
-		rawData := remote.BlockingRead(connReader)
-		var result remote.Result
+		rawData := net.BlockingRead(connReader)
+		var result net.Result
 		json.Unmarshal(*rawData, &result)
 		fmt.Printf("Result of move was: %s\n", result)
 		switch result {
-		case remote.InvalidResult:
+		case net.InvalidResult:
 			continue
 		default:
 			return
