@@ -31,29 +31,29 @@ type RoomData struct {
 	Connections []RoomGraphNode
 }
 
-func (room RoomData) GetId() int {
+func (room *RoomData) GetId() int {
 	return room.Id
 }
 
-func (room RoomData) ConnectNode(connectingNode RoomGraphNode) {
+func (room *RoomData) ConnectNode(connectingNode RoomGraphNode) {
 	room.Connections = append(room.Connections, connectingNode)
 	connectingNode.insertConnection(room)
 
 }
 
-func (room RoomData) insertConnection(connectingNode RoomGraphNode) {
+func (room *RoomData) insertConnection(connectingNode RoomGraphNode) {
 	room.Connections = append(room.Connections, connectingNode)
 }
 
-func (room RoomData) Type() string {
+func (room *RoomData) Type() string {
 	return "room"
 }
 
-func (room RoomData) GetConnections() []RoomGraphNode {
+func (room *RoomData) GetConnections() []RoomGraphNode {
 	return room.Connections
 }
 
-func (room RoomData) GetStartPoint() Position2D {
+func (room *RoomData) GetStartPoint() Position2D {
 	return room.TopLeft
 }
 
@@ -68,27 +68,27 @@ type HallData struct {
 	Connections []RoomGraphNode
 }
 
-func (hall HallData) GetId() int {
+func (hall *HallData) GetId() int {
 	return hall.Id
 }
 
-func (hall HallData) ConnectNode(connectingNode RoomGraphNode) {
+func (hall *HallData) ConnectNode(connectingNode RoomGraphNode) {
 	hall.Connections = append(hall.Connections, connectingNode)
 	connectingNode.insertConnection(hall)
 }
 
-func (hall HallData) insertConnection(connectingNode RoomGraphNode) {
+func (hall *HallData) insertConnection(connectingNode RoomGraphNode) {
 	hall.Connections = append(hall.Connections, connectingNode)
 }
 
-func (hall HallData) Type() string {
+func (hall *HallData) Type() string {
 	return "hallway"
 }
 
-func (hall HallData) GetConnections() []RoomGraphNode {
+func (hall *HallData) GetConnections() []RoomGraphNode {
 	return hall.Connections
 }
 
-func (hall HallData) GetStartPoint() Position2D {
+func (hall *HallData) GetStartPoint() Position2D {
 	return hall.Start
 }
