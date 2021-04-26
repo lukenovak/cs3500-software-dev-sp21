@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/actor"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
+	snarlNet "github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/state"
 	"log"
 	"net"
@@ -51,13 +51,13 @@ func (s *PlayerClient) SendPartialState(layout [][]*level.Tile, actors []actor.A
 	}
 
 	// convert game actors to ActorPositions
-	var convertedActors []net.ActorPosition
+	var convertedActors []snarlNet.ActorPosition
 	for _, a := range absoluteActors {
-		convertedActors = append(convertedActors, *net.NewActorPositionFromActor(a))
+		convertedActors = append(convertedActors, *snarlNet.NewActorPositionFromActor(a))
 	}
 
 	// Generate and send the partial state
-	partialState := net.NewPlayerUpdateMessage(net.TilesToArray(layout), net.PointFromPos2d(pos), net.GetObjectsFromLayout(layout), convertedActors, fmt.Sprintf("%s moved", s.name))
+	partialState := snarlNet.NewPlayerUpdateMessage(snarlNet.TilesToArray(layout), snarlNet.PointFromPos2d(pos), snarlNet.GetObjectsFromLayout(layout), convertedActors, fmt.Sprintf("%s moved", s.name))
 	message, err := json.Marshal(partialState)
 	if err != nil {
 		// If we cannot marshal a partial state into a communicable json, that is a fatal error and we crash the server
@@ -72,7 +72,7 @@ func (s *PlayerClient) SendPartialState(layout [][]*level.Tile, actors []actor.A
 func (s *PlayerClient) SendMessage(message string, pos level.Position2D) error {
 	// start level is a special case, so we handle it here
 	if message == "start-level" {
-		messageJson := net.StartLevel{
+		messageJson := snarlNet.StartLevel{
 			Type:    "start-level",
 			Level:   0,
 			Players: nil,
@@ -97,10 +97,10 @@ func (s *PlayerClient) GetInput() state.Response {
 	log.Println("sending move command")
 	s.activeConnection.Write([]byte("\"move\"\n"))
 
-	moveInput := net.BlockingRead(s.activeConnectionReader)
+	moveInput := snarlNet.BlockingRead(s.activeConnectionReader)
 
 	// marshall to correct struct then convert to state response
-	var move net.PlayerMove
+	var move snarlNet.PlayerMove
 	err := json.Unmarshal(*moveInput, &move)
 	if err != nil {
 		return errorResponse

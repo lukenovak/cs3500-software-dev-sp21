@@ -8,7 +8,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/level"
-	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
+	snarlNet "github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net"
 	"github.ccs.neu.edu/CS4500-S21/Ormegland/Snarl/src/Game/net/client"
 	"net"
 	"os"
@@ -51,7 +51,7 @@ func main() {
 	}
 
 	// handle welcome
-	var serverWelcome net.ServerWelcome
+	var serverWelcome snarlNet.ServerWelcome
 	err = decoder.Decode(&serverWelcome)
 	if err == nil {
 		println(serverWelcome.Info)
@@ -78,8 +78,8 @@ func main() {
 	connReader := bufio.NewReader(conn)
 
 	// move to game Loop
-	rawData := net.BlockingRead(connReader)
-	var parsedData net.TypedJson
+	rawData := snarlNet.BlockingRead(connReader)
+	var parsedData snarlNet.TypedJson
 	json.Unmarshal(*rawData, &parsedData)
 	switch parsedData.Type {
 	case "start-level":
@@ -104,7 +104,7 @@ func runGame(conn net.Conn, connReader *bufio.Reader, playerName string, gameWin
 	// run the main loop
 	for {
 		// see what the server sent us, and act depending on what kind of message it is
-		rawData := net.BlockingRead(connReader)
+		rawData := snarlNet.BlockingRead(connReader)
 		var parsedData interface{}
 		json.Unmarshal(*rawData, &parsedData)
 		switch typedData := parsedData.(type) {
@@ -113,16 +113,16 @@ func runGame(conn net.Conn, connReader *bufio.Reader, playerName string, gameWin
 				player.HandleMove(conn, connReader)
 			}
 		case map[string]interface{}:
-			var parsedData net.TypedJson
+			var parsedData snarlNet.TypedJson
 			json.Unmarshal(*rawData, &parsedData)
 			switch parsedData.Type {
 			case "end-level":
-				var endLevel net.EndLevel
+				var endLevel snarlNet.EndLevel
 				json.Unmarshal(*rawData, &endLevel)
 				fmt.Println(endLevel)
 				return
 			case "player-update":
-				var updateMessage net.PlayerUpdateMessage
+				var updateMessage snarlNet.PlayerUpdateMessage
 				json.Unmarshal(*rawData, &updateMessage)
 				tiles := make([][]*level.Tile, 0)
 				for i, row := range updateMessage.Layout {
@@ -134,14 +134,14 @@ func runGame(conn net.Conn, connReader *bufio.Reader, playerName string, gameWin
 						tiles[i][j] = &tile
 					}
 				}
-				net.UpdateGui(tiles, updateMessage.Position, updateMessage.Objects, updateMessage.Actors, gameWindow)
+				snarlNet.UpdateGui(tiles, updateMessage.Position, updateMessage.Objects, updateMessage.Actors, gameWindow)
 				player.Posn = updateMessage.Position.ToPos2D()
 			case "start-level":
 				// in this case, we just want to go to the next message which should be a player update
 				println("advancing to the next level!")
 				continue
 			case "end-game":
-				var endGame net.EndGame
+				var endGame snarlNet.EndGame
 				json.Unmarshal(*rawData, &endGame)
 				fmt.Println(endGame)
 				fyne.CurrentApp().Quit()

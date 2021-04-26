@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	SuccessMessage = "Success"
+	SuccessMessage = "Ok"
 	InvalidMessage = "Invalid"
 	ExitMessage    = "Exit"
 	KeyMessage     = "Key"
@@ -214,8 +214,10 @@ func ManageGame(gameLevels []level.Level, // The level struct for the first leve
 
 					// generate the adversaries for the next level and place them. Generate clients (if necessary after that)
 					adversaries = generateAdversaries(levelNumber, outsideAdversaries)
+					state.Adversaries = nil
 					placeActors(state, adversaries, getBottomRightUnoccupiedWalkable, state.Level.Size)
-					adversaryClients = generateAdversaryClients(adversaries, *state.Level, outsideAdversaries)
+					adversaryClients = generateAdversaryClients(state.Adversaries, *state.Level, outsideAdversaries)
+					adversaries = state.Adversaries // updated positions in the new list
 				}
 			}
 			playerPosns = append(playerPosns, newPos)

@@ -39,12 +39,77 @@ func TestGameState_UnlockExits(t *testing.T) {
 	}
 }
 
-func TestGameState_MoveActor(t *testing.T) {
+func TestGameState_MoveActorRelative(t *testing.T) {
 	testGameState := generateTestGameState()
 	testGameState.SpawnActor(actor.NewPlayerActor("Luke", actor.PlayerType, 2), level.NewPosition2D(1, 1))
 	testGameState.MoveActorRelative("Luke", level.NewPosition2D(0, 2))
 
 	if testGameState.GetActor("Luke").Position != level.NewPosition2D(1, 3) {
+		t.Fail()
+	}
+}
+
+func TestGameState_MoveActorAbsolute(t *testing.T) {
+	testGameState := generateTestGameState()
+	testGameState.SpawnActor(actor.NewPlayerActor("Luke", actor.PlayerType, 2), level.NewPosition2D(1, 1))
+	testGameState.MoveActorAbsolute("Luke", level.NewPosition2D(0, 2))
+
+	if testGameState.GetActor("Luke").Position != level.NewPosition2D(0, 2) {
+		t.Fail()
+	}
+}
+
+func TestActorsOccupyPosition(t *testing.T) {
+	testGameState := generateTestGameState()
+	testGameState.SpawnActor(actor.NewPlayerActor("Luke", actor.PlayerType, 2), level.NewPosition2D(1, 1))
+
+	if ActorsOccupyPosition(testGameState.Players, level.NewPosition2D(1, 0)) {
+		t.Fail()
+	}
+
+	if !ActorsOccupyPosition(testGameState.Players, level.NewPosition2D(1, 1)) {
+		t.Fail()
+	}
+}
+
+func TestGameState_RemoveActor(t *testing.T) {
+	testGameState := generateTestGameState()
+	testGameState.SpawnActor(actor.NewPlayerActor("Luke", actor.PlayerType, 2), level.NewPosition2D(1, 1))
+	testGameState.RemoveActor("Luke")
+
+	if len(testGameState.Players) != 0 {
+		t.Fail()
+	}
+
+	testGameState.SpawnActor(actor.NewPlayerActor("g1", actor.GhostType, 2), level.NewPosition2D(1, 1))
+	testGameState.RemoveActor("g1")
+
+	if len(testGameState.Adversaries) != 0 {
+		t.Fail()
+	}
+}
+
+func TestGetActorAtPosition(t *testing.T) {
+	actors := []actor.Actor{
+		{
+			Type: actor.PlayerType,
+			Name: "bob",
+			Position: level.Position2D{
+				Row: 4,
+				Col: 3,
+			},
+		},
+		{
+			Type: actor.PlayerType,
+			Name: "ben",
+			Position: level.Position2D{
+				Row: 1,
+				Col: 1,
+			},
+		},
+	}
+
+	if GetActorAtPosition(actors, level.Position2D{1, 1}).Name != "ben" {
 		t.Fail()
 	}
 }
@@ -55,11 +120,10 @@ func TestGameState_MoveActor(t *testing.T) {
 func generateTestGameState() *GameState {
 	testLevel := generateTestLevel()
 	return &GameState{
-		LevelNum:      1,
-		Level:         &testLevel,
-		PlayerClients: nil,
-		Players:       nil,
-		Adversaries:   nil,
+		LevelNum:    1,
+		Level:       &testLevel,
+		Players:     nil,
+		Adversaries: nil,
 	}
 }
 
